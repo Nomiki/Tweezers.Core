@@ -1,0 +1,6 @@
+language: csharp
+solution: ./Tweezers.Core/Tweezers.Core.sln
+mono: none
+dotnet: 2.1.300
+script:
+ - dotnet build ./Tweezers.Core
