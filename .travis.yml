@@ -1,6 +1,12 @@
 language: csharp
+addons:
+  sonarcloud:
+    organization: "tweezersci-github"
+    token:
+      secure: ${SONAR_TOKEN}
 solution: ./Tweezers.Core/Tweezers.Core.sln
 mono: none
 dotnet: 2.1.300
 script:
+ - sonar-scanner -X
  - dotnet build ./Tweezers.Core
