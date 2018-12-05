@@ -10,15 +10,25 @@ namespace Discoveries.Engine
 {
     public sealed class DiscoveryEngine
     {
-        public static void Discover()
+        private static Dictionary<Type, DiscoverableMetadata> calculatedMetadata = new Dictionary<Type, DiscoverableMetadata>();
+
+        public static void Discover(Assembly assembly = null)
         {
-            Assembly assembly = Assembly.GetCallingAssembly();
+            if (assembly == null)
+                assembly = Assembly.GetCallingAssembly();
 
             Type[] discoverableClasses = assembly.GetTypes()
-                .Where(t => t.GetCustomAttributes<DiscoverableAttribute>().Any())
+                .Where(ShouldDiscover)
                 .ToArray();
 
-            DiscoverableMetadata[] classesMetadata = discoverableClasses.Select(DiscoverClass).ToArray();
+            calculatedMetadata = discoverableClasses
+                .Select(clazz => new KeyValuePair<Type, DiscoverableMetadata>(clazz, DiscoverClass(clazz)))
+                .ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
+        }
+
+        private static bool ShouldDiscover(Type clazz)
+        {
+            return clazz.GetCustomAttributes<DiscoverableAttribute>().Any();
         }
 
         private static DiscoverableMetadata DiscoverClass(Type clazz)
@@ -32,6 +42,21 @@ namespace Discoveries.Engine
                     .Select(p => new PropertyMetadata(p))
                     .ToList()
             };
+        }
+
+        public static DiscoverableMetadata GetData(Type clazz)
+        {
+            if (calculatedMetadata.ContainsKey(clazz))
+                return calculatedMetadata[clazz];
+
+            if (ShouldDiscover(clazz))
+            {
+                DiscoverableMetadata metadata = DiscoverClass(clazz);
+                calculatedMetadata[clazz] = metadata;
+                return metadata;
+            }
+
+            return null;
         }
     }
 }
