@@ -1,10 +1,12 @@
 ﻿using Discoveries.Attributes;
+using DiscoveryApi.Attributes;
 
 namespace ApiExample.DataHolders
 {
     [Discoverable("Person")]
     public class Person
     {
+        [TweezersId]
         public string Id { get; set; }
 
         [DisplayName("Full name")]
