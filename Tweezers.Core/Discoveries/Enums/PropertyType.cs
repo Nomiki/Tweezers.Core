@@ -1,14 +1,27 @@
 ﻿using System;
+using System.Runtime.Serialization;
 using Discoveries.Common;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 
 namespace Discoveries.Enums
 {
+    [JsonConverter(typeof(StringEnumConverter))]
     public enum PropertyType
     {
+        [EnumMember(Value = "Number")]
         Number,
+
+        [EnumMember(Value = "String")]
         String,
+
+        [EnumMember(Value = "Boolean")]
         Boolean,
+
+        [EnumMember(Value = "Array")]
         Array,
+
+        [EnumMember(Value = "Object")]
         Object,
     }
 
