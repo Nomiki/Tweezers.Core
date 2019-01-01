@@ -1,15 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
-namespace Discoveries.Attributes
+namespace Tweezers.Discoveries.Attributes
 {
     [AttributeUsage(AttributeTargets.Property, Inherited = false, AllowMultiple = false)]
-    public sealed class DisplayNameAttribute : Attribute
+    public sealed class TweezersFieldAttribute : Attribute
     {
         public string DisplayName { get; private set; }
 
-        public DisplayNameAttribute(string displayName)
+        public TweezersFieldAttribute(string displayName)
         {
             DisplayName = displayName;
         }

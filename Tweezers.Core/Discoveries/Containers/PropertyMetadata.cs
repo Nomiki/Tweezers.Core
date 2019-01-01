@@ -1,17 +1,17 @@
 ﻿using System.Linq;
 using System.Reflection;
-using Discoveries.Attributes;
-using Discoveries.Enums;
+using Tweezers.Discoveries.Attributes;
+using Tweezers.Discoveries.Enums;
 
-namespace Discoveries.Containers
+namespace Tweezers.Discoveries.Containers
 {
     public sealed class PropertyMetadata
     {
         public PropertyMetadata(PropertyInfo p)
         {
             PropertyName = p.Name;
-            DisplayName = p.GetCustomAttributes(typeof(DisplayNameAttribute))
-                              .Cast<DisplayNameAttribute>()
+            DisplayName = p.GetCustomAttributes(typeof(TweezersFieldAttribute))
+                              .Cast<TweezersFieldAttribute>()
                               .SingleOrDefault()?.DisplayName ?? p.Name;
 
             PropertyType = p.PropertyType.ToPropertyType();

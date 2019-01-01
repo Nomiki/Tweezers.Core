@@ -2,6 +2,8 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.1</TargetFramework>
+    <AssemblyName>Tweezers.Discoveries</AssemblyName>
+    <RootNamespace>Tweezers.Discoveries</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>

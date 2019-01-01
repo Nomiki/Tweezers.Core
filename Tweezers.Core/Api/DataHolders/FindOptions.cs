@@ -1,8 +1,8 @@
 ﻿using System;
 
-namespace DiscoveryApi.DataHolders
+namespace Tweezers.Api.DataHolders
 {
-    public class FindOptions<T>
+    public sealed class FindOptions<T>
     {
         private const int DefaultSkip = 0;
         private const int DefaultTake = 10;
@@ -13,7 +13,7 @@ namespace DiscoveryApi.DataHolders
 
         public Func<T, bool> Predicate { get; set; }
 
-        public static FindOptions<T> Default(int skip = DefaultSkip, int take = DefaultTake) => new FindOptions<T>() { Skip = skip, Take = take, Predicate = obj => true };
-
+        public static FindOptions<T> Default(int skip = DefaultSkip, int take = DefaultTake) => 
+            new FindOptions<T>() { Skip = skip, Take = take, Predicate = obj => true };
     }
 }

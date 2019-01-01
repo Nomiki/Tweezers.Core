@@ -1,8 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using DiscoveryApi.DataHolders;
+﻿using System.Collections.Generic;
+using Tweezers.Api.DataHolders;
 
-namespace DiscoveryApi.Interfaces
+namespace Tweezers.Api.Interfaces
 {
     public interface IDatabaseProxy
     {

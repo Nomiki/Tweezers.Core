@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Runtime.Serialization;
-using Discoveries.Common;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
+using Tweezers.Discoveries.Common;
 
-namespace Discoveries.Enums
+namespace Tweezers.Discoveries.Enums
 {
     [JsonConverter(typeof(StringEnumConverter))]
     public enum PropertyType
@@ -25,7 +25,7 @@ namespace Discoveries.Enums
         Object,
     }
 
-    public static class PropertyTypeHelper
+    internal static class PropertyTypeHelper
     {
         private static readonly TypeCode[] NumberTypes =
         {

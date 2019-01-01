@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using DiscoveryApi.DataHolders;
-using DiscoveryApi.Interfaces;
+using Tweezers.Api.DataHolders;
+using Tweezers.Api.Interfaces;
 
-namespace DiscoveryApi.Database
+namespace Tweezers.Api.Database
 {
     public class LocalDatabase : IDatabaseProxy
     {

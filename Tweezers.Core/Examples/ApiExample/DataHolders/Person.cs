@@ -1,18 +1,18 @@
-﻿using Discoveries.Attributes;
-using DiscoveryApi.Attributes;
+﻿using Tweezers.Discoveries.Attributes;
+using Tweezers.Discoveries.Rbac;
 
 namespace ApiExample.DataHolders
 {
-    [Discoverable("Person")]
+    [TweezersEntity("Person", AllowedActions = TweezersAllowedActions.None)]
     public class Person
     {
         [TweezersId]
         public string Id { get; set; }
 
-        [DisplayName("Full name")]
+        [TweezersField("Full name")]
         public string Name { get; set; }
         
-        [DisplayName("Cat name")]
+        [TweezersField("Cat name")]
         public string CatName { get; set; }
     }
 }
