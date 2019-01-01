@@ -1,5 +1,5 @@
 ﻿using ApiExample.DataHolders;
-using DiscoveryApi.Controllers;
+using Tweezers.Api.Controllers;
 
 namespace ApiExample.Controllers
 {

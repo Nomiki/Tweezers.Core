@@ -1,9 +1,9 @@
 ﻿using System;
 
-namespace DiscoveryApi.Attributes
+namespace Tweezers.Discoveries.Attributes
 {
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = false)]
-    public class TweezersIdAttribute : Attribute
+    public sealed class TweezersIdAttribute : Attribute
     {
 
     }

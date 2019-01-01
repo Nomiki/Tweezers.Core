@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 
-namespace Discoveries.Enums
+namespace Tweezers.Discoveries.Enums
 {
-    public static class Enum<T> where T : struct, IConvertible
+    internal static class Enum<T> where T : struct, IConvertible
     {
         public static IEnumerable<T> Values
         {

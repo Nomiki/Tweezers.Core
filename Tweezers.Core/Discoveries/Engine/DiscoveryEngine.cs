@@ -2,33 +2,20 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Discoveries.Attributes;
-using Discoveries.Common;
-using Discoveries.Containers;
+using Tweezers.Discoveries.Attributes;
+using Tweezers.Discoveries.Common;
+using Tweezers.Discoveries.Containers;
+using Tweezers.Discoveries.Exceptions;
 
-namespace Discoveries.Engine
+namespace Tweezers.Discoveries.Engine
 {
-    public sealed class DiscoveryEngine
+    public static class DiscoveryEngine
     {
         private static Dictionary<Type, DiscoverableMetadata> calculatedMetadata = new Dictionary<Type, DiscoverableMetadata>();
 
-        public static void Discover(Assembly assembly = null)
-        {
-            if (assembly == null)
-                assembly = Assembly.GetCallingAssembly();
-
-            Type[] discoverableClasses = assembly.GetTypes()
-                .Where(ShouldDiscover)
-                .ToArray();
-
-            calculatedMetadata = discoverableClasses
-                .Select(clazz => new KeyValuePair<Type, DiscoverableMetadata>(clazz, DiscoverClass(clazz)))
-                .ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
-        }
-
         private static bool ShouldDiscover(Type clazz)
         {
-            return clazz.GetCustomAttributes<DiscoverableAttribute>().Any();
+            return clazz.GetCustomAttributes<TweezersEntityAttribute>().Any();
         }
 
         private static DiscoverableMetadata DiscoverClass(Type clazz)
@@ -36,9 +23,9 @@ namespace Discoveries.Engine
             return new DiscoverableMetadata()
             {
                 Name = clazz.FullName,
-                DisplayName = clazz.GetCustomAttributes<DiscoverableAttribute>().Single().DisplayName,
+                EntityData = clazz.GetCustomAttributes<TweezersEntityAttribute>().Single(),
                 PropertyData = clazz.GetProperties()
-                    .Where(p => p.GetCustomAttributes<DoNotDiscoverAttribute>().None())
+                    .Where(p => p.GetCustomAttributes<TweezersIgnoreAttribute>().None())
                     .Select(p => new PropertyMetadata(p))
                     .ToList()
             };
@@ -54,9 +41,9 @@ namespace Discoveries.Engine
                 DiscoverableMetadata metadata = DiscoverClass(clazz);
                 calculatedMetadata[clazz] = metadata;
                 return metadata;
-            }
+            } 
 
-            return null;
+            throw new TweezersDiscoveryException(clazz);
         }
     }
 }
