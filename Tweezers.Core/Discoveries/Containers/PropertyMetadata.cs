@@ -13,14 +13,21 @@ namespace Tweezers.Discoveries.Containers
         public PropertyMetadata(PropertyInfo p)
         {
             PropertyName = p.Name;
-            DisplayName = p.GetCustomAttributes(typeof(TweezersFieldAttribute))
-                              .Cast<TweezersFieldAttribute>()
-                              .SingleOrDefault()?.DisplayName ?? p.Name;
+            TweezersFieldAttribute fieldAttribute = p.GetCustomAttributes(typeof(TweezersFieldAttribute))
+                .Cast<TweezersFieldAttribute>()
+                .SingleOrDefault();
+            DisplayName = fieldAttribute?.DisplayName ?? p.Name;
 
             PropertyType = p.PropertyType.ToPropertyType();
             if (PropertyType == PropertyType.Enum)
             {
                 Values = p.PropertyType.EnumValues();
+            }
+
+            else if (PropertyType == PropertyType.String && 
+                     fieldAttribute?.Values?.Length > 0)
+            {
+                Values = fieldAttribute.Values.ToDictionary(v => v, v => v as object);
             }
         }
 
@@ -30,6 +37,6 @@ namespace Tweezers.Discoveries.Containers
         
         public PropertyType PropertyType { get; set; }
 
-        public Dictionary<int, string> Values { get; set; }
+        public Dictionary<string, object> Values { get; set; }
     }
 }

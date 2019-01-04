@@ -21,17 +21,17 @@ namespace Tweezers.Discoveries.Common
             return collection.Contains(obj);
         }
 
-        public static Dictionary<int, string> EnumValues(this Type t)
+        public static Dictionary<string, object> EnumValues(this Type t)
         {
             if (!t.IsEnum)
                 throw new ArgumentException($"{t.Name} is not an enumerated type");
 
-            Dictionary<int, string> result = new Dictionary<int, string>();
+            Dictionary<string, object> result = new Dictionary<string, object>();
             foreach (object value in t.GetEnumValues())
             {
                 if (value.GetType() == t)
                 {
-                    result[(int) value] = value.ToString();
+                    result[value.ToString()] = (int)value;
                 }
             }
 

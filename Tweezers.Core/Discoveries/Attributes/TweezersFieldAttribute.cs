@@ -7,6 +7,8 @@ namespace Tweezers.Discoveries.Attributes
     {
         public string DisplayName { get; private set; }
 
+        public string[] Values { get; set; } = null;
+
         public TweezersFieldAttribute(string displayName)
         {
             DisplayName = displayName;
