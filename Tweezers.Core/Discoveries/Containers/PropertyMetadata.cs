@@ -1,6 +1,9 @@
-﻿using System.Linq;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using Tweezers.Discoveries.Attributes;
+using Tweezers.Discoveries.Common;
 using Tweezers.Discoveries.Enums;
 
 namespace Tweezers.Discoveries.Containers
@@ -15,6 +18,10 @@ namespace Tweezers.Discoveries.Containers
                               .SingleOrDefault()?.DisplayName ?? p.Name;
 
             PropertyType = p.PropertyType.ToPropertyType();
+            if (PropertyType == PropertyType.Enum)
+            {
+                Values = p.PropertyType.EnumValues();
+            }
         }
 
         public string PropertyName { get; set; }
@@ -22,5 +29,7 @@ namespace Tweezers.Discoveries.Containers
         public string DisplayName { get; set; }
         
         public PropertyType PropertyType { get; set; }
+
+        public Dictionary<int, string> Values { get; set; }
     }
 }
