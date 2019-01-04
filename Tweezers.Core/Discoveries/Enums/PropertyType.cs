@@ -9,19 +9,11 @@ namespace Tweezers.Discoveries.Enums
     [JsonConverter(typeof(StringEnumConverter))]
     public enum PropertyType
     {
-        [EnumMember(Value = "Number")]
+        Enum,
         Number,
-
-        [EnumMember(Value = "String")]
         String,
-
-        [EnumMember(Value = "Boolean")]
         Boolean,
-
-        [EnumMember(Value = "Array")]
         Array,
-
-        [EnumMember(Value = "Object")]
         Object,
     }
 
@@ -40,6 +32,10 @@ namespace Tweezers.Discoveries.Enums
         public static PropertyType ToPropertyType(this Type t)
         {
             TypeCode typeCode = Type.GetTypeCode(t);
+
+            if (t.IsEnum)
+                return PropertyType.Enum;
+
             if (typeCode.In(NumberTypes))
                 return PropertyType.Number;
 

@@ -7,9 +7,9 @@ namespace ApiExample.Controllers
     {
         public PersonController()
         {
-            this.Post(new Person() {Name = "Moshe", CatName = "Shmil"});
-            this.Post(new Person() {Name = "Yakov", CatName = "Simon"});
-            this.Post(new Person() {Name = "Hatul", CatName = "Adam"});
+            this.Post(new Person() {Name = "Moshe", CatName = "Shmil", Gender = Gender.Male});
+            this.Post(new Person() {Name = "Yakov", CatName = "Simon", Gender = Gender.Male});
+            this.Post(new Person() {Name = "Hatul", CatName = "Adam", Gender = Gender.Unknown});
         }
     }
 }
