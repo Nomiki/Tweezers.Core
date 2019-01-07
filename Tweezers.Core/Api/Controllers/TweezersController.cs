@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 using Microsoft.AspNetCore.Mvc;
 using Tweezers.Api.Database;
 using Tweezers.Api.DataHolders;
 using Tweezers.Api.Interfaces;
-using Tweezers.Discoveries.Attributes;
 using Tweezers.Discoveries.Common;
 using Tweezers.Discoveries.Containers;
 using Tweezers.Discoveries.Engine;
@@ -16,9 +14,8 @@ namespace Tweezers.Api.Controllers
 {
     [Route("api")]
     [ApiController]
-    public abstract class TweezersController<T> : ControllerBase
+    public abstract class TweezersController<T> : TweezersControllerBase
     {
-        protected PropertyInfo IdProperty { get; private set; }
         protected IDatabaseProxy DatabaseProxy { get; private set; }
         protected DiscoverableMetadata TweezersMetadata { get; private set; }
 
@@ -28,17 +25,8 @@ namespace Tweezers.Api.Controllers
 
         protected TweezersController(string idFieldName, IDatabaseProxy databaseProxy = null)
         {
-            IdProperty = DetermineIdAttr(idFieldName);
             DatabaseProxy = databaseProxy ?? LocalDatabase.Instance;
             TweezersMetadata = GetMetadata();
-        }
-
-        private PropertyInfo DetermineIdAttr(string idFieldName = null)
-        {
-            PropertyInfo[] properties = typeof(T).GetProperties();
-            return idFieldName == null
-                ? properties.Single(pi => pi.GetCustomAttributes<TweezersIdAttribute>().Any())
-                : properties.Single(pi => pi.Name == idFieldName);
         }
 
         private DiscoverableMetadata GetMetadata()
@@ -89,7 +77,8 @@ namespace Tweezers.Api.Controllers
                 return ForbiddenResult("post");
 
             string id = Guid.NewGuid().ToString();
-            IdProperty.SetValue(value, id);
+            PropertyInfo idProperty = GetIdProperty<T>();
+            idProperty.SetValue(value, id);
             return Ok(DatabaseProxy.Add<T>(id, value));
         }
 
