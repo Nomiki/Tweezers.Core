@@ -3,7 +3,7 @@ using Tweezers.Discoveries.Rbac;
 
 namespace ApiExample.DataHolders
 {
-    [TweezersEntity("Person", AllowedActions = TweezersAllowedActions.Admin)]
+    [TweezersEntity("Person", AllowedActions = TweezersAllowedActions.Admin, IconName = "person")]
     public class Person
     {
         [TweezersId]

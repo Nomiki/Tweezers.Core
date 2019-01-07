@@ -10,6 +10,8 @@ namespace Tweezers.Discoveries.Attributes
 
         public TweezersAllowedActions AllowedActions { get; set; } = TweezersAllowedActions.None;
 
+        public string IconName { get; set; } = "error_outline";
+
         public TweezersEntityAttribute(string displayName)
         {
             DisplayName = displayName;
