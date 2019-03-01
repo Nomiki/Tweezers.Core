@@ -3,10 +3,11 @@ using Tweezers.Api.Controllers;
 
 namespace ApiExample.Controllers
 {
-    public class PersonController : TweezersController<Person>
+    public class ShoeBrandController : TweezersController<ShoeBrand>
     {
-        public PersonController()
+        public ShoeBrandController()
         {
+
         }
     }
 }

@@ -77,7 +77,7 @@ namespace Tweezers.Api.Controllers
                 return ForbiddenResult("post");
 
             string id = Guid.NewGuid().ToString();
-            PropertyInfo idProperty = GetIdProperty<T>();
+            PropertyInfo idProperty = DetermineIdAttr<T>();
             idProperty.SetValue(value, id);
             return Ok(DatabaseProxy.Add<T>(id, value));
         }
