@@ -3,8 +3,8 @@ using Tweezers.Discoveries.Rbac;
 
 namespace ApiExample.DataHolders
 {
-    [TweezersEntity("Product", AllowedActions = TweezersAllowedActions.Admin, IconName = "shopping_cart")]
-    public class Product
+    [TweezersEntity("Shoe Brand", AllowedActions = TweezersAllowedActions.Admin, IconName = "all_inclusive")]
+    public class ShoeBrand
     {
         [TweezersId]
         public string Id { get; set; }

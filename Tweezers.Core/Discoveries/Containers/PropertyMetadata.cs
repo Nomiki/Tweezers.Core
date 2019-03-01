@@ -12,12 +12,12 @@ namespace Tweezers.Discoveries.Containers
     {
         public PropertyMetadata(PropertyInfo p)
         {
-            PropertyName = p.Name;
+            PropertyName = char.ToLowerInvariant(p.Name[0]) + p.Name.Substring(1);
             TweezersFieldAttribute fieldAttribute = p.GetCustomAttributes(typeof(TweezersFieldAttribute))
                 .Cast<TweezersFieldAttribute>()
                 .SingleOrDefault();
             DisplayName = fieldAttribute?.DisplayName ?? p.Name;
-
+            IdField = p.GetCustomAttributes<TweezersIdAttribute>().Any();
             PropertyType = p.PropertyType.ToPropertyType();
             if (PropertyType == PropertyType.Enum)
             {
@@ -30,6 +30,8 @@ namespace Tweezers.Discoveries.Containers
                 Values = fieldAttribute.Values.ToDictionary(v => v, v => v as object);
             }
         }
+
+        public bool IdField { get; set; }
 
         public string PropertyName { get; set; }
 

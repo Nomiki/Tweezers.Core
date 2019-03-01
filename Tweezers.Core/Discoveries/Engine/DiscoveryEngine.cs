@@ -11,7 +11,8 @@ namespace Tweezers.Discoveries.Engine
 {
     public static class DiscoveryEngine
     {
-        private static Dictionary<Type, DiscoverableMetadata> calculatedMetadata = new Dictionary<Type, DiscoverableMetadata>();
+        private static readonly Dictionary<Type, DiscoverableMetadata> calculatedMetadata = new Dictionary<Type, DiscoverableMetadata>();
+        private static readonly object cacheLock = new object();
 
         private static bool ShouldDiscover(Type clazz)
         {
@@ -33,17 +34,20 @@ namespace Tweezers.Discoveries.Engine
 
         public static DiscoverableMetadata GetData(Type clazz)
         {
-            if (calculatedMetadata.ContainsKey(clazz))
-                return calculatedMetadata[clazz];
-
-            if (ShouldDiscover(clazz))
+            lock (cacheLock)
             {
-                DiscoverableMetadata metadata = DiscoverClass(clazz);
-                calculatedMetadata[clazz] = metadata;
-                return metadata;
-            } 
+                if (calculatedMetadata.ContainsKey(clazz))
+                    return calculatedMetadata[clazz];
 
-            throw new TweezersDiscoveryException(clazz);
+                if (ShouldDiscover(clazz))
+                {
+                    DiscoverableMetadata metadata = DiscoverClass(clazz);
+                    calculatedMetadata[clazz] = metadata;
+                    return metadata;
+                }
+
+                throw new TweezersDiscoveryException(clazz);
+            }
         }
     }
 }
