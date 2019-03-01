@@ -9,17 +9,13 @@ before_build:
   # Display .NET Core version
   - cmd: dotnet --version
   # Display minimal restore text
-  - cmd: dotnet restore ./Tweezers.Core/Discoveries/Discoveries.csproj --verbosity m
-  - cmd: dotnet restore ./Tweezers.Core/Api/Api.csproj --verbosity m
-  - cmd: dotnet restore ./Tweezers.Core/Examples/ApiExample/ApiExample.csproj --verbosity m
+  - cmd: dotnet restore ./Tweezers.Core/Tweezers.Core.sln --verbosity m
 build_script:
-  - cmd: dotnet publish ./Tweezers.Core/Discoveries/Discoveries.csproj
-  - cmd: dotnet publish ./Tweezers.Core/Api/Api.csproj
-  - cmd: dotnet publish ./Tweezers.Core/Examples/ApiExample/ApiExample.csproj
+  - cmd: dotnet publish ./Tweezers.Core/Tweezers.Core.sln
 after_build:
   # For once the build has completed
 artifacts:
- - path: './Tweezers.Core/Api/bin/Debug/netcoreapp2.1'
+ - path: './Tweezers.Core/Api/bin/Debug/netcoreapp2.2'
    name: Tweezers
    type: Tweezers
 clone_depth: 1
