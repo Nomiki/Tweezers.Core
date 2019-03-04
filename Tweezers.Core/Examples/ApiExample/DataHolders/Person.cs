@@ -11,15 +11,9 @@ namespace ApiExample.DataHolders
 
         [TweezersField("Full name")]
         public string Name { get; set; }
-        
-        [TweezersField("Cat name")]
-        public string CatName { get; set; }
 
         [TweezersField("Gender")]
         public Gender Gender { get; set; }
-
-        [TweezersField("Shoe Brand", Values = new []{"Adidas", "Vans"})]
-        public string ShoeBrand { get; set; }
     }
 
     public enum Gender
