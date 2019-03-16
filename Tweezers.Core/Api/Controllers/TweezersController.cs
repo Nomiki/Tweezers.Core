@@ -1,13 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Net.Http;
 using System.Reflection;
 using Microsoft.AspNetCore.Mvc;
 using Tweezers.Api.Database;
 using Tweezers.Api.DataHolders;
+using Tweezers.Api.Exceptions;
 using Tweezers.Api.Interfaces;
 using Tweezers.Discoveries.Common;
 using Tweezers.Discoveries.Containers;
 using Tweezers.Discoveries.Engine;
+using Tweezers.Discoveries.Exceptions;
 using Tweezers.Discoveries.Rbac;
 
 namespace Tweezers.Api.Controllers
@@ -17,7 +20,7 @@ namespace Tweezers.Api.Controllers
     public abstract class TweezersController<T> : TweezersControllerBase
     {
         protected IDatabaseProxy DatabaseProxy { get; private set; }
-        protected DiscoverableMetadata TweezersMetadata { get; private set; }
+        protected DiscoverableMetadata TweezersMetadata => GetMetadata();
 
         protected TweezersController(IDatabaseProxy databaseProxy = null) : this(null, databaseProxy)
         {
@@ -26,81 +29,153 @@ namespace Tweezers.Api.Controllers
         protected TweezersController(string idFieldName, IDatabaseProxy databaseProxy = null)
         {
             DatabaseProxy = databaseProxy ?? LocalDatabase.Instance;
-            TweezersMetadata = GetMetadata();
         }
 
         private DiscoverableMetadata GetMetadata()
         {
-            // TODO: log it if fails
             return DiscoveryEngine.GetData(typeof(T));
         }
 
         protected ActionResult ForbiddenResult(string method, string id = null)
         {
-            return NotFound();
+            return new ForbidResult();
+        }
+
+        protected ActionResult NotFoundResult(string message)
+        {
+            return NotFound(new TweezersErrorBody()
+            {
+                Code = 404,
+                Message = message
+            });
         }
 
         [HttpGet("tweezers/[controller]")]
         public ActionResult<DiscoverableMetadata> TweezIt()
         {
-            if (TweezersMetadata.EntityData.AllowedActions.In(TweezersAllowedActions.None))
-                return ForbiddenResult("tweezers");
+            try
+            {
+                if (TweezersMetadata.EntityData.AllowedActions.In(TweezersAllowedActions.None))
+                    return ForbiddenResult("tweezers", typeof(T).Name);
 
-            return Ok(TweezersMetadata);
+                return Ok(TweezersMetadata);
+            }
+            catch (TweezersDiscoveryException)
+            {
+                return ForbiddenResult("tweezers", typeof(T).Name);
+            }
         }
 
         // GET api/[controller]
         [HttpGet("[controller]")]
         public virtual ActionResult<IEnumerable<T>> List()
         {
-            if (TweezersMetadata.EntityData.AllowedActions.In(TweezersAllowedActions.None))
-                return ForbiddenResult("get", "list");
+            try
+            {
+                if (TweezersMetadata.EntityData.AllowedActions.In(TweezersAllowedActions.None))
+                    return ForbiddenResult("get", "list");
 
-            return Ok(DatabaseProxy.List<T>(FindOptions<T>.Default()));
+                return Ok(DatabaseProxy.List<T>(FindOptions<T>.Default()));
+            }
+            catch (TweezersDiscoveryException)
+            {
+                return ForbiddenResult("tweezers", typeof(T).Name);
+            }
+            catch (ItemNotFoundException e)
+            {
+                return NotFoundResult(e.Message);
+            }
         }
 
         // GET api/[controller]/5
         [HttpGet("[controller]/{id}")]
         public virtual ActionResult<T> Get(string id)
         {
-            if (TweezersMetadata.EntityData.AllowedActions.In(TweezersAllowedActions.None))
-                return ForbiddenResult("get", id);
+            try
+            {
+                if (TweezersMetadata.EntityData.AllowedActions.In(TweezersAllowedActions.None))
+                    return ForbiddenResult("get", id);
 
-            return Ok(DatabaseProxy.Get<T>(id));
+                return Ok(DatabaseProxy.Get<T>(id));
+            }
+            catch (TweezersDiscoveryException)
+            {
+                return ForbiddenResult("tweezers", typeof(T).Name);
+            }
+            catch (ItemNotFoundException e)
+            {
+                return NotFoundResult(e.Message);
+            }
         }
 
         // POST api/[controller]
         [HttpPost("[controller]")]
         public virtual ActionResult<T> Post([FromBody] T value)
         {
-            if (TweezersMetadata.EntityData.AllowedActions.In(TweezersAllowedActions.View, TweezersAllowedActions.None))
-                return ForbiddenResult("post");
+            try
+            {
+                if (TweezersMetadata.EntityData.AllowedActions.In(TweezersAllowedActions.View,
+                    TweezersAllowedActions.None))
+                    return ForbiddenResult("post");
 
-            string id = Guid.NewGuid().ToString();
-            PropertyInfo idProperty = DetermineIdAttr<T>();
-            idProperty.SetValue(value, id);
-            return Ok(DatabaseProxy.Add<T>(id, value));
+                string id = Guid.NewGuid().ToString();
+                PropertyInfo idProperty = DetermineIdAttr<T>();
+                idProperty.SetValue(value, id);
+                return Ok(DatabaseProxy.Add<T>(id, value));
+            }
+            catch (TweezersDiscoveryException)
+            {
+                return ForbiddenResult("tweezers", typeof(T).Name);
+            }
+            catch (ItemNotFoundException e)
+            {
+                return NotFoundResult(e.Message);
+            }
         }
 
         [HttpPatch("[controller]/{id}")]
         public virtual ActionResult<T> Patch(string id, [FromBody] T value)
         {
-            if (TweezersMetadata.EntityData.AllowedActions.In(TweezersAllowedActions.View, TweezersAllowedActions.None))
-                return ForbiddenResult("patch", id);
+            try
+            {
+                if (TweezersMetadata.EntityData.AllowedActions.In(TweezersAllowedActions.View,
+                    TweezersAllowedActions.None))
+                    return ForbiddenResult("patch", id);
 
-            return Ok(DatabaseProxy.Edit<T>(id, value));
+                return Ok(DatabaseProxy.Edit<T>(id, value));
+            }
+            catch (TweezersDiscoveryException)
+            {
+                return ForbiddenResult("tweezers", typeof(T).Name);
+            }
+            catch (ItemNotFoundException e)
+            {
+                return NotFoundResult(e.Message);
+            }
         }
 
         // DELETE api/[controller]/5
         [HttpDelete("[controller]/{id}")]
         public virtual ActionResult<T> Delete(string id)
         {
-            if (TweezersMetadata.EntityData.AllowedActions.In(TweezersAllowedActions.Edit, TweezersAllowedActions.View,
-                TweezersAllowedActions.None))
-                return ForbiddenResult("delete", id);
+            try
+            {
+                if (TweezersMetadata.EntityData.AllowedActions.In(TweezersAllowedActions.Edit,
+                    TweezersAllowedActions.View,
+                    TweezersAllowedActions.None))
+                    return ForbiddenResult("delete", id);
 
-            DatabaseProxy.Delete<T>(id);
-            return Ok();
+                DatabaseProxy.Delete<T>(id);
+                return Ok();
+            }
+            catch (TweezersDiscoveryException)
+            {
+                return ForbiddenResult("tweezers", typeof(T).Name);
+            }
+            catch (ItemNotFoundException e)
+            {
+                return NotFoundResult(e.Message);
+            }
         }
     }
 }

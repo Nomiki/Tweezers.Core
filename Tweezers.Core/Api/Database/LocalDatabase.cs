@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Tweezers.Api.DataHolders;
+using Tweezers.Api.Exceptions;
 using Tweezers.Api.Interfaces;
 
 namespace Tweezers.Api.Database
@@ -25,7 +26,7 @@ namespace Tweezers.Api.Database
                 return (T) localDb[typeof(T)][id];
             }
 
-            throw new Exception("not found");
+            throw new ItemNotFoundException(id.ToString());
         }
 
         public T Add<T>(object id, T data)
@@ -54,7 +55,7 @@ namespace Tweezers.Api.Database
                 return dbObj;
             }
 
-            throw new Exception("not found");
+            throw new ItemNotFoundException(id.ToString());
         }
 
         public void Delete<T>(object id)
@@ -65,7 +66,7 @@ namespace Tweezers.Api.Database
                 return;
             }
 
-            throw new Exception("not found");
+            throw new ItemNotFoundException(id.ToString());
         }
 
         public IEnumerable<T> List<T>(FindOptions<T> opts)

@@ -14,6 +14,9 @@ namespace ApiExample.DataHolders
 
         [TweezersField("Gender")]
         public Gender Gender { get; set; }
+
+        [TweezersField("CheckTest")]
+        public bool CheckTest { get; set; }
     }
 
     public enum Gender
