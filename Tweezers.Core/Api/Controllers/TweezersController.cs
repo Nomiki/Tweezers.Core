@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Reflection;
 using Microsoft.AspNetCore.Mvc;
@@ -7,6 +8,7 @@ using Tweezers.Api.Database;
 using Tweezers.Api.DataHolders;
 using Tweezers.Api.Exceptions;
 using Tweezers.Api.Interfaces;
+using Tweezers.Discoveries.Attributes;
 using Tweezers.Discoveries.Common;
 using Tweezers.Discoveries.Containers;
 using Tweezers.Discoveries.Engine;
@@ -35,20 +37,6 @@ namespace Tweezers.Api.Controllers
             return DiscoveryEngine.GetData(typeof(T));
         }
 
-        protected ActionResult ForbiddenResult(string method, string id = null)
-        {
-            return new ForbidResult();
-        }
-
-        protected ActionResult NotFoundResult(string message)
-        {
-            return NotFound(new TweezersErrorBody()
-            {
-                Code = 404,
-                Message = message
-            });
-        }
-
         [HttpGet("tweezers/[controller]")]
         public ActionResult<DiscoverableMetadata> TweezIt()
         {
@@ -74,7 +62,7 @@ namespace Tweezers.Api.Controllers
                 if (TweezersMetadata.EntityData.AllowedActions.In(TweezersAllowedActions.None))
                     return ForbiddenResult("get", "list");
 
-                return Ok(DatabaseProxy.List<T>(FindOptions<T>.Default()));
+                return Ok(DatabaseProxy.List<T>(FindOptions<T>.Default()).Select(DeleteTweezersIgnores));
             }
             catch (TweezersDiscoveryException)
             {
@@ -95,7 +83,7 @@ namespace Tweezers.Api.Controllers
                 if (TweezersMetadata.EntityData.AllowedActions.In(TweezersAllowedActions.None))
                     return ForbiddenResult("get", id);
 
-                return Ok(DatabaseProxy.Get<T>(id));
+                return Ok(DeleteTweezersIgnores(DatabaseProxy.Get<T>(id)));
             }
             catch (TweezersDiscoveryException)
             {
@@ -120,7 +108,7 @@ namespace Tweezers.Api.Controllers
                 string id = Guid.NewGuid().ToString();
                 PropertyInfo idProperty = DetermineIdAttr<T>();
                 idProperty.SetValue(value, id);
-                return Ok(DatabaseProxy.Add<T>(id, value));
+                return Ok(DeleteTweezersIgnores(DatabaseProxy.Add<T>(id, value)));
             }
             catch (TweezersDiscoveryException)
             {
@@ -141,7 +129,7 @@ namespace Tweezers.Api.Controllers
                     TweezersAllowedActions.None))
                     return ForbiddenResult("patch", id);
 
-                return Ok(DatabaseProxy.Edit<T>(id, value));
+                return Ok(DeleteTweezersIgnores(DatabaseProxy.Edit<T>(id, value)));
             }
             catch (TweezersDiscoveryException)
             {

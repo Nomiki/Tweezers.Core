@@ -25,11 +25,11 @@ namespace Tweezers.Identity.Controllers
             {
                 if (FindUser(suggestedUser) != null)
                 {
-                    return Forbid("username already taken");
+                    return ForbiddenResult("post", "user");
                 }
 
                 User user = DataHolders.User.CreateUser(suggestedUser);
-                return Ok(DatabaseProxy.Add(user.Id ,user));
+                return Ok(DeleteTweezersIgnores(DatabaseProxy.Add(user.Id ,user)));
             }
             catch (TweezersDiscoveryException)
             {

@@ -15,7 +15,8 @@ namespace ApiExample.DataHolders
         [TweezersField("Model")]
         public string Name { get; set; }
 
-        [TweezersField("CPU Model")]
+        [TweezersIgnore]
+        //        [TweezersField("CPU Model")]
         public string CpuModel { get; set; }
 
         [TweezersField("Memory")]
