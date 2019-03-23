@@ -19,7 +19,6 @@ namespace Tweezers.Api.Controllers
     [ApiController]
     public abstract class TweezersController<T> : TweezersControllerBase
     {
-        protected IDatabaseProxy DatabaseProxy { get; private set; }
         protected DiscoverableMetadata TweezersMetadata => GetMetadata();
 
         protected TweezersController(IDatabaseProxy databaseProxy = null) : this(null, databaseProxy)
