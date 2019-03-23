@@ -11,5 +11,7 @@ namespace Tweezers.Api.DataHolders
         public string Description { get; set; }
         public string ReferenceLink { get; set; }
         public string IconName { get; set; }
+
+        public Type TweezersType { get; set; }
     }
 }

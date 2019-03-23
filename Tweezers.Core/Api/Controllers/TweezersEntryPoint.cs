@@ -21,7 +21,12 @@ namespace Tweezers.Api.Controllers
         private static List<SideMenuData> classList;
 
         [HttpGet]
-        public ActionResult<List<DiscoverableMetadata>> Discover()
+        public ActionResult<List<SideMenuData>> Discover()
+        {
+            return Ok(GetClassList());
+        }
+
+        public static List<SideMenuData> GetClassList()
         {
             if (classList == null)
             {
@@ -31,7 +36,7 @@ namespace Tweezers.Api.Controllers
                     .ToList();
             }
 
-            return Ok(classList);
+            return classList;
         }
 
         public static SideMenuData FromController(Type controller)
@@ -47,7 +52,8 @@ namespace Tweezers.Api.Controllers
                     Description = controller.FullName,
                     DisplayName = tweezersEntityAttributeData.DisplayName,
                     ReferenceLink = $"{controller.Name.ToLower().Replace("controller", "")}",
-                    IconName = tweezersEntityAttributeData.IconName
+                    IconName = tweezersEntityAttributeData.IconName,
+                    TweezersType = tweezersEntity
                 };
             }
 
