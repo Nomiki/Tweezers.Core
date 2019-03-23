@@ -58,12 +58,12 @@ namespace Tweezers.Api.Database
             throw new ItemNotFoundException(id.ToString());
         }
 
-        public void Delete<T>(object id)
+        public bool Delete<T>(object id)
         {
             if (localDb.ContainsKey(typeof(T)) && (localDb[typeof(T)]?.ContainsKey(id) ?? false))
             {
                 localDb[typeof(T)].Remove(id);
-                return;
+                return true;
             }
 
             throw new ItemNotFoundException(id.ToString());

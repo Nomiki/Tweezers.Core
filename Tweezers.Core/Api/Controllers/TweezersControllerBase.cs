@@ -32,9 +32,9 @@ namespace Tweezers.Api.Controllers
             return obj;
         }
 
-        protected ActionResult ForbiddenResult(string method, string id = null)
+        protected ActionResult ForbiddenResult(string method, string message)
         {
-            return StatusCode(403, new TweezersErrorBody() { Message = $"{method}: forbidden {id}" });
+            return StatusCode(403, new TweezersErrorBody() { Message = message, Method = method});
         }
 
         protected ActionResult NotFoundResult(string message)
