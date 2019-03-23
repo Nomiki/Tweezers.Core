@@ -56,6 +56,7 @@ namespace ApiExample
                 app.UseHsts();
             }
 
+            TweezersMiddleware.AddErrorHandler(app);
             app.UseCors(corsConfig);
             app.UseHttpsRedirection();
             app.UseMvc();

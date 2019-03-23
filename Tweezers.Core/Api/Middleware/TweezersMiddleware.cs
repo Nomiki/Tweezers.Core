@@ -2,10 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
-using Tweezers.Api.Controllers;
 using Tweezers.Api.DataHolders;
-using Tweezers.Discoveries.Containers;
-using Tweezers.Discoveries.Engine;
 
 namespace Tweezers.Api.Middleware
 {
@@ -17,6 +14,14 @@ namespace Tweezers.Api.Middleware
                 .AddJsonOptions(options => {
                     options.SerializerSettings.NullValueHandling = NullValueHandling.Ignore;
                 });
+        }
+
+        public static void AddErrorHandler(IApplicationBuilder app)
+        {
+#if DEBUG
+#else
+            app.UseExceptionHandler("/Error");
+#endif
         }
     }
 }

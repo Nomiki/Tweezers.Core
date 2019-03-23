@@ -11,7 +11,7 @@ namespace Tweezers.Api.Interfaces
 
         T Edit<T>(object id, T data);
 
-        void Delete<T>(object id);
+        bool Delete<T>(object id);
 
         IEnumerable<T> List<T>(FindOptions<T> opts);
     }

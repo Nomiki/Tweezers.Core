@@ -43,13 +43,13 @@ namespace Tweezers.Api.Controllers
             try
             {
                 if (TweezersMetadata.EntityData.AllowedActions.In(TweezersAllowedActions.None))
-                    return ForbiddenResult("tweezers", typeof(T).Name);
+                    return DiscoveryError();
 
                 return Ok(TweezersMetadata);
             }
             catch (TweezersDiscoveryException)
             {
-                return ForbiddenResult("tweezers", typeof(T).Name);
+                return DiscoveryError();
             }
         }
 
@@ -60,13 +60,13 @@ namespace Tweezers.Api.Controllers
             try
             {
                 if (TweezersMetadata.EntityData.AllowedActions.In(TweezersAllowedActions.None))
-                    return ForbiddenResult("get", "list");
+                    return ForbiddenResult("get", $"Could not list items of type {typeof(T).Name}");
 
                 return Ok(DatabaseProxy.List<T>(FindOptions<T>.Default()).Select(DeleteTweezersIgnores));
             }
             catch (TweezersDiscoveryException)
             {
-                return ForbiddenResult("tweezers", typeof(T).Name);
+                return DiscoveryError();
             }
             catch (ItemNotFoundException e)
             {
@@ -80,14 +80,17 @@ namespace Tweezers.Api.Controllers
         {
             try
             {
+                string error = $"Could not get {typeof(T).Name} by ID:{id}";
                 if (TweezersMetadata.EntityData.AllowedActions.In(TweezersAllowedActions.None))
-                    return ForbiddenResult("get", id);
+                    return ForbiddenResult("get", error);
 
-                return Ok(DeleteTweezersIgnores(DatabaseProxy.Get<T>(id)));
+                T obj = DatabaseProxy.Get<T>(id);
+
+                return Ok(DeleteTweezersIgnores(obj));
             }
             catch (TweezersDiscoveryException)
             {
-                return ForbiddenResult("tweezers", typeof(T).Name);
+                return DiscoveryError();
             }
             catch (ItemNotFoundException e)
             {
@@ -103,16 +106,17 @@ namespace Tweezers.Api.Controllers
             {
                 if (TweezersMetadata.EntityData.AllowedActions.In(TweezersAllowedActions.View,
                     TweezersAllowedActions.None))
-                    return ForbiddenResult("post");
+                    return ForbiddenResult("post", $"Could not add {typeof(T).Name}");
 
                 string id = Guid.NewGuid().ToString();
                 PropertyInfo idProperty = DetermineIdAttr<T>();
                 idProperty.SetValue(value, id);
-                return Ok(DeleteTweezersIgnores(DatabaseProxy.Add<T>(id, value)));
+                T newObj = DatabaseProxy.Add<T>(id, value);
+                return Ok(DeleteTweezersIgnores(newObj));
             }
             catch (TweezersDiscoveryException)
             {
-                return ForbiddenResult("tweezers", typeof(T).Name);
+                return DiscoveryError();
             }
             catch (ItemNotFoundException e)
             {
@@ -127,13 +131,14 @@ namespace Tweezers.Api.Controllers
             {
                 if (TweezersMetadata.EntityData.AllowedActions.In(TweezersAllowedActions.View,
                     TweezersAllowedActions.None))
-                    return ForbiddenResult("patch", id);
+                    return ForbiddenResult("patch", $"Could not edit {typeof(T).Name} by ID:{id}");
 
-                return Ok(DeleteTweezersIgnores(DatabaseProxy.Edit<T>(id, value)));
+                T editedItem = DatabaseProxy.Edit<T>(id, value);
+                return Ok(DeleteTweezersIgnores(editedItem));
             }
             catch (TweezersDiscoveryException)
             {
-                return ForbiddenResult("tweezers", typeof(T).Name);
+                return DiscoveryError();
             }
             catch (ItemNotFoundException e)
             {
@@ -150,19 +155,24 @@ namespace Tweezers.Api.Controllers
                 if (TweezersMetadata.EntityData.AllowedActions.In(TweezersAllowedActions.Edit,
                     TweezersAllowedActions.View,
                     TweezersAllowedActions.None))
-                    return ForbiddenResult("delete", id);
+                    return ForbiddenResult("delete", $"Could not delete {id}");
 
                 DatabaseProxy.Delete<T>(id);
                 return Ok();
             }
             catch (TweezersDiscoveryException)
             {
-                return ForbiddenResult("tweezers", typeof(T).Name);
+                return DiscoveryError();
             }
             catch (ItemNotFoundException e)
             {
                 return NotFoundResult(e.Message);
             }
+        }
+
+        private ActionResult DiscoveryError()
+        {
+            return ForbiddenResult("tweezers", $"Could not discover {typeof(T).Name}");
         }
     }
 }
