@@ -21,7 +21,7 @@ namespace Tweezers.Identity.DataHolders
         public string SessionId { get; set; }
 
         [TweezersIgnore]
-        public DateTime? SessionExpiryDate { get; set; }
+        public DateTime? SessionExpiry { get; set; }
 
         // TODO: Role
 

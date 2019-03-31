@@ -37,5 +37,10 @@ namespace Tweezers.Discoveries.Common
 
             return result;
         }
+
+        public static TimeSpan Hours(this int i)
+        {
+            return TimeSpan.FromHours(i);
+        }
     }
 }

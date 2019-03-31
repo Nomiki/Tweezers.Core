@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 using Tweezers.Api.Controllers;
 using Tweezers.Api.Database;
@@ -6,6 +7,7 @@ using Tweezers.Api.DataHolders;
 using Tweezers.Api.Exceptions;
 using Tweezers.Discoveries.Exceptions;
 using Tweezers.Identity.DataHolders;
+using Tweezers.Discoveries.Common;
 
 namespace Tweezers.Identity.Controllers
 {
@@ -17,6 +19,8 @@ namespace Tweezers.Identity.Controllers
         {
             this.DatabaseProxy = LocalDatabase.Instance;
         }
+
+        protected TimeSpan SessionTimeout => 4.Hours();
 
         [HttpPost("users")]
         public ActionResult<User> Post([FromBody] LoginRequest suggestedUser)
@@ -44,8 +48,13 @@ namespace Tweezers.Identity.Controllers
         [HttpPost("login")]
         public ActionResult<string> Login([FromBody] LoginRequest request)
         {
-            if (Authenticate(request))
+            User user;
+            if (Authenticate(request, out user))
             {
+                user.SessionId = Guid.NewGuid().ToString();
+                user.SessionExpiry = DateTime.Now + SessionTimeout;
+                user.PasswordHash = null;
+                DatabaseProxy.Edit<User>(user.Id, user);
                 return Ok("Welcome");
             }
             else
@@ -54,9 +63,17 @@ namespace Tweezers.Identity.Controllers
             }
         }
 
-        public bool Authenticate(LoginRequest request)
+        public bool Authenticate(LoginRequest request, out User user)
         {
-            User user = FindUser(request);
+            try
+            {
+                user = FindUser(request);
+            }
+            catch (ItemNotFoundException e)
+            {
+                user = null;
+            }
+
             if (user == null)
                 return false;
 
