@@ -14,7 +14,7 @@ namespace Schema.Validators
             return new TypeValidator<T>();
         }
 
-        public TweezersValidationResult Validate(string fieldName, object value)
+        public TweezersValidationResult Validate(string fieldName, dynamic value)
         {
             return (value is T)
                 ? TweezersValidationResult.Accept()

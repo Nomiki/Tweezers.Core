@@ -27,7 +27,7 @@ namespace Schema.DataHolders
         [JsonIgnore]
         internal List<IValidator> InternalValidators { get; private set; } = new List<IValidator>();
 
-        public TweezersValidationResult Validate(object value)
+        public TweezersValidationResult Validate(dynamic value)
         {
             if (FieldProperties.Required && value == null)
                 return TweezersValidationResult.Reject($"{DisplayName} is required.");
@@ -35,7 +35,7 @@ namespace Schema.DataHolders
             foreach (IValidator validator in InternalValidators)
             {
                 TweezersValidationResult validationResult = validator.Validate(DisplayName, value);
-                if (validationResult.Valid == false)
+                if (!validationResult.Valid)
                 {
                     return validationResult;
                 }

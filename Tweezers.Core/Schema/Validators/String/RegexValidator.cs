@@ -17,7 +17,7 @@ namespace Schema.Validators.String
             return new RegexValidator(pattern);
         }
 
-        public TweezersValidationResult Validate(string fieldName, object value)
+        public TweezersValidationResult Validate(string fieldName, dynamic value)
         {
             if (value is string)
             {
