@@ -1,7 +1,11 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using Newtonsoft.Json.Linq;
 using Schema.Validators;
+using Schema.Validators.Array;
 using Schema.Validators.Integer;
+using Schema.Validators.Object;
 using Schema.Validators.String;
 
 // ReSharper disable PossibleInvalidOperationException
@@ -20,6 +24,10 @@ namespace Schema.DataHolders
         public string[] Values { get; set; }
 
         public bool Required { get; set; } = false;
+
+        public string ObjectName { get; set; }
+
+        public TweezersValidationMap ArrayFieldProperties { get; set; }
 
         public List<IValidator> Compile()
         {
@@ -41,11 +49,55 @@ namespace Schema.DataHolders
                 validators.Add(MaxValidator);
             }
 
-            if (this.FieldType.Equals(TweezersFieldType.String) && Regex != null)
-            {
-                validators.Add(RegexValidator.Create(Regex));
-            }
+            AddRegexValidatorIfNeeded(validators);
 
+            AddEnumValidatorIfNeeded(validators);
+
+            AddObjectValidatorIfNeeded(validators);
+
+            AddArrayValidatorIfNeeded(validators);
+
+            return validators;
+        }
+
+        private void AddArrayValidatorIfNeeded(List<IValidator> validators)
+        {
+            if (FieldType.Equals(TweezersFieldType.Array))
+            {
+                if (this.ArrayFieldProperties != null)
+                {
+                    validators.Add(ArrayValidator.Create(ArrayFieldProperties));
+                }
+                else
+                {
+                    throw new ArgumentException($"ArrayFieldProperties are required for 'array' type");
+                }
+            }
+        }
+
+        private void AddObjectValidatorIfNeeded(List<IValidator> validators)
+        {
+            if (this.FieldType.Equals(TweezersFieldType.Object))
+            {
+                if (ObjectName != null)
+                {
+                    TweezersObject objectReference = TweezersSchemaFactory.Find(ObjectName);
+                    if (objectReference == null)
+                    {
+                        throw new ArgumentException($"Could not find Tweezers Object {ObjectName}");
+                    }
+
+                    validators.Add(TweezersObjectValidator.Create(objectReference));
+                }
+                else
+                {
+                    throw new ArgumentException("ObjectName is required for 'object' type.");
+                }
+            }
+        }
+
+        private void AddEnumValidatorIfNeeded(List<IValidator> validators)
+        {
             if (this.FieldType.Equals(TweezersFieldType.Enum))
             {
                 if (Values.Length == 0)
@@ -55,8 +107,14 @@ namespace Schema.DataHolders
 
                 validators.Add(ValuesValidator.Create(Values));
             }
+        }
 
-            return validators;
+        private void AddRegexValidatorIfNeeded(List<IValidator> validators)
+        {
+            if (this.FieldType.Equals(TweezersFieldType.String) && Regex != null)
+            {
+                validators.Add(RegexValidator.Create(Regex));
+            }
         }
 
         private IValidator FieldTypeValidator
@@ -68,9 +126,14 @@ namespace Schema.DataHolders
                     case TweezersFieldType.Integer:
                         return TypeValidator<int>.Create();
                     case TweezersFieldType.String:
+                    case TweezersFieldType.Enum:
                         return TypeValidator<string>.Create();
                     case TweezersFieldType.Boolean:
                         return TypeValidator<bool>.Create();
+                    case TweezersFieldType.Object:
+                        return TypeValidator<JObject>.Create();
+                    case TweezersFieldType.Array:
+                        return TypeValidator<JArray>.Create();
                     default:
                         throw new NotImplementedException($"Unsupported field type {FieldType}");
                 }

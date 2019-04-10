@@ -15,7 +15,7 @@ namespace Schema.Validators.String
 
         public string Name => "Maximum Length";
 
-        public TweezersValidationResult Validate(string fieldName, object value)
+        public TweezersValidationResult Validate(string fieldName, dynamic value)
         {
             if (value is string)
             {

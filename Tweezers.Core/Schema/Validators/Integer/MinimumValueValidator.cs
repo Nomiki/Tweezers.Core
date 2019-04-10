@@ -15,7 +15,7 @@ namespace Schema.Validators.Integer
 
         public string Name => "Minimum";
 
-        public TweezersValidationResult Validate(string fieldName, object value)
+        public TweezersValidationResult Validate(string fieldName, dynamic value)
         {
             if (value is int)
             {

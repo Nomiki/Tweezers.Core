@@ -14,7 +14,7 @@ namespace Schema.Validators
             return new NotNullValidator();
         }
 
-        public TweezersValidationResult Validate(string fieldName, object value)
+        public TweezersValidationResult Validate(string fieldName, dynamic value)
         {
             return value == null
                 ? TweezersValidationResult.Reject($"{fieldName} cannot be null.")

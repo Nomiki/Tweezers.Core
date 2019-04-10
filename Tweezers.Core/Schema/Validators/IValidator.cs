@@ -4,7 +4,7 @@ namespace Schema.Validators
 {
     public interface IValidator
     {
-        TweezersValidationResult Validate(string fieldName, object value);
+        TweezersValidationResult Validate(string fieldName, dynamic value);
 
         string Name { get; }
     }
