@@ -1,12 +1,9 @@
-﻿using System.Buffers;
-using System.Linq;
+﻿using System.Linq;
 using System.Reflection;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Tweezers.Api.DataHolders;
-using Tweezers.Api.Interfaces;
 using Tweezers.Discoveries.Attributes;
+using Tweezers.Schema.Interfaces;
 
 namespace Tweezers.Api.Controllers
 {

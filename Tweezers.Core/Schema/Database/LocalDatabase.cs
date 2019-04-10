@@ -2,18 +2,18 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Tweezers.Api.DataHolders;
-using Tweezers.Api.Exceptions;
-using Tweezers.Api.Interfaces;
+using Tweezers.Schema.DataHolders.DB;
+using Tweezers.Schema.Exceptions;
+using Tweezers.Schema.Interfaces;
 
-namespace Tweezers.Api.Database
+namespace Tweezers.Schema.Database
 {
     public class LocalDatabase : IDatabaseProxy
     {
-        private static LocalDatabase instance;
+        private static LocalDatabase _instance;
         private Dictionary<Type, Dictionary<object, object>> localDb = new Dictionary<Type, Dictionary<object, object>>();
 
-        public static LocalDatabase Instance => instance = instance ?? new LocalDatabase();
+        public static LocalDatabase Instance => _instance = _instance ?? new LocalDatabase();
 
         private LocalDatabase()
         {

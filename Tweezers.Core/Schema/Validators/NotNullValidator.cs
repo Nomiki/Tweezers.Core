@@ -1,6 +1,6 @@
-﻿using Schema.DataHolders;
+﻿using Tweezers.Schema.DataHolders;
 
-namespace Schema.Validators
+namespace Tweezers.Schema.Validators
 {
     public sealed class NotNullValidator : IValidator
     {

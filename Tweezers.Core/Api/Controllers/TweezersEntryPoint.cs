@@ -2,12 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 using Microsoft.AspNetCore.Mvc;
 using Tweezers.Api.DataHolders;
 using Tweezers.Discoveries.Attributes;
-using Tweezers.Discoveries.Containers;
-using Tweezers.Discoveries.Engine;
 
 namespace Tweezers.Api.Controllers
 {

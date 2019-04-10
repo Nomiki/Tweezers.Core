@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
-using Tweezers.Api.DataHolders;
+using Tweezers.Schema.DataHolders.DB;
 
-namespace Tweezers.Api.Interfaces
+namespace Tweezers.Schema.Interfaces
 {
     public interface IDatabaseProxy
     {

@@ -1,15 +1,14 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using Newtonsoft.Json.Linq;
-using Schema.Validators;
-using Schema.Validators.Array;
-using Schema.Validators.Integer;
-using Schema.Validators.Object;
-using Schema.Validators.String;
+using Tweezers.Schema.Validators;
+using Tweezers.Schema.Validators.Array;
+using Tweezers.Schema.Validators.Integer;
+using Tweezers.Schema.Validators.Object;
+using Tweezers.Schema.Validators.String;
 
 // ReSharper disable PossibleInvalidOperationException
-namespace Schema.DataHolders
+namespace Tweezers.Schema.DataHolders
 {
     public class TweezersValidationMap
     {

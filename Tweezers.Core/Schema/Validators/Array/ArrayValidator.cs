@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
 using Newtonsoft.Json.Linq;
-using Schema.DataHolders;
+using Tweezers.Schema.DataHolders;
 
-namespace Schema.Validators.Array
+namespace Tweezers.Schema.Validators.Array
 {
     public class ArrayValidator : IValidator
     {

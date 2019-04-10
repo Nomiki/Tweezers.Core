@@ -1,19 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net.Http;
 using System.Reflection;
 using Microsoft.AspNetCore.Mvc;
-using Tweezers.Api.Database;
-using Tweezers.Api.DataHolders;
-using Tweezers.Api.Exceptions;
-using Tweezers.Api.Interfaces;
-using Tweezers.Discoveries.Attributes;
 using Tweezers.Discoveries.Common;
 using Tweezers.Discoveries.Containers;
 using Tweezers.Discoveries.Engine;
 using Tweezers.Discoveries.Exceptions;
 using Tweezers.Discoveries.Rbac;
+using Tweezers.Schema.Database;
+using Tweezers.Schema.DataHolders.DB;
+using Tweezers.Schema.Exceptions;
+using Tweezers.Schema.Interfaces;
 
 namespace Tweezers.Api.Controllers
 {

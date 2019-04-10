@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Tweezers.Api.DataHolders
+﻿namespace Tweezers.Api.DataHolders
 {
     public sealed class TweezersErrorBody
     {
