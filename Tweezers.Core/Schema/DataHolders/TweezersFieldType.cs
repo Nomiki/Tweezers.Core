@@ -1,7 +1,7 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
-namespace Schema.DataHolders
+namespace Tweezers.Schema.DataHolders
 {
     [JsonConverter(typeof(StringEnumConverter))]
     public enum TweezersFieldType

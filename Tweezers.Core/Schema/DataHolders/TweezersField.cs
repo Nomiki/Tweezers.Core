@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
 using Newtonsoft.Json;
-using Schema.Validators;
+using Tweezers.Schema.Validators;
 
-namespace Schema.DataHolders
+namespace Tweezers.Schema.DataHolders
 {
     public sealed class TweezersField
     {

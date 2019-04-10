@@ -1,6 +1,6 @@
-﻿using Schema.DataHolders;
+﻿using Tweezers.Schema.DataHolders;
 
-namespace Schema.Validators.Integer
+namespace Tweezers.Schema.Validators.Integer
 {
     public sealed class MaximumValueValidator : IValidator
     {

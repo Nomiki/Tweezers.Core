@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Tweezers.Api.Exceptions
+namespace Tweezers.Schema.Exceptions
 {
     public sealed class ItemNotFoundException : Exception
     {

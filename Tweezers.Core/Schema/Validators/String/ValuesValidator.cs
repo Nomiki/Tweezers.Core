@@ -1,7 +1,7 @@
-﻿using Schema.Common;
-using Schema.DataHolders;
+﻿using Tweezers.Schema.Common;
+using Tweezers.Schema.DataHolders;
 
-namespace Schema.Validators.String
+namespace Tweezers.Schema.Validators.String
 {
     public sealed class ValuesValidator : IValidator
     {

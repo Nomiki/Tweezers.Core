@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Tweezers.Api.DataHolders
+namespace Tweezers.Schema.DataHolders.DB
 {
     public sealed class FindOptions<T>
     {

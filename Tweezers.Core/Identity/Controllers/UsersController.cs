@@ -2,12 +2,12 @@
 using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 using Tweezers.Api.Controllers;
-using Tweezers.Api.Database;
-using Tweezers.Api.DataHolders;
-using Tweezers.Api.Exceptions;
 using Tweezers.Discoveries.Exceptions;
 using Tweezers.Identity.DataHolders;
 using Tweezers.Discoveries.Common;
+using Tweezers.Schema.Database;
+using Tweezers.Schema.DataHolders.DB;
+using Tweezers.Schema.Exceptions;
 
 namespace Tweezers.Identity.Controllers
 {

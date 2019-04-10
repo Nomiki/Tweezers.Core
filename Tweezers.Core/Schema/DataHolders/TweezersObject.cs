@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
 using Newtonsoft.Json.Linq;
-using Schema.Common;
+using Tweezers.Schema.Common;
 
-namespace Schema.DataHolders
+namespace Tweezers.Schema.DataHolders
 {
     public sealed class TweezersObject
     {

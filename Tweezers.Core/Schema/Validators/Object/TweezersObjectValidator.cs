@@ -1,6 +1,6 @@
-﻿using Schema.DataHolders;
+﻿using Tweezers.Schema.DataHolders;
 
-namespace Schema.Validators.Object
+namespace Tweezers.Schema.Validators.Object
 {
     public class TweezersObjectValidator : IValidator
     {
