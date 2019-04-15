@@ -6,17 +6,17 @@ namespace Tweezers.Schema.Validators.Array
 {
     public class ArrayValidator : IValidator
     {
-        private TweezersValidationMap ValidationMap { get; set; }
+        private TweezersFieldProperties FieldProperties { get; set; }
 
         private List<IValidator> Validators { get; set; }
 
-        private ArrayValidator(TweezersValidationMap validationMap)
+        private ArrayValidator(TweezersFieldProperties fieldProperties)
         {
-            this.ValidationMap = validationMap;
-            this.Validators = ValidationMap.Compile();
+            this.FieldProperties = fieldProperties;
+            this.Validators = FieldProperties.Compile();
         }
 
-        public static IValidator Create(TweezersValidationMap arrayFieldProperties)
+        public static IValidator Create(TweezersFieldProperties arrayFieldProperties)
         {
             return new ArrayValidator(arrayFieldProperties);
         }
@@ -51,7 +51,7 @@ namespace Tweezers.Schema.Validators.Array
             {
                 Name = fieldName,
                 DisplayName = fieldName,
-                FieldProperties = ValidationMap
+                FieldProperties = FieldProperties
             };
 
             return field.Validate(element);

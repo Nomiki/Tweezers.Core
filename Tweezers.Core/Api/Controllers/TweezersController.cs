@@ -1,176 +1,106 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
+﻿using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
-using Tweezers.Discoveries.Common;
-using Tweezers.Discoveries.Containers;
-using Tweezers.Discoveries.Engine;
-using Tweezers.Discoveries.Exceptions;
-using Tweezers.Discoveries.Rbac;
-using Tweezers.Schema.Database;
+using Newtonsoft.Json.Linq;
+using Tweezers.Schema.DataHolders;
 using Tweezers.Schema.DataHolders.DB;
-using Tweezers.Schema.Exceptions;
-using Tweezers.Schema.Interfaces;
+using Tweezers.Schema.DataHolders.Exceptions;
 
 namespace Tweezers.Api.Controllers
 {
     [Route("api")]
     [ApiController]
-    public abstract class TweezersController<T> : TweezersControllerBase
+    public abstract class TweezersController : TweezersControllerBase
     {
-        protected DiscoverableMetadata TweezersMetadata => GetMetadata();
-
-        protected TweezersController(IDatabaseProxy databaseProxy = null) : this(null, databaseProxy)
-        {
-        }
-
-        protected TweezersController(string idFieldName, IDatabaseProxy databaseProxy = null)
-        {
-            DatabaseProxy = databaseProxy ?? LocalDatabase.Instance;
-        }
-
-        private DiscoverableMetadata GetMetadata()
-        {
-            return DiscoveryEngine.GetData(typeof(T));
-        }
-
-        [HttpGet("tweezers/[controller]")]
-        public ActionResult<DiscoverableMetadata> TweezIt()
+        [HttpGet("tweezers/{collection}")]
+        public ActionResult<JObject> GetMetadata(string collection)
         {
             try
             {
-                if (TweezersMetadata.EntityData.AllowedActions.In(TweezersAllowedActions.None))
-                    return DiscoveryError();
-
-                return Ok(TweezersMetadata);
+                TweezersObject objectMetadata = TweezersSchemaFactory.Find(collection);
+                return new ActionResult<JObject>(JObject.FromObject(objectMetadata));
             }
-            catch (TweezersDiscoveryException)
-            {
-                return DiscoveryError();
-            }
-        }
-
-        // GET api/[controller]
-        [HttpGet("[controller]")]
-        public virtual ActionResult<IEnumerable<T>> List()
-        {
-            try
-            {
-                if (TweezersMetadata.EntityData.AllowedActions.In(TweezersAllowedActions.None))
-                    return ForbiddenResult("get", $"Could not list items of type {typeof(T).Name}");
-
-                return Ok(DatabaseProxy.List<T>(FindOptions<T>.Default()).Select(DeleteTweezersIgnores));
-            }
-            catch (TweezersDiscoveryException)
-            {
-                return DiscoveryError();
-            }
-            catch (ItemNotFoundException e)
+            catch (TweezersValidationException e)
             {
                 return NotFoundResult(e.Message);
             }
         }
 
-        // GET api/[controller]/5
-        [HttpGet("[controller]/{id}")]
-        public virtual ActionResult<T> Get(string id)
+        [HttpGet("{collection}")]
+        public virtual ActionResult<IEnumerable<JObject>> List(string collection)
         {
             try
             {
-                string error = $"Could not get {typeof(T).Name} by ID:{id}";
-                if (TweezersMetadata.EntityData.AllowedActions.In(TweezersAllowedActions.None))
-                    return ForbiddenResult("get", error);
-
-                T obj = DatabaseProxy.Get<T>(id);
-
-                return Ok(DeleteTweezersIgnores(obj));
+                TweezersObject objectMetadata = TweezersSchemaFactory.Find(collection);
+                return new ActionResult<IEnumerable<JObject>>(
+                    objectMetadata.FindInDb(TweezersSchemaFactory.DatabaseProxy, FindOptions<JObject>.Default())); // TODO: predicate
             }
-            catch (TweezersDiscoveryException)
-            {
-                return DiscoveryError();
-            }
-            catch (ItemNotFoundException e)
+            catch (TweezersValidationException e)
             {
                 return NotFoundResult(e.Message);
             }
         }
 
-        // POST api/[controller]
-        [HttpPost("[controller]")]
-        public virtual ActionResult<T> Post([FromBody] T value)
+        [HttpGet("{collection}/{id}")]
+        public virtual ActionResult<JObject> Get(string collection, string id)
         {
             try
             {
-                if (TweezersMetadata.EntityData.AllowedActions.In(TweezersAllowedActions.View,
-                    TweezersAllowedActions.None))
-                    return ForbiddenResult("post", $"Could not add {typeof(T).Name}");
-
-                string id = Guid.NewGuid().ToString();
-                PropertyInfo idProperty = DetermineIdAttr<T>();
-                idProperty.SetValue(value, id);
-                T newObj = DatabaseProxy.Add<T>(id, value);
-                return Ok(DeleteTweezersIgnores(newObj));
+                TweezersObject objectMetadata = TweezersSchemaFactory.Find(collection);
+                return new ActionResult<JObject>(objectMetadata.GetById(TweezersSchemaFactory.DatabaseProxy, id));
             }
-            catch (TweezersDiscoveryException)
-            {
-                return DiscoveryError();
-            }
-            catch (ItemNotFoundException e)
+            catch (TweezersValidationException e)
             {
                 return NotFoundResult(e.Message);
             }
         }
 
-        [HttpPatch("[controller]/{id}")]
-        public virtual ActionResult<T> Patch(string id, [FromBody] T value)
+        [HttpPost("{collection}")]
+        public virtual ActionResult<JObject> Post(string collection, [FromBody] JObject data)
         {
             try
             {
-                if (TweezersMetadata.EntityData.AllowedActions.In(TweezersAllowedActions.View,
-                    TweezersAllowedActions.None))
-                    return ForbiddenResult("patch", $"Could not edit {typeof(T).Name} by ID:{id}");
-
-                T editedItem = DatabaseProxy.Edit<T>(id, value);
-                return Ok(DeleteTweezersIgnores(editedItem));
+                TweezersObject objectMetadata = TweezersSchemaFactory.Find(collection);
+                objectMetadata.Validate(data, false);
+                return new ActionResult<JObject>(objectMetadata.Create(TweezersSchemaFactory.DatabaseProxy, data));
             }
-            catch (TweezersDiscoveryException)
+            catch (TweezersValidationException e)
             {
-                return DiscoveryError();
-            }
-            catch (ItemNotFoundException e)
-            {
-                return NotFoundResult(e.Message);
+                return ForbiddenResult("create", e.Message);
             }
         }
 
-        // DELETE api/[controller]/5
-        [HttpDelete("[controller]/{id}")]
-        public virtual ActionResult<T> Delete(string id)
+        [HttpPatch("{collection}/{id}")]
+        public virtual ActionResult<JObject> Patch(string collection, string id, [FromBody] JObject data)
         {
             try
             {
-                if (TweezersMetadata.EntityData.AllowedActions.In(TweezersAllowedActions.Edit,
-                    TweezersAllowedActions.View,
-                    TweezersAllowedActions.None))
-                    return ForbiddenResult("delete", $"Could not delete {id}");
-
-                DatabaseProxy.Delete<T>(id);
-                return Ok();
+                TweezersObject objectMetadata = TweezersSchemaFactory.Find(collection);
+                objectMetadata.Validate(data, true);
+                return new ActionResult<JObject>(objectMetadata.Update(TweezersSchemaFactory.DatabaseProxy, id, data));
             }
-            catch (TweezersDiscoveryException)
+            catch (TweezersValidationException e)
             {
-                return DiscoveryError();
-            }
-            catch (ItemNotFoundException e)
-            {
-                return NotFoundResult(e.Message);
+                return BadRequestResult(e.Message);
             }
         }
 
-        private ActionResult DiscoveryError()
+        [HttpDelete("{collection}/{id}")]
+        public virtual ActionResult<bool> Delete(string collection, string id)
         {
-            return ForbiddenResult("tweezers", $"Could not discover {typeof(T).Name}");
+            try
+            {
+                TweezersObject objectMetadata = TweezersSchemaFactory.Find(collection);
+                if (objectMetadata.GetById(TweezersSchemaFactory.DatabaseProxy, id) == null)
+                {
+                    return new ActionResult<bool>(true);
+                }
+
+                return new ActionResult<bool>(objectMetadata.Delete(TweezersSchemaFactory.DatabaseProxy, id));
+            }
+            catch (TweezersValidationException e)
+            {
+                return BadRequestResult(e.Message);
+            }
         }
     }
 }

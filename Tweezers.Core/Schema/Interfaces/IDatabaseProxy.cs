@@ -1,18 +1,19 @@
 ﻿using System.Collections.Generic;
+using Newtonsoft.Json.Linq;
 using Tweezers.Schema.DataHolders.DB;
 
 namespace Tweezers.Schema.Interfaces
 {
     public interface IDatabaseProxy
     {
-        T Get<T>(object id);
+        JObject Get(string collection, string id);
 
-        T Add<T>(object id, T data);
+        JObject Add(string collection, string id, JObject data);
 
-        T Edit<T>(object id, T data);
+        JObject Edit(string collection, string id, JObject data);
 
-        bool Delete<T>(object id);
+        bool Delete(string collection, string id);
 
-        IEnumerable<T> List<T>(FindOptions<T> opts);
+        IEnumerable<JObject> List(string collection, FindOptions<JObject> opts);
     }
 }
