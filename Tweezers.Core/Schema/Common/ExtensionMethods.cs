@@ -51,5 +51,10 @@ namespace Tweezers.Schema.Common
                 i++;
             }
         }
+
+        public static TimeSpan Hours(this int i)
+        {
+            return TimeSpan.FromHours(i);
+        }
     }
 }
