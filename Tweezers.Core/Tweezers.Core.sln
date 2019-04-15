@@ -1,10 +1,8 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.28010.2050
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.28803.156
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Discoveries", "Discoveries\Discoveries.csproj", "{6E050412-81BC-4446-A394-1E885AD5534B}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Examples", "Examples", "{7FBAB3AA-9605-43F0-B833-58655D0F15CA}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ApiExample", "Examples\ApiExample\ApiExample.csproj", "{CEF4DA71-CB60-47FB-B9F7-C58542EC8C9F}"
@@ -13,7 +11,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Api", "Api\Api.csproj", "{F
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Identity", "Identity\Identity.csproj", "{63EC5980-9273-446D-A301-0374A17D1C37}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Schema", "Schema\Schema.csproj", "{C519841D-9907-444E-92DC-8CB81D7E0BEC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Schema", "Schema\Schema.csproj", "{C519841D-9907-444E-92DC-8CB81D7E0BEC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -25,18 +23,6 @@ Global
 		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{6E050412-81BC-4446-A394-1E885AD5534B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{6E050412-81BC-4446-A394-1E885AD5534B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{6E050412-81BC-4446-A394-1E885AD5534B}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{6E050412-81BC-4446-A394-1E885AD5534B}.Debug|x64.Build.0 = Debug|Any CPU
-		{6E050412-81BC-4446-A394-1E885AD5534B}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{6E050412-81BC-4446-A394-1E885AD5534B}.Debug|x86.Build.0 = Debug|Any CPU
-		{6E050412-81BC-4446-A394-1E885AD5534B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{6E050412-81BC-4446-A394-1E885AD5534B}.Release|Any CPU.Build.0 = Release|Any CPU
-		{6E050412-81BC-4446-A394-1E885AD5534B}.Release|x64.ActiveCfg = Release|Any CPU
-		{6E050412-81BC-4446-A394-1E885AD5534B}.Release|x64.Build.0 = Release|Any CPU
-		{6E050412-81BC-4446-A394-1E885AD5534B}.Release|x86.ActiveCfg = Release|Any CPU
-		{6E050412-81BC-4446-A394-1E885AD5534B}.Release|x86.Build.0 = Release|Any CPU
 		{CEF4DA71-CB60-47FB-B9F7-C58542EC8C9F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{CEF4DA71-CB60-47FB-B9F7-C58542EC8C9F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CEF4DA71-CB60-47FB-B9F7-C58542EC8C9F}.Debug|x64.ActiveCfg = Debug|Any CPU

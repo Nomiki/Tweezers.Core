@@ -18,7 +18,7 @@ namespace Tweezers.Schema.Validators.Object
 
         public TweezersValidationResult Validate(string fieldName, dynamic value)
         {
-            return ObjectReference.Validate(value);
+            return ObjectReference.Validate(value, false);
         }
 
         public string Name => $"Object {ObjectReference.DisplayNames.SingularName}";

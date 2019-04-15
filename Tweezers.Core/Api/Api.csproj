@@ -11,7 +11,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Discoveries\Discoveries.csproj" />
     <ProjectReference Include="..\Schema\Schema.csproj" />
   </ItemGroup>
   

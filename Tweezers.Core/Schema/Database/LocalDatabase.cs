@@ -2,16 +2,18 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Newtonsoft.Json.Linq;
 using Tweezers.Schema.DataHolders.DB;
 using Tweezers.Schema.Exceptions;
 using Tweezers.Schema.Interfaces;
 
 namespace Tweezers.Schema.Database
 {
+    //TODO
     public class LocalDatabase : IDatabaseProxy
     {
         private static LocalDatabase _instance;
-        private Dictionary<Type, Dictionary<object, object>> localDb = new Dictionary<Type, Dictionary<object, object>>();
+        private Dictionary<string, List<JObject>> _localDb = new Dictionary<string, List<JObject>>();
 
         public static LocalDatabase Instance => _instance = _instance ?? new LocalDatabase();
 
@@ -19,64 +21,68 @@ namespace Tweezers.Schema.Database
         {
         }
 
-        public T Get<T>(object id)
+        public JObject Get(string collection, string id)
         {
-            if (localDb.ContainsKey(typeof(T)) && (localDb[typeof(T)]?.ContainsKey(id) ?? false))
+            if (!_localDb.ContainsKey(collection))
             {
-                return (T) localDb[typeof(T)][id];
+                _localDb[collection] = new List<JObject>();
             }
 
-            throw new ItemNotFoundException(id.ToString());
+            return _localDb[collection].First(item => item["_id"].ToString() == id);
         }
 
-        public T Add<T>(object id, T data)
+        public JObject Add(string collection, string id, JObject data)
         {
-            if (!localDb.ContainsKey(typeof(T)))
+            if (!_localDb.ContainsKey(collection))
             {
-                localDb[typeof(T)] = new Dictionary<object, object>();
+                _localDb[collection] = new List<JObject>();
             }
 
-            localDb[typeof(T)][id] = data;
-            return data;
+            JObject newData = data;
+            newData["_id"] = id;
+            _localDb[collection].Add(data);
+
+            return Get(collection, id);
         }
 
-        public T Edit<T>(object id, T data)
+        public JObject Edit(string collection, string id, JObject data)
         {
-            if (localDb.ContainsKey(typeof(T)) && (localDb[typeof(T)]?.ContainsKey(id) ?? false))
+            if (!_localDb.ContainsKey(collection))
             {
-                T dbObj = (T) localDb[typeof(T)][id];
-                foreach (PropertyInfo pi in typeof(T).GetProperties())
-                {
-                    object value = pi.GetValue(data);
-                    if (value != null)
-                        pi.SetValue(dbObj, value);
-                }
-                
-                return dbObj;
+                _localDb[collection] = new List<JObject>();
             }
 
-            throw new ItemNotFoundException(id.ToString());
-        }
-
-        public bool Delete<T>(object id)
-        {
-            if (localDb.ContainsKey(typeof(T)) && (localDb[typeof(T)]?.ContainsKey(id) ?? false))
+            JObject objData = Get(collection, id);
+            foreach ((string key, JToken value) in data)
             {
-                localDb[typeof(T)].Remove(id);
-                return true;
+                objData[key] = value;
             }
 
-            throw new ItemNotFoundException(id.ToString());
+            Delete(collection, id);
+            return Add(collection, id, objData);
         }
 
-        public IEnumerable<T> List<T>(FindOptions<T> opts)
+        public bool Delete(string collection, string id)
         {
-            return localDb.ContainsKey(typeof(T)) 
-                ? localDb[typeof(T)].Values.Cast<T>()
-                    .Where(opts.Predicate)
-                    .Skip(opts.Skip)
-                    .Take(opts.Take) 
-                : Enumerable.Empty<T>();
+            if (!_localDb.ContainsKey(collection))
+            {
+                _localDb[collection] = new List<JObject>();
+            }
+
+            return _localDb[collection].Remove(Get(collection, id));
+        }
+
+        public IEnumerable<JObject> List(string collection, FindOptions<JObject> opts)
+        {
+            if (!_localDb.ContainsKey(collection))
+            {
+                _localDb[collection] = new List<JObject>();
+            }
+
+            return _localDb[collection]
+                .Where(obj => opts.Predicate.Invoke(obj))
+                .Skip(opts.Skip)
+                .Take(opts.Take);
         }
     }
 }

@@ -10,7 +10,7 @@ using Tweezers.Schema.Validators.String;
 // ReSharper disable PossibleInvalidOperationException
 namespace Tweezers.Schema.DataHolders
 {
-    public class TweezersValidationMap
+    public class TweezersFieldProperties
     {
         public TweezersFieldType FieldType { get; set; }
 
@@ -26,7 +26,9 @@ namespace Tweezers.Schema.DataHolders
 
         public string ObjectName { get; set; }
 
-        public TweezersValidationMap ArrayFieldProperties { get; set; }
+        public bool UiIgnore { get; set; }
+
+        public TweezersFieldProperties ArrayFieldProperties { get; set; }
 
         public List<IValidator> Compile()
         {

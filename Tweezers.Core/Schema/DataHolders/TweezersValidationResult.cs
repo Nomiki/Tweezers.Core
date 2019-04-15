@@ -28,5 +28,10 @@
                 Reason = reason
             };
         }
+
+        public override string ToString()
+        {
+            return Valid ? "Ok" : Reason;
+        }
     }
 }

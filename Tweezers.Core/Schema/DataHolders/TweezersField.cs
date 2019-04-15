@@ -6,7 +6,7 @@ namespace Tweezers.Schema.DataHolders
 {
     public sealed class TweezersField
     {
-        private TweezersValidationMap _fieldProperties;
+        private TweezersFieldProperties _fieldProperties;
 
         public string Name { get; set; }
 
@@ -14,7 +14,7 @@ namespace Tweezers.Schema.DataHolders
 
         public string Icon { get; set; }
 
-        public TweezersValidationMap FieldProperties
+        public TweezersFieldProperties FieldProperties
         {
             get => _fieldProperties;
             set
