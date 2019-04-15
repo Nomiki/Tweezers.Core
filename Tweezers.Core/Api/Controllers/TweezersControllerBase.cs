@@ -19,5 +19,10 @@ namespace Tweezers.Api.Controllers
         {
             return StatusCode(400, new TweezersErrorBody() { Message = message });
         }
+
+        protected ActionResult UnauthorizedResult(string message)
+        {
+            return StatusCode(401, new TweezersErrorBody() { Message = message });
+        }
     }
 }

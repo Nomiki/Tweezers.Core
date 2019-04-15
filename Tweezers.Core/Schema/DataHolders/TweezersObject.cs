@@ -17,6 +17,8 @@ namespace Tweezers.Schema.DataHolders
 
         public Dictionary<string, TweezersField> Fields { get; } = new Dictionary<string, TweezersField>();
 
+        public bool Internal { get; set; } = false;
+
         public TweezersValidationResult Validate(JObject obj, bool partial)
         {
             JObject filteredObj = obj.Just(Fields.Keys);
@@ -44,30 +46,32 @@ namespace Tweezers.Schema.DataHolders
         {
             FindOptions<JObject> opts = findOptions ?? FindOptions<JObject>.Default();
 
-            return proxy.List(CollectionName, opts).Select(obj => obj.Just(Fields.Keys));
+            return proxy.List(CollectionName, opts).Select(obj => obj.Just(AllFields));
         }
 
-        public dynamic GetById(IDatabaseProxy proxy, string id)
+        public JObject GetById(IDatabaseProxy proxy, string id)
         {
-            return proxy.Get(CollectionName, id).Just(Fields.Keys);
+            return proxy.Get(CollectionName, id).Just(AllFields);
         }
 
-        public dynamic Create(IDatabaseProxy proxy, JObject data)
+        public JObject Create(IDatabaseProxy proxy, JObject data)
         {
             string id = Guid.NewGuid().ToString();
             JObject filteredData = data.Just(Fields.Keys);
-            return proxy.Add(CollectionName, id, filteredData).Just(Fields.Keys);
+            return proxy.Add(CollectionName, id, filteredData).Just(AllFields);
         }
 
-        public dynamic Update(IDatabaseProxy proxy, string id, JObject data)
+        public JObject Update(IDatabaseProxy proxy, string id, JObject data)
         {
             JObject filteredData = data.Just(Fields.Keys);
-            return proxy.Edit(CollectionName, id, filteredData).Just(Fields.Keys);
+            return proxy.Edit(CollectionName, id, filteredData).Just(AllFields);
         }
 
         public bool Delete(IDatabaseProxy proxy, string id)
         {
             return proxy.Delete(CollectionName, id);
         }
+
+        private string[] AllFields => Fields.Keys.Concat(new[] {"_id"}).ToArray();
     }
 }

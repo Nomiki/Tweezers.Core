@@ -22,7 +22,7 @@ namespace Tweezers.Schema.Validators.String
             if (value is string)
             {
                 string parsedValue = (string) value;
-                Regex regex = new Regex(Pattern);
+                Regex regex = new Regex(Regex.Escape(Pattern));
                 return regex.IsMatch(parsedValue)
                     ? TweezersValidationResult.Accept()
                     : TweezersValidationResult.Reject($"{fieldName} does not match pattern '{Pattern}'");

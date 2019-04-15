@@ -11,6 +11,9 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Tweezers.Api.Middleware;
+using Tweezers.Identity;
+using Tweezers.Schema.Database;
+using Tweezers.Schema.DataHolders;
 
 namespace ApiExample
 {
@@ -57,6 +60,8 @@ namespace ApiExample
             }
 
             TweezersMiddleware.AddErrorHandler(app);
+            IdentityManager.RegisterIdentity();
+            TweezersSchemaFactory.DatabaseProxy = LocalDatabase.Instance;
             app.UseCors(corsConfig);
             app.UseHttpsRedirection();
             app.UseMvc();
