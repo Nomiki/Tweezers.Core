@@ -28,7 +28,7 @@ namespace Tweezers.Schema.Database
                 _localDb[collection] = new List<JObject>();
             }
 
-            return _localDb[collection].First(item => item["_id"].ToString() == id);
+            return _localDb[collection].FirstOrDefault(item => item["_id"].ToString() == id);
         }
 
         public JObject Add(string collection, string id, JObject data)
@@ -83,6 +83,11 @@ namespace Tweezers.Schema.Database
                 .Where(obj => opts.Predicate.Invoke(obj))
                 .Skip(opts.Skip)
                 .Take(opts.Take);
+        }
+
+        public IEnumerable<string> GetCollections()
+        {
+            return _localDb.Keys;
         }
     }
 }

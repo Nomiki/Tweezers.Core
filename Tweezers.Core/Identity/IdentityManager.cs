@@ -22,6 +22,7 @@ namespace Tweezers.Identity
                 FieldProperties = new TweezersFieldProperties()
                 {
                     FieldType = TweezersFieldType.String,
+                    UiTitle = true,
                     Min = 1,
                     Max = 50,
                     Required = true,

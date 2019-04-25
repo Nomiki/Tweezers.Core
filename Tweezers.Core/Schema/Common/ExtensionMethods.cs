@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace Tweezers.Schema.Common
@@ -55,6 +56,11 @@ namespace Tweezers.Schema.Common
         public static TimeSpan Hours(this int i)
         {
             return TimeSpan.FromHours(i);
+        }
+
+        public static T ToStrongType<T>(this JObject jObject)
+        {
+            return JsonConvert.DeserializeObject<T>(JsonConvert.SerializeObject(jObject));
         }
     }
 }

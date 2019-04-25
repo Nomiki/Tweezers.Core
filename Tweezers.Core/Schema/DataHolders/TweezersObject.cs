@@ -19,6 +19,8 @@ namespace Tweezers.Schema.DataHolders
 
         public bool Internal { get; set; } = false;
 
+        public DateTime LastChanged { get; set; } = DateTime.Now;
+
         public TweezersValidationResult Validate(JObject obj, bool partial)
         {
             JObject filteredObj = obj.Just(Fields.Keys);
@@ -72,6 +74,10 @@ namespace Tweezers.Schema.DataHolders
             return proxy.Delete(CollectionName, id);
         }
 
-        private string[] AllFields => Fields.Keys.Concat(new[] {"_id"}).ToArray();
+        private string[] AllFields => 
+            Fields.Where(f => !f.Value.FieldProperties.UiIgnore)
+                .Select(f => f.Key)
+                .Concat(new[] {"_id"})
+                .ToArray();
     }
 }

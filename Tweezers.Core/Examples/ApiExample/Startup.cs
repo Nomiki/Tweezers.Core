@@ -60,8 +60,9 @@ namespace ApiExample
             }
 
             TweezersMiddleware.AddErrorHandler(app);
-            IdentityManager.RegisterIdentity();
             TweezersSchemaFactory.DatabaseProxy = LocalDatabase.Instance;
+            IdentityManager.RegisterIdentity();
+            
             app.UseCors(corsConfig);
             app.UseHttpsRedirection();
             app.UseMvc();

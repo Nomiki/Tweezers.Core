@@ -1,4 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using Tweezers.Schema.Common;
+using Tweezers.Schema.DataHolders.DB;
 using Tweezers.Schema.DataHolders.Exceptions;
 using Tweezers.Schema.Interfaces;
 
@@ -6,21 +12,26 @@ namespace Tweezers.Schema.DataHolders
 {
     public static class TweezersSchemaFactory
     {
-        private static readonly Dictionary<string, TweezersObject> TweezersObjects = new Dictionary<string, TweezersObject>();
+        private static readonly string ObjectMetadataCollectionName = "tweezers-objects";
+
         public static IDatabaseProxy DatabaseProxy { get; set; }
 
         public static void AddObject(TweezersObject obj)
         {
-            TweezersObjects[obj.CollectionName] = obj;
+            TweezersObject dbObj = InternalFind(obj.CollectionName, true);
+            if (dbObj?.Internal ?? false)
+                throw new ArgumentException("trying to override an internal object");
+
+            DatabaseProxy.Add(ObjectMetadataCollectionName, obj.CollectionName, JObject.FromObject(obj));
         }
 
         private static TweezersObject InternalFind(string collectionName, bool withInternalObjects = false)
         {
-            if (TweezersObjects.ContainsKey(collectionName))
-            {
-                TweezersObject tweezersObject = TweezersObjects[collectionName];
-                return tweezersObject.Internal && !withInternalObjects ? null : tweezersObject;
-            }
+            JObject tweezersDbJObject = DatabaseProxy.Get(ObjectMetadataCollectionName, collectionName);
+            TweezersObject dbObj = tweezersDbJObject.ToStrongType<TweezersObject>();
+            
+            if (dbObj != null)
+                return dbObj.Internal && !withInternalObjects ? null : dbObj;
 
             return null;
         }
@@ -28,10 +39,23 @@ namespace Tweezers.Schema.DataHolders
         public static TweezersObject Find(string collectionName, bool withInternalObjects = false)
         {
             TweezersObject obj = InternalFind(collectionName, withInternalObjects);
-            if (obj == null) 
-                throw new TweezersValidationException(TweezersValidationResult.Reject($"Could not find collection with name {collectionName}"));
+            if (obj == null)
+                throw new TweezersValidationException(
+                    TweezersValidationResult.Reject($"Could not find collection with name {collectionName}"));
 
             return obj;
+        }
+
+        public static IEnumerable<TweezersObject> GetAll(bool includeInternal = false)
+        {
+            return DatabaseProxy.List(ObjectMetadataCollectionName, FindOptions<JObject>.Default(0, 50))
+                .Select(jObj => jObj.ToStrongType<TweezersObject>())
+                .Where(tweezersObj => includeInternal || !tweezersObj.Internal);
+        }
+
+        public static bool DeleteObject(string collectionName)
+        {
+            return DatabaseProxy.Delete(ObjectMetadataCollectionName, collectionName);
         }
     }
 }

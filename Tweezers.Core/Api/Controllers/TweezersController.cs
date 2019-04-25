@@ -1,5 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Tweezers.Schema.DataHolders;
 using Tweezers.Schema.DataHolders.DB;
@@ -9,19 +12,40 @@ namespace Tweezers.Api.Controllers
 {
     [Route("api")]
     [ApiController]
-    public abstract class TweezersController : TweezersControllerBase
+    public class TweezersController : TweezersControllerBase
     {
+        private static readonly JsonSerializerSettings Settings = new JsonSerializerSettings()
+        {
+             NullValueHandling = NullValueHandling.Ignore,
+             Formatting = Formatting.Indented
+        };
+
+        private static readonly JsonSerializer Serializer = JsonSerializer.Create(Settings);
+
+        [HttpGet("tweezers")]
+        public ActionResult<IEnumerable<JObject>> GetAllMetadata([FromQuery] bool full = false)
+        {
+            try
+            {
+                return new ActionResult<IEnumerable<JObject>>(TweezersSchemaFactory.GetAll(full).Select(obj => JObject.FromObject(obj, Serializer)));
+            }
+            catch (TweezersValidationException e)
+            {
+                return BadRequestResult(e.Message);
+            }
+        }
+
         [HttpGet("tweezers/{collection}")]
         public ActionResult<JObject> GetMetadata(string collection)
         {
             try
             {
                 TweezersObject objectMetadata = TweezersSchemaFactory.Find(collection);
-                return new ActionResult<JObject>(JObject.FromObject(objectMetadata));
+                return new ActionResult<JObject>(JObject.FromObject(objectMetadata, Serializer));
             }
-            catch (TweezersValidationException e)
+            catch (TweezersValidationException)
             {
-                return NotFoundResult(e.Message);
+                return NotFoundResult();
             }
         }
 
@@ -31,12 +55,14 @@ namespace Tweezers.Api.Controllers
             try
             {
                 TweezersObject objectMetadata = TweezersSchemaFactory.Find(collection);
-                return new ActionResult<IEnumerable<JObject>>(
-                    objectMetadata.FindInDb(TweezersSchemaFactory.DatabaseProxy, FindOptions<JObject>.Default())); // TODO: predicate
+                return 
+                    new ActionResult<IEnumerable<JObject>>(
+                        objectMetadata.FindInDb(TweezersSchemaFactory.DatabaseProxy, FindOptions<JObject>.Default())
+                            .Select(obj => JObject.FromObject(obj, Serializer))); // TODO: predicate
             }
-            catch (TweezersValidationException e)
+            catch (TweezersValidationException)
             {
-                return NotFoundResult(e.Message);
+                return NotFoundResult();
             }
         }
 
@@ -46,11 +72,15 @@ namespace Tweezers.Api.Controllers
             try
             {
                 TweezersObject objectMetadata = TweezersSchemaFactory.Find(collection);
-                return new ActionResult<JObject>(objectMetadata.GetById(TweezersSchemaFactory.DatabaseProxy, id));
+                JObject obj = objectMetadata.GetById(TweezersSchemaFactory.DatabaseProxy, id);
+                if (obj == null)
+                    return NotFoundResult();
+
+                return new ActionResult<JObject>(obj);
             }
-            catch (TweezersValidationException e)
+            catch (TweezersValidationException)
             {
-                return NotFoundResult(e.Message);
+                return NotFoundResult();
             }
         }
 
@@ -75,6 +105,10 @@ namespace Tweezers.Api.Controllers
             try
             {
                 TweezersObject objectMetadata = TweezersSchemaFactory.Find(collection);
+                JObject obj = objectMetadata.GetById(TweezersSchemaFactory.DatabaseProxy, id);
+                if (obj == null)
+                    return NotFoundResult();
+
                 objectMetadata.Validate(data, true);
                 return new ActionResult<JObject>(objectMetadata.Update(TweezersSchemaFactory.DatabaseProxy, id, data));
             }
