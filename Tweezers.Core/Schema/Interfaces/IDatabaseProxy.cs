@@ -15,5 +15,7 @@ namespace Tweezers.Schema.Interfaces
         bool Delete(string collection, string id);
 
         IEnumerable<JObject> List(string collection, FindOptions<JObject> opts);
+
+        IEnumerable<string> GetCollections();
     }
 }

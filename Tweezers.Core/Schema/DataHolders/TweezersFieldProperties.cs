@@ -26,7 +26,11 @@ namespace Tweezers.Schema.DataHolders
 
         public string ObjectName { get; set; }
 
+        public TweezersObject ObjectReference { get; set; }
+
         public bool UiIgnore { get; set; }
+
+        public bool UiTitle { get; set; }
 
         public TweezersFieldProperties ArrayFieldProperties { get; set; }
 
@@ -80,7 +84,11 @@ namespace Tweezers.Schema.DataHolders
         {
             if (this.FieldType.Equals(TweezersFieldType.Object))
             {
-                if (ObjectName != null)
+                if (ObjectReference != null)
+                {
+                    validators.Add(TweezersObjectValidator.Create(ObjectReference));
+                }
+                else if (ObjectName != null)
                 {
                     TweezersObject objectReference = TweezersSchemaFactory.Find(ObjectName);
                     if (objectReference == null)

@@ -10,9 +10,9 @@ namespace Tweezers.Api.Controllers
             return StatusCode(403, new TweezersErrorBody() { Message = message, Method = method});
         }
 
-        protected ActionResult NotFoundResult(string message)
+        protected ActionResult NotFoundResult()
         {
-            return StatusCode(404, new TweezersErrorBody() {Message = message});
+            return StatusCode(404, new TweezersErrorBody() {Message = "Not found."});
         }
 
         protected ActionResult BadRequestResult(string message)

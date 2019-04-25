@@ -8,12 +8,9 @@ namespace Tweezers.Schema.Validators.Array
     {
         private TweezersFieldProperties FieldProperties { get; set; }
 
-        private List<IValidator> Validators { get; set; }
-
         private ArrayValidator(TweezersFieldProperties fieldProperties)
         {
             this.FieldProperties = fieldProperties;
-            this.Validators = FieldProperties.Compile();
         }
 
         public static IValidator Create(TweezersFieldProperties arrayFieldProperties)
