@@ -37,11 +37,12 @@ namespace Tweezers.Identity.Controllers
                 };
 
                 TweezersObject usersObjectMetadata = TweezersSchemaFactory.Find("users", true);
-                return new ActionResult<JObject>(usersObjectMetadata.Create(TweezersSchemaFactory.DatabaseProxy, user));
+                user = usersObjectMetadata.Create(TweezersSchemaFactory.DatabaseProxy, user);
+                return TweezersOk(user);
             }
             catch (TweezersValidationException e)
             {
-                return BadRequestResult(e.Message);
+                return TweezersBadRequest(e.Message);
             }
         }
 
@@ -57,14 +58,14 @@ namespace Tweezers.Identity.Controllers
                         .ToString(CultureInfo.InvariantCulture);
                     TweezersObject usersObjectMetadata = TweezersSchemaFactory.Find("users", true);
                     usersObjectMetadata.Update(TweezersSchemaFactory.DatabaseProxy, user["_id"].ToString(), user.Just("sessionId", "sessionExpiry"));
-                    return Ok("Welcome");
+                    return TweezersOk("Welcome");
                 }
 
-                return UnauthorizedResult("Bad username or password");
+                return TweezersUnauthorized("Bad username or password");
             }
             catch (TweezersValidationException e)
             {
-                return BadRequestResult(e.Message);
+                return TweezersBadRequest(e.Message);
             }
         }
 
@@ -95,7 +96,7 @@ namespace Tweezers.Identity.Controllers
             return usersObjectMetadata.FindInDb(TweezersSchemaFactory.DatabaseProxy, userOpts)?.SingleOrDefault();
         }
 
-        public bool ValidatePassword(string requestPassword, string userPasswordHash)
+        private bool ValidatePassword(string requestPassword, string userPasswordHash)
         {
             return Hash.Validate(requestPassword, userPasswordHash);
         }

@@ -9,7 +9,7 @@ namespace Tweezers.Api.Middleware
     {
         [Route("")]
         [AllowAnonymous]
-        public IActionResult Get()
+        protected IActionResult Get()
         {
             TweezersErrorBody errorBody = new TweezersErrorBody() { Message = "Internal Server Error, Check logs" };
 

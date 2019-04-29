@@ -29,9 +29,16 @@ namespace Tweezers.Schema.DataHolders
         {
             JObject tweezersDbJObject = DatabaseProxy.Get(ObjectMetadataCollectionName, collectionName);
             TweezersObject dbObj = tweezersDbJObject.ToStrongType<TweezersObject>();
-            
+
             if (dbObj != null)
-                return dbObj.Internal && !withInternalObjects ? null : dbObj;
+            {
+                if (dbObj.Internal && !withInternalObjects)
+                {
+                    return null;
+                }
+
+                return dbObj;
+            }
 
             return null;
         }

@@ -1,11 +1,7 @@
 ﻿using System.Collections.Generic;
-using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json.Linq;
+using Tweezers.Api.DataHolders;
 using Tweezers.Schema.DataHolders;
-using Tweezers.Schema.DataHolders.DB;
-using Tweezers.Schema.DataHolders.Exceptions;
 
 namespace Tweezers.Api.Controllers
 {
@@ -14,40 +10,47 @@ namespace Tweezers.Api.Controllers
     public class TweezersObjectController : TweezersControllerBase
     {
         [HttpGet("tweezers-schema")]
-        public virtual ActionResult<IEnumerable<TweezersObject>> List([FromQuery] bool internalObj)
+        public virtual ActionResult<TweezersMultipleResults<TweezersObject>> List([FromQuery] bool internalObj)
         {
-            return new ActionResult<IEnumerable<TweezersObject>>(TweezersSchemaFactory.GetAll(includeInternal: internalObj));
+            IEnumerable<TweezersObject> allMetadata = TweezersSchemaFactory.GetAll(includeInternal: internalObj);
+            return TweezersOk(TweezersMultipleResults<TweezersObject>.Create(allMetadata));
         }
 
         [HttpGet("tweezers-schema/{collectionName}")]
         public virtual ActionResult<TweezersObject> Get(string collectionName, [FromQuery] bool internalObj)
         {
-            return new ActionResult<TweezersObject>(TweezersSchemaFactory.Find(collectionName, withInternalObjects: internalObj));
+            TweezersObject objectMetadata = TweezersSchemaFactory.Find(collectionName, withInternalObjects: internalObj);
+            return TweezersOk(objectMetadata);
         }
 
         [HttpPost("tweezers-schema")]
         public virtual ActionResult<TweezersObject> Post([FromBody] TweezersObject data)
         {
-            return OverrideObject(data);
+            TweezersObject obj = ReplaceTweezersObject(data);
+            return TweezersCreated(obj);
         }
 
-        private static ActionResult<TweezersObject> OverrideObject(TweezersObject data)
+        private static TweezersObject ReplaceTweezersObject(TweezersObject data)
         {
             TweezersSchemaFactory.AddObject(data);
-            return new ActionResult<TweezersObject>(TweezersSchemaFactory.Find(data.CollectionName));
+            // todo: add validate
+            TweezersObject obj = TweezersSchemaFactory.Find(data.CollectionName);
+            return obj;
         }
 
         [HttpPut("tweezers-schema/{collectionName}")]
         public virtual ActionResult<TweezersObject> Patch(string collectionName, [FromBody] TweezersObject data)
         {
             data.CollectionName = collectionName;
-            return OverrideObject(data);
+            TweezersObject obj = ReplaceTweezersObject(data);
+            return TweezersOk(obj);
         }
 
         [HttpDelete("tweezers-schema/{collectionName}")]
         public virtual ActionResult<bool> Delete(string collectionName)
         {
-            return new ActionResult<bool>(TweezersSchemaFactory.DeleteObject(collectionName));
+            bool deleted = TweezersSchemaFactory.DeleteObject(collectionName);
+            return TweezersOk(deleted);
         }
     }
 }

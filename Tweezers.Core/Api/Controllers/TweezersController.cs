@@ -1,9 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Tweezers.Api.DataHolders;
 using Tweezers.Schema.DataHolders;
 using Tweezers.Schema.DataHolders.DB;
 using Tweezers.Schema.DataHolders.Exceptions;
@@ -14,55 +12,18 @@ namespace Tweezers.Api.Controllers
     [ApiController]
     public class TweezersController : TweezersControllerBase
     {
-        private static readonly JsonSerializerSettings Settings = new JsonSerializerSettings()
-        {
-             NullValueHandling = NullValueHandling.Ignore,
-             Formatting = Formatting.Indented
-        };
-
-        private static readonly JsonSerializer Serializer = JsonSerializer.Create(Settings);
-
-        [HttpGet("tweezers")]
-        public ActionResult<IEnumerable<JObject>> GetAllMetadata([FromQuery] bool full = false)
-        {
-            try
-            {
-                return new ActionResult<IEnumerable<JObject>>(TweezersSchemaFactory.GetAll(full).Select(obj => JObject.FromObject(obj, Serializer)));
-            }
-            catch (TweezersValidationException e)
-            {
-                return BadRequestResult(e.Message);
-            }
-        }
-
-        [HttpGet("tweezers/{collection}")]
-        public ActionResult<JObject> GetMetadata(string collection)
-        {
-            try
-            {
-                TweezersObject objectMetadata = TweezersSchemaFactory.Find(collection);
-                return new ActionResult<JObject>(JObject.FromObject(objectMetadata, Serializer));
-            }
-            catch (TweezersValidationException)
-            {
-                return NotFoundResult();
-            }
-        }
-
         [HttpGet("{collection}")]
-        public virtual ActionResult<IEnumerable<JObject>> List(string collection)
+        public virtual ActionResult<TweezersMultipleResults> List(string collection)
         {
             try
             {
                 TweezersObject objectMetadata = TweezersSchemaFactory.Find(collection);
-                return 
-                    new ActionResult<IEnumerable<JObject>>(
-                        objectMetadata.FindInDb(TweezersSchemaFactory.DatabaseProxy, FindOptions<JObject>.Default())
-                            .Select(obj => JObject.FromObject(obj, Serializer))); // TODO: predicate
+                IEnumerable<JObject> results = objectMetadata.FindInDb(TweezersSchemaFactory.DatabaseProxy, FindOptions<JObject>.Default());
+                return TweezersOk(TweezersMultipleResults.Create(results));
             }
             catch (TweezersValidationException)
             {
-                return NotFoundResult();
+                return TweezersNotFound();
             }
         }
 
@@ -74,13 +35,13 @@ namespace Tweezers.Api.Controllers
                 TweezersObject objectMetadata = TweezersSchemaFactory.Find(collection);
                 JObject obj = objectMetadata.GetById(TweezersSchemaFactory.DatabaseProxy, id);
                 if (obj == null)
-                    return NotFoundResult();
+                    return TweezersNotFound();
 
-                return new ActionResult<JObject>(obj);
+                return TweezersOk(obj);
             }
             catch (TweezersValidationException)
             {
-                return NotFoundResult();
+                return TweezersNotFound();
             }
         }
 
@@ -91,11 +52,12 @@ namespace Tweezers.Api.Controllers
             {
                 TweezersObject objectMetadata = TweezersSchemaFactory.Find(collection);
                 objectMetadata.Validate(data, false);
-                return new ActionResult<JObject>(objectMetadata.Create(TweezersSchemaFactory.DatabaseProxy, data));
+                JObject createdObj = objectMetadata.Create(TweezersSchemaFactory.DatabaseProxy, data);
+                return TweezersCreated(createdObj);
             }
             catch (TweezersValidationException e)
             {
-                return ForbiddenResult("create", e.Message);
+                return TweezersForbidden("create", e.Message);
             }
         }
 
@@ -107,14 +69,15 @@ namespace Tweezers.Api.Controllers
                 TweezersObject objectMetadata = TweezersSchemaFactory.Find(collection);
                 JObject obj = objectMetadata.GetById(TweezersSchemaFactory.DatabaseProxy, id);
                 if (obj == null)
-                    return NotFoundResult();
+                    return TweezersNotFound();
 
                 objectMetadata.Validate(data, true);
-                return new ActionResult<JObject>(objectMetadata.Update(TweezersSchemaFactory.DatabaseProxy, id, data));
+                JObject updatedObj = objectMetadata.Update(TweezersSchemaFactory.DatabaseProxy, id, data);
+                return TweezersOk(updatedObj);
             }
             catch (TweezersValidationException e)
             {
-                return BadRequestResult(e.Message);
+                return TweezersBadRequest(e.Message);
             }
         }
 
@@ -126,14 +89,15 @@ namespace Tweezers.Api.Controllers
                 TweezersObject objectMetadata = TweezersSchemaFactory.Find(collection);
                 if (objectMetadata.GetById(TweezersSchemaFactory.DatabaseProxy, id) == null)
                 {
-                    return new ActionResult<bool>(true);
+                    return TweezersOk(true);
                 }
 
-                return new ActionResult<bool>(objectMetadata.Delete(TweezersSchemaFactory.DatabaseProxy, id));
+                bool deleted = objectMetadata.Delete(TweezersSchemaFactory.DatabaseProxy, id);
+                return TweezersOk(deleted);
             }
             catch (TweezersValidationException e)
             {
-                return BadRequestResult(e.Message);
+                return TweezersBadRequest(e.Message);
             }
         }
     }
