@@ -29,15 +29,21 @@ namespace Tweezers.Schema.DataHolders
         {
             JObject tweezersDbJObject = DatabaseProxy.Get(ObjectMetadataCollectionName, collectionName);
             TweezersObject dbObj = tweezersDbJObject.ToStrongType<TweezersObject>();
-
             if (dbObj != null)
             {
-                if (dbObj.Internal && !withInternalObjects)
+                TweezersObject clone = JObject.FromObject(dbObj).ToStrongType<TweezersObject>();
+                if (clone.Internal && !withInternalObjects)
                 {
                     return null;
                 }
 
-                return dbObj;
+                if (clone.Internal)
+                {
+                    clone.Fields = clone.Fields.Where(f => !f.Value.FieldProperties.UiIgnore)
+                        .ToDictionary(f => f.Key, f => f.Value);
+                }
+
+                return clone;
             }
 
             return null;

@@ -6,14 +6,22 @@ namespace Tweezers.Identity
     {
         public static void RegisterIdentity()
         {
+            var usersSchema = CreateUsersSchema(true);
+
+            TweezersSchemaFactory.AddObject(usersSchema);
+        }
+
+        public static TweezersObject CreateUsersSchema(bool withInternals = false)
+        {
             TweezersObject usersSchema = new TweezersObject()
             {
                 CollectionName = "users",
                 Internal = true,
             };
 
-            usersSchema.DisplayNames.SingularName = "user";
-            usersSchema.DisplayNames.PluralName = "users";
+            usersSchema.DisplayNames.SingularName = "User";
+            usersSchema.DisplayNames.PluralName = "Users";
+            usersSchema.Icon = "person";
 
             usersSchema.Fields.Add("username", new TweezersField()
             {
@@ -30,39 +38,42 @@ namespace Tweezers.Identity
                 }
             });
 
-            usersSchema.Fields.Add("passwordHash", new TweezersField()
+            if (withInternals)
             {
-                Name = "passwordHash",
-                DisplayName = "password",
-                FieldProperties = new TweezersFieldProperties()
+                usersSchema.Fields.Add("passwordHash", new TweezersField()
                 {
-                    FieldType = TweezersFieldType.String,
-                    Required = true,
-                    UiIgnore = true,
-                }
-            });
+                    Name = "passwordHash",
+                    DisplayName = "password",
+                    FieldProperties = new TweezersFieldProperties()
+                    {
+                        FieldType = TweezersFieldType.String,
+                        Required = true,
+                        UiIgnore = true,
+                    }
+                });
 
-            usersSchema.Fields.Add("sessionId", new TweezersField()
-            {
-                Name = "sessionId",
-                DisplayName = "Session ID", 
-                FieldProperties = new TweezersFieldProperties()
+                usersSchema.Fields.Add("sessionId", new TweezersField()
                 {
-                    FieldType = TweezersFieldType.String,
-                }
-            });
+                    Name = "sessionId",
+                    DisplayName = "Session ID",
+                    FieldProperties = new TweezersFieldProperties()
+                    {
+                        FieldType = TweezersFieldType.String,
+                    }
+                });
 
-            usersSchema.Fields.Add("sessionExpiry", new TweezersField()
-            {
-                Name = "sessionExpiry",
-                DisplayName = "SessionExpiry",
-                FieldProperties = new TweezersFieldProperties()
+                usersSchema.Fields.Add("sessionExpiry", new TweezersField()
                 {
-                    FieldType = TweezersFieldType.String
-                }
-            });
+                    Name = "sessionExpiry",
+                    DisplayName = "SessionExpiry",
+                    FieldProperties = new TweezersFieldProperties()
+                    {
+                        FieldType = TweezersFieldType.String
+                    }
+                });
+            }
 
-            TweezersSchemaFactory.AddObject(usersSchema);
+            return usersSchema;
         }
     }
 }

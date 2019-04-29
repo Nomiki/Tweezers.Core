@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json.Linq;
 using Tweezers.Api.DataHolders;
 using Tweezers.Schema.DataHolders;
 
@@ -20,6 +21,7 @@ namespace Tweezers.Api.Controllers
         public virtual ActionResult<TweezersObject> Get(string collectionName, [FromQuery] bool internalObj)
         {
             TweezersObject objectMetadata = TweezersSchemaFactory.Find(collectionName, withInternalObjects: internalObj);
+
             return TweezersOk(objectMetadata);
         }
 
