@@ -1,4 +1,6 @@
-﻿namespace Tweezers.Schema.DataHolders
+﻿using System;
+
+namespace Tweezers.Schema.DataHolders
 {
     public sealed class TweezersDisplayNames
     {

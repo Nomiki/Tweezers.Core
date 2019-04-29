@@ -15,7 +15,7 @@ namespace Tweezers.Schema.DataHolders
 
         public TweezersDisplayNames DisplayNames { get; } = new TweezersDisplayNames();
 
-        public Dictionary<string, TweezersField> Fields { get; } = new Dictionary<string, TweezersField>();
+        public Dictionary<string, TweezersField> Fields { get; set; } = new Dictionary<string, TweezersField>();
 
         public bool Internal { get; set; } = false;
 
@@ -75,9 +75,13 @@ namespace Tweezers.Schema.DataHolders
         }
 
         private string[] AllFields => 
+            EditableFields
+                .Concat(new[] {"_id"})
+                .ToArray();
+
+        private string[] EditableFields =>
             Fields.Where(f => !f.Value.FieldProperties.UiIgnore)
                 .Select(f => f.Key)
-                .Concat(new[] {"_id"})
                 .ToArray();
     }
 }
