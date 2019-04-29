@@ -1,9 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json.Linq;
 using Tweezers.Api.Controllers;
+using Tweezers.Api.DataHolders;
 using Tweezers.Identity.DataHolders;
 using Tweezers.Identity.HashUtils;
 using Tweezers.Schema.Common;
@@ -18,6 +20,8 @@ namespace Tweezers.Identity.Controllers
     [ApiController]
     public class UsersController : TweezersControllerBase
     {
+        private const string UsersCollectionName = "users";
+
         protected TimeSpan SessionTimeout => 4.Hours();
 
         [HttpPost("users")]
@@ -36,13 +40,46 @@ namespace Tweezers.Identity.Controllers
                     ["passwordHash"] = Hash.Create(suggestedUser.Password)
                 };
 
-                TweezersObject usersObjectMetadata = TweezersSchemaFactory.Find("users", true);
+                TweezersObject usersObjectMetadata = TweezersSchemaFactory.Find(UsersCollectionName, true);
                 user = usersObjectMetadata.Create(TweezersSchemaFactory.DatabaseProxy, user);
                 return TweezersOk(user);
             }
             catch (TweezersValidationException e)
             {
                 return TweezersBadRequest(e.Message);
+            }
+        }
+
+        [HttpGet("users")]
+        public virtual ActionResult<TweezersMultipleResults> List()
+        {
+            try
+            {
+                TweezersObject objectMetadata = TweezersSchemaFactory.Find(UsersCollectionName, true);
+                IEnumerable<JObject> results = objectMetadata.FindInDb(TweezersSchemaFactory.DatabaseProxy, FindOptions<JObject>.Default());
+                return TweezersOk(TweezersMultipleResults.Create(results));
+            }
+            catch (TweezersValidationException)
+            {
+                return TweezersNotFound();
+            }
+        }
+
+        [HttpGet("users/{id}")]
+        public virtual ActionResult<JObject> Get(string id)
+        {
+            try
+            {
+                TweezersObject objectMetadata = TweezersSchemaFactory.Find(UsersCollectionName, true);
+                JObject obj = objectMetadata.GetById(TweezersSchemaFactory.DatabaseProxy, id);
+                if (obj == null)
+                    return TweezersNotFound();
+
+                return TweezersOk(obj);
+            }
+            catch (TweezersValidationException)
+            {
+                return TweezersNotFound();
             }
         }
 

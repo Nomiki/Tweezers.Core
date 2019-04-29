@@ -13,8 +13,6 @@ namespace Tweezers.Schema.DataHolders
 
         public string DisplayName { get; set; }
 
-        public string Icon { get; set; }
-
         public TweezersFieldProperties FieldProperties
         {
             get => _fieldProperties;

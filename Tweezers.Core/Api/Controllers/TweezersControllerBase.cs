@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Newtonsoft.Json.Serialization;
 using Tweezers.Api.DataHolders;
 
 namespace Tweezers.Api.Controllers
@@ -10,7 +11,8 @@ namespace Tweezers.Api.Controllers
         private static readonly JsonSerializerSettings Settings = new JsonSerializerSettings()
         {
             NullValueHandling = NullValueHandling.Ignore,
-            Formatting = Formatting.Indented
+            Formatting = Formatting.Indented,
+            ContractResolver = new CamelCasePropertyNamesContractResolver()
         };
 
         private static readonly JsonSerializer Serializer = JsonSerializer.Create(Settings);
@@ -37,15 +39,15 @@ namespace Tweezers.Api.Controllers
 
         protected ActionResult TweezersOk(object obj)
         {
-            return StatusCode(200, RemoveNulls(obj));
+            return StatusCode(200, ResolveByContract(obj));
         }
 
         protected ActionResult TweezersCreated(object obj)
         {
-            return StatusCode(201, RemoveNulls(obj));
+            return StatusCode(201, ResolveByContract(obj));
         }
 
-        private JObject RemoveNulls(object obj)
+        private JObject ResolveByContract(object obj)
         {
             return JObject.FromObject(obj, Serializer);
         }

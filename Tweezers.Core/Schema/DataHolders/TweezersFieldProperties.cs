@@ -20,7 +20,7 @@ namespace Tweezers.Schema.DataHolders
 
         public string Regex { get; set; }
 
-        public string[] Values { get; set; }
+        public string[] PossibleValues { get; set; }
 
         public bool Required { get; set; } = false;
 
@@ -109,12 +109,12 @@ namespace Tweezers.Schema.DataHolders
         {
             if (this.FieldType.Equals(TweezersFieldType.Enum))
             {
-                if (Values.Length == 0)
+                if (PossibleValues.Length == 0)
                 {
                     throw new ArgumentException($"Enum field detected without any defined values.");
                 }
 
-                validators.Add(ValuesValidator.Create(Values));
+                validators.Add(ValuesValidator.Create(PossibleValues));
             }
         }
 

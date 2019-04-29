@@ -15,6 +15,8 @@ namespace Tweezers.Schema.DataHolders
 
         public TweezersDisplayNames DisplayNames { get; } = new TweezersDisplayNames();
 
+        public string Icon { get; set; }
+
         public Dictionary<string, TweezersField> Fields { get; set; } = new Dictionary<string, TweezersField>();
 
         public bool Internal { get; set; } = false;

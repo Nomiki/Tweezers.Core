@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
@@ -10,9 +11,12 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using Swashbuckle.AspNetCore.Swagger;
 using Tweezers.Api.Middleware;
 using Tweezers.Identity;
+using Tweezers.Schema.Common;
 using Tweezers.Schema.Database;
 using Tweezers.Schema.DataHolders;
 
@@ -63,7 +67,7 @@ namespace ApiExample
             TweezersMiddleware.AddIgnoreNullService(services);
         }
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+        // This method gets called on runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
             if (env.IsDevelopment())
@@ -77,7 +81,21 @@ namespace ApiExample
 
             TweezersMiddleware.AddErrorHandler(app);
             TweezersSchemaFactory.DatabaseProxy = LocalDatabase.Instance;
-            IdentityManager.RegisterIdentity();
+            
+
+            string settings = File.ReadAllText("tweezers-settings.json");
+            dynamic settingsD = JsonConvert.DeserializeObject(settings);
+
+            if ((bool)settingsD.useIdentity)
+            {
+                IdentityManager.RegisterIdentity();
+            }
+
+            foreach (JObject obj in settingsD.schema)
+            {
+                TweezersObject tweezersObject = obj.ToStrongType<TweezersObject>();
+                TweezersSchemaFactory.AddObject(tweezersObject);
+            }
 
             app.UseSwagger();
 
