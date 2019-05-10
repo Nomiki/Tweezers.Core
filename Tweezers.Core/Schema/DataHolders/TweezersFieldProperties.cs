@@ -5,6 +5,7 @@ using Tweezers.Schema.Validators;
 using Tweezers.Schema.Validators.Array;
 using Tweezers.Schema.Validators.Integer;
 using Tweezers.Schema.Validators.Object;
+using Tweezers.Schema.Validators.Password;
 using Tweezers.Schema.Validators.String;
 
 // ReSharper disable PossibleInvalidOperationException
@@ -29,6 +30,8 @@ namespace Tweezers.Schema.DataHolders
         public TweezersObject ObjectReference { get; set; }
 
         public bool UiIgnore { get; set; }
+
+        public bool GridIgnore { get; set; }
 
         public bool UiTitle { get; set; }
 
@@ -62,7 +65,17 @@ namespace Tweezers.Schema.DataHolders
 
             AddArrayValidatorIfNeeded(validators);
 
+            AddPasswordValidatorIfNeeded(validators);
+
             return validators;
+        }
+
+        private void AddPasswordValidatorIfNeeded(List<IValidator> validators)
+        {
+            if (FieldType.Equals(TweezersFieldType.Password))
+            {
+                validators.Add(PasswordValidator.Create());
+            }
         }
 
         private void AddArrayValidatorIfNeeded(List<IValidator> validators)
@@ -136,6 +149,7 @@ namespace Tweezers.Schema.DataHolders
                         return TypeValidator<int>.Create();
                     case TweezersFieldType.String:
                     case TweezersFieldType.Enum:
+                    case TweezersFieldType.Password:
                         return TypeValidator<string>.Create();
                     case TweezersFieldType.Boolean:
                         return TypeValidator<bool>.Create();
@@ -158,6 +172,7 @@ namespace Tweezers.Schema.DataHolders
                     case TweezersFieldType.Integer:
                         return MinimumValueValidator.Create(Min.Value);
                     case TweezersFieldType.String:
+                    case TweezersFieldType.Password:
                         return MinimumLengthValidator.Create(Min.Value);
                     default:
                         throw new ArgumentException($"Min is not supported for type {this.FieldType.ToString()}");
@@ -174,6 +189,7 @@ namespace Tweezers.Schema.DataHolders
                     case TweezersFieldType.Integer:
                         return MaximumValueValidator.Create(Max.Value);
                     case TweezersFieldType.String:
+                    case TweezersFieldType.Password:
                         return MaximumLengthValidator.Create(Max.Value);
                     default:
                         throw new ArgumentException($"Min is not supported for type {this.FieldType.ToString()}");

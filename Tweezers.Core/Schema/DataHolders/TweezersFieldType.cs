@@ -12,5 +12,6 @@ namespace Tweezers.Schema.DataHolders
         Boolean,
         Array,
         Object,
+        Password,
     }
 }

@@ -59,6 +59,7 @@ namespace Tweezers.Identity
                     FieldProperties = new TweezersFieldProperties()
                     {
                         FieldType = TweezersFieldType.String,
+                        UiIgnore = true,
                     }
                 });
 
@@ -68,7 +69,8 @@ namespace Tweezers.Identity
                     DisplayName = "SessionExpiry",
                     FieldProperties = new TweezersFieldProperties()
                     {
-                        FieldType = TweezersFieldType.String
+                        FieldType = TweezersFieldType.String,
+                        UiIgnore = true,
                     }
                 });
             }

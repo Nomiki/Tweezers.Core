@@ -21,8 +21,57 @@ namespace Tweezers.Identity.Controllers
     public class UsersController : TweezersControllerBase
     {
         private const string UsersCollectionName = "users";
+        private static readonly TweezersObject UsersLoginSchema;
 
         protected TimeSpan SessionTimeout => 4.Hours();
+
+        static UsersController()
+        {
+            UsersLoginSchema = new TweezersObject()
+            {
+                CollectionName = "users",
+                Internal = true,
+            };
+
+            UsersLoginSchema.DisplayNames.SingularName = "User";
+            UsersLoginSchema.DisplayNames.PluralName = "Users";
+            UsersLoginSchema.Icon = "person";
+
+            UsersLoginSchema.Fields.Add("username", new TweezersField()
+            {
+                Name = "username",
+                DisplayName = "Username",
+                FieldProperties = new TweezersFieldProperties()
+                {
+                    FieldType = TweezersFieldType.String,
+                    UiTitle = true,
+                    Min = 1,
+                    Max = 50,
+                    Required = true,
+                    Regex = @"[A-Za-z\d]+"
+                }
+            });
+
+            UsersLoginSchema.Fields.Add("password", new TweezersField()
+            {
+                Name = "password",
+                DisplayName = "Password",
+                FieldProperties = new TweezersFieldProperties()
+                {
+                    FieldType = TweezersFieldType.Password,
+                    Min = 8,
+                    Max = 50,
+                    Required = true,
+                    GridIgnore = true,
+                }
+            });
+        }
+
+        [HttpGet("tweezers-schema/users")]
+        public ActionResult<TweezersObject> GetUsersSchema()
+        {
+            return TweezersOk(UsersLoginSchema);
+        }
 
         [HttpPost("users")]
         public ActionResult<JObject> Post([FromBody] LoginRequest suggestedUser)
@@ -32,6 +81,12 @@ namespace Tweezers.Identity.Controllers
                 if (FindUser(suggestedUser) != null)
                 {
                     throw new TweezersValidationException(TweezersValidationResult.Reject($"Unable to create user"));
+                }
+
+                TweezersValidationResult passwordOk = UsersLoginSchema.Fields["password"].Validate(suggestedUser.Password);
+                if (!passwordOk.Valid)
+                {
+                    throw new TweezersValidationException(passwordOk);
                 }
 
                 JObject user = new JObject

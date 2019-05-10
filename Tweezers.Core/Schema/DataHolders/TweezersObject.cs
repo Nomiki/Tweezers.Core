@@ -55,7 +55,7 @@ namespace Tweezers.Schema.DataHolders
 
         public JObject GetById(IDatabaseProxy proxy, string id)
         {
-            return proxy.Get(CollectionName, id).Just(AllFields);
+            return proxy.Get(CollectionName, id)?.Just(AllFields);
         }
 
         public JObject Create(IDatabaseProxy proxy, JObject data)
