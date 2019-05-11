@@ -3,6 +3,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
 using Tweezers.Api.DataHolders;
+using Tweezers.Schema.Common;
 
 namespace Tweezers.Api.Controllers
 {
@@ -40,6 +41,11 @@ namespace Tweezers.Api.Controllers
         protected ActionResult TweezersOk(object obj)
         {
             return StatusCode(200, ResolveByContract(obj));
+        }
+
+        protected ActionResult TweezersOk(object obj, params string[] removeFields)
+        {
+            return StatusCode(200, ResolveByContract(obj).Without(removeFields));
         }
 
         protected ActionResult TweezersCreated(object obj)

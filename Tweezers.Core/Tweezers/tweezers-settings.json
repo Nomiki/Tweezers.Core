@@ -1,0 +1,56 @@
+﻿{
+  "useIdentity": true,
+  "title":  "Hello World",
+  "schema": [
+    {
+      "collectionName": "products",
+      "displayNames": {
+        "singularName": "Product",
+        "pluralName": "Products"
+      },
+      "icon": "shopping_cart",
+      "fields": {
+        "name": {
+          "name": "name",
+          "displayName": "Name",
+          "fieldProperties": {
+            "fieldType": "String",
+            "min": 1,
+            "max": 40,
+            "required": true,
+            "uiTitle": true
+          }
+        },
+        "description": {
+          "name": "description",
+          "displayName": "Description",
+          "fieldProperties": {
+            "fieldType": "String",
+            "min": 1,
+            "max": 400,
+            "required": true
+          }
+        },
+        "price": {
+          "name": "price",
+          "displayName": "Price",
+          "fieldProperties": {
+            "fieldType": "Integer",
+            "min": 0,
+            "required": true
+          }
+        },
+        "product_type": {
+          "name": "product_type",
+          "displayName": "Product Type",
+          "fieldProperties": {
+            "fieldType": "Enum",
+            "possibleValues": [
+              "Computer", "Phone", "Cat"
+            ]
+          }
+        } 
+      }
+    }
+  ]
+}

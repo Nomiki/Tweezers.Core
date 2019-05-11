@@ -25,7 +25,7 @@ namespace Tweezers.Schema.DataHolders
             DatabaseProxy.Add(ObjectMetadataCollectionName, obj.CollectionName, JObject.FromObject(obj));
         }
 
-        private static TweezersObject InternalFind(string collectionName, bool withInternalObjects = false)
+        private static TweezersObject InternalFind(string collectionName, bool withInternalObjects = false, bool withInternalFields = false)
         {
             JObject tweezersDbJObject = DatabaseProxy.Get(ObjectMetadataCollectionName, collectionName);
             TweezersObject dbObj = tweezersDbJObject.ToStrongType<TweezersObject>();
@@ -39,7 +39,7 @@ namespace Tweezers.Schema.DataHolders
 
                 if (clone.Internal)
                 {
-                    clone.Fields = clone.Fields.Where(f => !f.Value.FieldProperties.UiIgnore)
+                    clone.Fields = clone.Fields.Where(f => withInternalFields || !f.Value.FieldProperties.UiIgnore)
                         .ToDictionary(f => f.Key, f => f.Value);
                 }
 
@@ -49,9 +49,9 @@ namespace Tweezers.Schema.DataHolders
             return null;
         }
 
-        public static TweezersObject Find(string collectionName, bool withInternalObjects = false)
+        public static TweezersObject Find(string collectionName, bool withInternalObjects = false, bool withInternalFields = false)
         {
-            TweezersObject obj = InternalFind(collectionName, withInternalObjects);
+            TweezersObject obj = InternalFind(collectionName, withInternalObjects, withInternalFields);
             if (obj == null)
                 throw new TweezersValidationException(
                     TweezersValidationResult.Reject($"Could not find collection with name {collectionName}"));
