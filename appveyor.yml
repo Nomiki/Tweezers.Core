@@ -15,7 +15,7 @@ build_script:
 after_build:
   # For once the build has completed
 artifacts:
- - path: './Tweezers.Core/Identity/bin/Debug/netcoreapp2.2/publish/Tweezers*.dll'
+ - path: './Tweezers.Core/Tweezers/bin/Debug/netcoreapp2.2/publish/Tweezers*.dll'
    name: Tweezers
    type: Tweezers
 clone_depth: 1
