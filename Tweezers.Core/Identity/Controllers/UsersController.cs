@@ -78,7 +78,7 @@ namespace Tweezers.Identity.Controllers
         {
             try
             {
-                if (FindUser(suggestedUser) != null)
+                if (FindUser(suggestedUser.Username) != null)
                 {
                     throw new TweezersValidationException(TweezersValidationResult.Reject($"Unable to create user"));
                 }
@@ -95,8 +95,8 @@ namespace Tweezers.Identity.Controllers
                     ["passwordHash"] = Hash.Create(suggestedUser.Password)
                 };
 
-                TweezersObject usersObjectMetadata = TweezersSchemaFactory.Find(UsersCollectionName, true);
-                user = usersObjectMetadata.Create(TweezersSchemaFactory.DatabaseProxy, user);
+                TweezersObject usersObjectMetadata = TweezersSchemaFactory.Find(UsersCollectionName, true, true);
+                user = usersObjectMetadata.Create(TweezersSchemaFactory.DatabaseProxy, user, suggestedUser.Username);
                 return TweezersOk(user);
             }
             catch (TweezersValidationException e)
@@ -148,9 +148,9 @@ namespace Tweezers.Identity.Controllers
                     user["sessionId"] = Guid.NewGuid().ToString();
                     user["sessionExpiry"] = (DateTime.Now + SessionTimeout).ToUniversalTime()
                         .ToString(CultureInfo.InvariantCulture);
-                    TweezersObject usersObjectMetadata = TweezersSchemaFactory.Find("users", true);
+                    TweezersObject usersObjectMetadata = TweezersSchemaFactory.Find("users", true, true);
                     usersObjectMetadata.Update(TweezersSchemaFactory.DatabaseProxy, user["_id"].ToString(), user.Just("sessionId", "sessionExpiry"));
-                    return TweezersOk("Welcome");
+                    return TweezersOk(user.Just("username", "sessionId", "sessionExpiry"));
                 }
 
                 return TweezersUnauthorized("Bad username or password");
@@ -161,9 +161,78 @@ namespace Tweezers.Identity.Controllers
             }
         }
 
+        [HttpDelete("users/{username}")]
+        public ActionResult<bool> DeleteUser(string username)
+        {
+            JObject user = FindUser(username);
+            if (user == null)
+            {
+                return TweezersOk(true);
+            }
+
+            // if user.sessionId == headers.sessionId do not delete
+
+            TweezersObject usersObjectMetadata = TweezersSchemaFactory.Find("users", true);
+            bool deleted = usersObjectMetadata.Delete(TweezersSchemaFactory.DatabaseProxy, username);
+
+            return TweezersOk(deleted);
+        }
+
+        [HttpPost("user/reset-password")]
+        public ActionResult<bool> ResetPassword([FromBody] ChangePasswordRequest changePasswordRequest)
+        {
+            string sessionId = ""; //TODO header
+            JObject user = FindUserBySessionId(sessionId);
+            if (user == null)
+            {
+                return TweezersNotFound();
+            }
+
+            bool oldPasswordOk = ValidatePassword(changePasswordRequest.OldPassword, user["passwordHash"].ToString());
+            if (!oldPasswordOk)
+            {
+                return TweezersBadRequest("Passwords do not match");
+            }
+
+            return DoChangePassword(user, changePasswordRequest);
+        }
+
+        [HttpPost("users/{username}/change-password")]
+        public ActionResult<bool> ChangePassword(string username, [FromBody] ChangePasswordRequest changePasswordRequest)
+        {
+            JObject user = FindUser(username);
+            if (user == null)
+            {
+                return TweezersNotFound();
+            }
+
+            return DoChangePassword(user, changePasswordRequest);
+        }
+
+        private ActionResult<bool> DoChangePassword(JObject user, ChangePasswordRequest changePasswordRequest)
+        {
+            JObject passwordChange = new JObject()
+            {
+                ["passwordHash"] = Hash.Create(changePasswordRequest.NewPassword)
+            };
+
+            try
+            {
+                TweezersObject usersObjectMetadata = TweezersSchemaFactory.Find("users", true);
+                usersObjectMetadata.Update(TweezersSchemaFactory.DatabaseProxy, user["_id"].ToString(),
+                    passwordChange);
+
+                return TweezersOk(true);
+            }
+            catch
+            {
+                return TweezersBadRequest("Could not update password");
+            }
+        }
+
         private bool Authenticate(LoginRequest request, out JObject user)
         {
-            user = FindUser(request);
+            user = FindUser(request.Username);
 
             if (user == null)
                 return false;
@@ -176,16 +245,30 @@ namespace Tweezers.Identity.Controllers
             return passwordValidated;
         }
 
-        private JObject FindUser(LoginRequest request)
+        private JObject FindUser(string username)
         {
             FindOptions<JObject> userOpts = new FindOptions<JObject>()
             {
-                Predicate = (u) => u["username"].ToString().Equals(request.Username),
+                Predicate = (u) => u["username"].ToString().Equals(username),
                 Take = 1
             };
 
+            TweezersObject usersObjectMetadata = TweezersSchemaFactory.Find("users", true, true);
+            return usersObjectMetadata.FindInDb(TweezersSchemaFactory.DatabaseProxy, userOpts, true)?.SingleOrDefault();
+        }
+
+        private JObject FindUserBySessionId(string sessionId)
+        {
+            FindOptions<JObject> sessionIdPredicate = new FindOptions<JObject>()
+            {
+                Predicate = (u) =>
+                    u["sessionId"].ToString().Equals(sessionId) &&
+                    DateTime.Parse(u["sessionExpiry"].ToString()).ToUniversalTime() > DateTime.Now.ToUniversalTime(),
+                Take = 1,
+            };
+
             TweezersObject usersObjectMetadata = TweezersSchemaFactory.Find("users", true);
-            return usersObjectMetadata.FindInDb(TweezersSchemaFactory.DatabaseProxy, userOpts)?.SingleOrDefault();
+            return usersObjectMetadata.FindInDb(TweezersSchemaFactory.DatabaseProxy, sessionIdPredicate)?.SingleOrDefault();
         }
 
         private bool ValidatePassword(string requestPassword, string userPasswordHash)

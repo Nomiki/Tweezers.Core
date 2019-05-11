@@ -8,17 +8,17 @@ namespace Tweezers.Api.Controllers
 {
     [Route("api")]
     [ApiController]
-    public class TweezersObjectController : TweezersControllerBase
-    {
+    public sealed class TweezersObjectController : TweezersControllerBase
+    { 
         [HttpGet("tweezers-schema")]
-        public virtual ActionResult<TweezersMultipleResults<TweezersObject>> List([FromQuery] bool internalObj)
+        public ActionResult<TweezersMultipleResults<TweezersObject>> List([FromQuery] bool internalObj)
         {
             IEnumerable<TweezersObject> allMetadata = TweezersSchemaFactory.GetAll(includeInternal: internalObj);
             return TweezersOk(TweezersMultipleResults<TweezersObject>.Create(allMetadata));
         }
 
         [HttpGet("tweezers-schema/{collectionName}")]
-        public virtual ActionResult<TweezersObject> Get(string collectionName, [FromQuery] bool internalObj)
+        public ActionResult<TweezersObject> Get(string collectionName, [FromQuery] bool internalObj)
         {
             TweezersObject objectMetadata = TweezersSchemaFactory.Find(collectionName, withInternalObjects: internalObj);
 
@@ -26,7 +26,7 @@ namespace Tweezers.Api.Controllers
         }
 
         [HttpPost("tweezers-schema")]
-        public virtual ActionResult<TweezersObject> Post([FromBody] TweezersObject data)
+        public ActionResult<TweezersObject> Post([FromBody] TweezersObject data)
         {
             TweezersObject obj = ReplaceTweezersObject(data);
             return TweezersCreated(obj);
@@ -41,7 +41,7 @@ namespace Tweezers.Api.Controllers
         }
 
         [HttpPut("tweezers-schema/{collectionName}")]
-        public virtual ActionResult<TweezersObject> Patch(string collectionName, [FromBody] TweezersObject data)
+        public ActionResult<TweezersObject> Patch(string collectionName, [FromBody] TweezersObject data)
         {
             data.CollectionName = collectionName;
             TweezersObject obj = ReplaceTweezersObject(data);
@@ -49,7 +49,7 @@ namespace Tweezers.Api.Controllers
         }
 
         [HttpDelete("tweezers-schema/{collectionName}")]
-        public virtual ActionResult<bool> Delete(string collectionName)
+        public ActionResult<bool> Delete(string collectionName)
         {
             bool deleted = TweezersSchemaFactory.DeleteObject(collectionName);
             return TweezersOk(deleted);

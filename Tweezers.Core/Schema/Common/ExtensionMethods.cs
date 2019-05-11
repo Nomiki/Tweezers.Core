@@ -25,13 +25,26 @@ namespace Tweezers.Schema.Common
             return obj.Just(fields.ToList());
         }
 
+        public static JObject Without(this JObject obj, params string[] fields)
+        {
+            JObject newObj = JObject.FromObject(obj.DeepClone());
+
+            foreach (string field in fields)
+            {
+                newObj.Remove(field);
+            }
+
+            return newObj;
+        }
+
         public static JObject Just(this JObject obj, IEnumerable<string> fields)
         {
             JObject newObj = new JObject();
 
             foreach (string field in fields)
             {
-                newObj[field] = obj[field];
+                if (obj[field] != null)
+                    newObj[field] = obj[field];
             }
 
             return newObj;
