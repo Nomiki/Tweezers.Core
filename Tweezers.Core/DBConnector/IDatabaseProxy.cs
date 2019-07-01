@@ -1,8 +1,7 @@
 ﻿using System.Collections.Generic;
 using Newtonsoft.Json.Linq;
-using Tweezers.Schema.DataHolders.DB;
 
-namespace Tweezers.Schema.Interfaces
+namespace Tweezers.DBConnector
 {
     public interface IDatabaseProxy
     {

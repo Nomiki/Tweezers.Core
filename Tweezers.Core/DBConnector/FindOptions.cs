@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Tweezers.Schema.DataHolders.DB
+namespace Tweezers.DBConnector
 {
     public sealed class FindOptions<T>
     {

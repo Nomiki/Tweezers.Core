@@ -6,13 +6,12 @@ using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json.Linq;
 using Tweezers.Api.Controllers;
 using Tweezers.Api.DataHolders;
+using Tweezers.DBConnector;
 using Tweezers.Identity.DataHolders;
 using Tweezers.Identity.HashUtils;
 using Tweezers.Schema.Common;
 using Tweezers.Schema.DataHolders;
-using Tweezers.Schema.DataHolders.DB;
 using Tweezers.Schema.DataHolders.Exceptions;
-using Tweezers.Schema.Exceptions;
 
 namespace Tweezers.Identity.Controllers
 {

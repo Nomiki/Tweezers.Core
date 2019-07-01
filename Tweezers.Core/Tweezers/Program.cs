@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 
-namespace ApiExample
+namespace Tweezers
 {
     public class Program
     {

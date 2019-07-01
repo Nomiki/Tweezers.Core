@@ -1,23 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using Newtonsoft.Json.Linq;
-using Tweezers.Schema.DataHolders.DB;
-using Tweezers.Schema.Exceptions;
-using Tweezers.Schema.Interfaces;
+using Tweezers.DBConnector;
 
-namespace Tweezers.Schema.Database
+namespace Tweezers.LocalDatabase
 {
     //TODO
-    public class LocalDatabase : IDatabaseProxy
+    // ReSharper disable once InconsistentNaming
+    public class LocalDB : IDatabaseProxy
     {
-        private static LocalDatabase _instance;
+        private static LocalDB _instance;
         private Dictionary<string, List<JObject>> _localDb = new Dictionary<string, List<JObject>>();
 
-        public static LocalDatabase Instance => _instance = _instance ?? new LocalDatabase();
+        public static LocalDB Instance => _instance = _instance ?? new LocalDB();
 
-        private LocalDatabase()
+        private LocalDB()
         {
         }
 

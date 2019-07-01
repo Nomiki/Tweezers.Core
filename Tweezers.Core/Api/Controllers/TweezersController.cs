@@ -2,8 +2,8 @@
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json.Linq;
 using Tweezers.Api.DataHolders;
+using Tweezers.DBConnector;
 using Tweezers.Schema.DataHolders;
-using Tweezers.Schema.DataHolders.DB;
 using Tweezers.Schema.DataHolders.Exceptions;
 
 namespace Tweezers.Api.Controllers
