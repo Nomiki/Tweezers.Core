@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json.Linq;
 using Tweezers.Api.DataHolders;
 using Tweezers.Schema.DataHolders;
 

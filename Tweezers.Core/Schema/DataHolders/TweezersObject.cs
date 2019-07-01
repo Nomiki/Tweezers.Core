@@ -2,9 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json.Linq;
+using Tweezers.DBConnector;
 using Tweezers.Schema.Common;
-using Tweezers.Schema.DataHolders.DB;
-using Tweezers.Schema.Interfaces;
 
 namespace Tweezers.Schema.DataHolders
 {

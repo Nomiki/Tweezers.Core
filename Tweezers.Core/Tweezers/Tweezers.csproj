@@ -17,6 +17,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Identity\Identity.csproj" />
+    <ProjectReference Include="..\LocalDatabase\LocalDatabase.csproj" />
   </ItemGroup>
 
   <ItemGroup>

@@ -1,27 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Builder;
+﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using Swashbuckle.AspNetCore.Swagger;
 using Tweezers.Api.Middleware;
-using Tweezers.Identity;
 using Tweezers.MetadataManagement;
-using Tweezers.Schema.Common;
-using Tweezers.Schema.Database;
-using Tweezers.Schema.DataHolders;
 
-namespace ApiExample
+namespace Tweezers
 {
     public class Startup
     {

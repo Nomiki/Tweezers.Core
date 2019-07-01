@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Text;
 using Microsoft.AspNetCore.Cryptography.KeyDerivation;
-using Tweezers.Identity.DataHolders;
 
 namespace Tweezers.Identity.HashUtils
 {

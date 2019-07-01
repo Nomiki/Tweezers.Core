@@ -1,9 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.IO;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Newtonsoft.Json;
 using Tweezers.Identity;
-using Tweezers.Schema.Database;
+using Tweezers.LocalDatabase;
 using Tweezers.Schema.DataHolders;
 
 namespace Tweezers.MetadataManagement
@@ -22,7 +21,7 @@ namespace Tweezers.MetadataManagement
 
         public static TweezersMetadata Init(string fileName)
         {
-            TweezersSchemaFactory.DatabaseProxy = LocalDatabase.Instance;
+            TweezersSchemaFactory.DatabaseProxy = LocalDB.Instance;
 
             string settings = File.ReadAllText(fileName);
             TweezersMetadata metadata = JsonConvert.DeserializeObject<TweezersMetadata>(settings);

@@ -2,13 +2,9 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.2</TargetFramework>
-    <AssemblyName>Tweezers.Schema</AssemblyName>
-    <RootNamespace>Tweezers.Schema</RootNamespace>
+    <AssemblyName>Tweezers.LocalDatabase</AssemblyName>
+    <RootNamespace>Tweezers.LocalDatabase</RootNamespace>
   </PropertyGroup>
-
-  <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json" Version="12.0.1" />
-  </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\DBConnector\DBConnector.csproj" />
