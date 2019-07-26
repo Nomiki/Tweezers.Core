@@ -28,7 +28,7 @@ namespace Tweezers.Api.DataHolders
 
         public static TweezersMultipleResults<T> Create(IEnumerable<T> items)
         {
-            IEnumerable<T> itemsArr = items as T[] ?? items.ToArray();
+            IEnumerable<T> itemsArr = items.ToArray();
             return new TweezersMultipleResults<T>()
             {
                 Items = itemsArr,

@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using MongoDB.Bson;
+using MongoDB.Bson.IO;
 using MongoDB.Driver;
 using Newtonsoft.Json.Linq;
 using Tweezers.DBConnector;
@@ -9,51 +11,63 @@ namespace Tweezers.MongoDB
 {
     public class MongoDBConnector : IDatabaseProxy
     {
-        private IMongoDatabase database;
+        private readonly IMongoDatabase database;
         //TODO: Move
         private const string idField = "_id";
 
-        private Dictionary<string, IMongoCollection<JObject>> collections = new Dictionary<string, IMongoCollection<JObject>>();
+        private readonly Dictionary<string, IMongoCollection<BsonDocument>> collections = new Dictionary<string, IMongoCollection<BsonDocument>>();
 
         public MongoDBConnector(DBConnectionDetails connectionDetails)
         {
-            MongoClient client = new MongoClient(new MongoClientSettings()
+            MongoClientSettings settings = new MongoClientSettings()
             {
-                Credential = MongoCredential.CreateCredential(connectionDetails.DBName, connectionDetails.Username,
-                    connectionDetails.Password),
                 ConnectionMode = ConnectionMode.Automatic,
                 Server = new MongoServerAddress(connectionDetails.Host, connectionDetails.Port)
-            });
+            };
+
+            if (!string.IsNullOrWhiteSpace(connectionDetails.Username))
+            {
+                settings.Credential = MongoCredential.CreateCredential(connectionDetails.DBName,
+                    connectionDetails.Username, connectionDetails.Password);
+            }
+
+            MongoClient client = new MongoClient(settings);
 
             database = client.GetDatabase(connectionDetails.DBName);
         }
 
         public JObject Get(string collection, string id)
         {
-            return GetCollection(collection).Find(obj => obj[idField].ToString() == id).FirstOrDefault();
+            IAsyncCursor<BsonDocument> cursor = GetCollection(collection)
+                .FindSync(obj => obj[idField] == BsonValue.Create(id));
+
+            return cursor.FirstOrDefault()?.ToJObject();
         }
 
         public JObject Add(string collection, string id, JObject data)
         {
             JObject dataToInsert = (JObject) data.DeepClone();
             dataToInsert[idField] = id;
-            GetCollection(collection).InsertOne(data);
+
+            GetCollection(collection).InsertOne(dataToInsert.ToBsonDocument());
 
             return Get(collection, id);
         }
 
         public JObject Edit(string collection, string id, JObject data)
         {
-            UpdateDefinition<JObject> updateDef = new ObjectUpdateDefinition<JObject>(data);
-            
-            JObject update = GetCollection(collection).FindOneAndUpdate(obj => obj[idField].ToString() == id, updateDef);
+            BsonDocument doc = data.ToBsonDocument();
+            UpdateDefinition<BsonDocument> updateDef = new ObjectUpdateDefinition<BsonDocument>(doc);
+            BsonDocument update = GetCollection(collection)
+                .FindOneAndUpdate(obj => obj[idField] == BsonValue.Create(id), updateDef);
 
-            return update;
+            return update.ToJObject();
         }
 
         public bool Delete(string collection, string id)
         {
-            JObject delete = GetCollection(collection).FindOneAndDelete(obj => obj[idField].ToString() == id);
+            BsonDocument delete = GetCollection(collection)
+                .FindOneAndDelete(obj => obj[idField] == BsonValue.Create(id));
 
             DBConnector.FindOptions<JObject> myItem = new DBConnector.FindOptions<JObject>()
             {
@@ -65,12 +79,15 @@ namespace Tweezers.MongoDB
 
         public IEnumerable<JObject> List(string collection, DBConnector.FindOptions<JObject> opts)
         {
-            //TODO Ask
-            return GetCollection(collection)
-                .Find(obj => opts.Predicate.Invoke(obj))
+            IMongoCollection<BsonDocument> mongoCollection = GetCollection(collection);
+
+            IAsyncCursor<BsonDocument> cursor = mongoCollection.FindSync(FilterDefinition<BsonDocument>.Empty);
+
+            return cursor.ToEnumerable()
+                .Where(bson => opts.Predicate.Invoke(bson.ToJObject()))
                 .Skip(opts.Skip)
-                .Limit(opts.Take)
-                .ToEnumerable();
+                .Select(bson => bson.ToJObject())
+                .Take(opts.Take);
         }
 
         public IEnumerable<string> GetCollections()
@@ -78,11 +95,11 @@ namespace Tweezers.MongoDB
             return database.ListCollectionNames().ToEnumerable();
         }
 
-        public IMongoCollection<JObject> GetCollection(string name)
+        public IMongoCollection<BsonDocument> GetCollection(string name)
         {
             if (!collections.ContainsKey(name))
             {
-                collections[name] = database.GetCollection<JObject>(name);
+                collections[name] = database.GetCollection<BsonDocument>(name);
             }
 
             return collections[name];
