@@ -8,7 +8,13 @@ namespace Tweezers.Identity
         {
             var usersSchema = CreateUsersSchema(true);
 
-            TweezersSchemaFactory.AddObject(usersSchema);
+            if (TweezersSchemaFactory.Find(usersSchema.CollectionName, true) == null)
+                TweezersSchemaFactory.AddObject(usersSchema);
+            else
+            {
+                TweezersSchemaFactory.DeleteObject(usersSchema.CollectionName);
+                TweezersSchemaFactory.AddObject(usersSchema);
+            }
         }
 
         public static TweezersObject CreateUsersSchema(bool withInternals = false)

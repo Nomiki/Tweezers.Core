@@ -20,6 +20,7 @@ namespace Tweezers.Schema.DataHolders
             if (dbObj?.Internal ?? false)
                 throw new ArgumentException("trying to override an internal object");
 
+            DeleteObject(obj.CollectionName);
             DatabaseProxy.Add(ObjectMetadataCollectionName, obj.CollectionName, JObject.FromObject(obj));
         }
 
