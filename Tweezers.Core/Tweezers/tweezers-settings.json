@@ -1,6 +1,14 @@
 ﻿{
   "useIdentity": true,
-  "title":  "Hello World",
+  "title": "Hello World",
+  "dbDetails": {
+    "dbType": "MongoDB", 
+    "host": "localhost",
+    "port": 27017,
+    "dbName": "acme",
+    "username": "",
+    "password": ""
+  }, 
   "schema": [
     {
       "collectionName": "products",
