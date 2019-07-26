@@ -56,7 +56,17 @@ namespace Tweezers.MongoDB
 
         public JObject Edit(string collection, string id, JObject data)
         {
-            BsonDocument doc = data.ToBsonDocument();
+            JObject beforeUpdate = Get(collection, id);
+            JObject clone = (JObject) beforeUpdate.DeepClone();
+            foreach (var (key, value) in data)
+            {
+                if (data[key] != null)
+                {
+                    clone[key] = data[key];
+                }
+            }
+
+            BsonDocument doc = clone.ToBsonDocument();
             UpdateDefinition<BsonDocument> updateDef = new ObjectUpdateDefinition<BsonDocument>(doc);
             BsonDocument update = GetCollection(collection)
                 .FindOneAndUpdate(obj => obj[idField] == BsonValue.Create(id), updateDef);
