@@ -1,9 +1,16 @@
-﻿using Tweezers.Schema.DataHolders;
+﻿using System;
+using System.Linq;
+using Newtonsoft.Json.Linq;
+using Tweezers.DBConnector;
+using Tweezers.Schema.DataHolders;
 
 namespace Tweezers.Api.Identity
 {
     public static class IdentityManager
     {
+        public const string SessionIdKey = "sessionId";
+        public const string SessionExpiryKey = "sessionExpiry";
+
         public static bool UsingIdentity { get; private set; }
 
         public static void RegisterIdentity()
@@ -62,9 +69,9 @@ namespace Tweezers.Api.Identity
                     }
                 });
 
-                usersSchema.Fields.Add("sessionId", new TweezersField()
+                usersSchema.Fields.Add(SessionIdKey, new TweezersField()
                 {
-                    Name = "sessionId",
+                    Name = SessionIdKey,
                     DisplayName = "Session ID",
                     FieldProperties = new TweezersFieldProperties()
                     {
@@ -73,9 +80,9 @@ namespace Tweezers.Api.Identity
                     }
                 });
 
-                usersSchema.Fields.Add("sessionExpiry", new TweezersField()
+                usersSchema.Fields.Add(SessionExpiryKey, new TweezersField()
                 {
-                    Name = "sessionExpiry",
+                    Name = SessionExpiryKey,
                     DisplayName = "SessionExpiry",
                     FieldProperties = new TweezersFieldProperties()
                     {
@@ -86,6 +93,20 @@ namespace Tweezers.Api.Identity
             }
 
             return usersSchema;
+        }
+
+        public static JObject FindUserBySessionId(string sessionId)
+        {
+            FindOptions<JObject> sessionIdPredicate = new FindOptions<JObject>()
+            {
+                Predicate = (u) =>
+                    u[SessionIdKey].ToString().Equals(sessionId) &&
+                    DateTime.Parse(u[SessionExpiryKey].ToString()).ToUniversalTime() > DateTime.Now.ToUniversalTime(),
+                Take = 1,
+            };
+
+            TweezersObject usersObjectMetadata = TweezersSchemaFactory.Find("users", true);
+            return usersObjectMetadata.FindInDb(TweezersSchemaFactory.DatabaseProxy, sessionIdPredicate)?.SingleOrDefault();
         }
     }
 }

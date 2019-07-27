@@ -2,8 +2,10 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json.Linq;
+using Tweezers.Api.Common;
 using Tweezers.Api.Controllers;
 using Tweezers.Api.DataHolders;
 using Tweezers.Api.Identity.DataHolders;
@@ -66,10 +68,13 @@ namespace Tweezers.Api.Identity.Controllers
             });
         }
 
+        private readonly string[] _loginResponseBody = 
+            {"username", IdentityManager.SessionIdKey, IdentityManager.SessionExpiryKey};
+
         [HttpGet("tweezers-schema/users")]
         public ActionResult<TweezersObject> GetUsersSchema()
         {
-            return IdentityManager.UsingIdentity 
+            return IsSessionValid()
                 ? TweezersOk(UsersLoginSchema) 
                 : TweezersNotFound();
         }
@@ -79,6 +84,9 @@ namespace Tweezers.Api.Identity.Controllers
         {
             if (!IdentityManager.UsingIdentity)
                 return TweezersNotFound();
+
+            if (!IsSessionValid())
+                return TweezersUnauthorized();
 
             try
             {
@@ -115,6 +123,9 @@ namespace Tweezers.Api.Identity.Controllers
             if (!IdentityManager.UsingIdentity)
                 return TweezersNotFound();
 
+            if (!IsSessionValid())
+                return TweezersUnauthorized();
+
             try
             {
                 TweezersObject objectMetadata = TweezersSchemaFactory.Find(UsersCollectionName, true);
@@ -132,6 +143,9 @@ namespace Tweezers.Api.Identity.Controllers
         {
             if (!IdentityManager.UsingIdentity)
                 return TweezersNotFound();
+
+            if (!IsSessionValid())
+                return TweezersUnauthorized();
 
             try
             {
@@ -158,12 +172,18 @@ namespace Tweezers.Api.Identity.Controllers
             {
                 if (Authenticate(request, out JObject user))
                 {
-                    user["sessionId"] = Guid.NewGuid().ToString();
-                    user["sessionExpiry"] = (DateTime.Now + SessionTimeout).ToUniversalTime()
+                    string sessionId = Guid.NewGuid().ToString();
+                    user[IdentityManager.SessionIdKey] = sessionId;
+                    user[IdentityManager.SessionExpiryKey] = (DateTime.Now + SessionTimeout).ToUniversalTime()
                         .ToString(CultureInfo.InvariantCulture);
-                    TweezersObject usersObjectMetadata = TweezersSchemaFactory.Find("users", true, true);
-                    usersObjectMetadata.Update(TweezersSchemaFactory.DatabaseProxy, user["_id"].ToString(), user.Just("sessionId", "sessionExpiry"));
-                    return TweezersOk(user.Just("username", "sessionId", "sessionExpiry"));
+
+                    TweezersObject usersObjectMetadata = TweezersSchemaFactory.Find("users",
+                        true, true);
+
+                    usersObjectMetadata.Update(TweezersSchemaFactory.DatabaseProxy, user["_id"].ToString(),
+                        user.Just(IdentityManager.SessionIdKey, IdentityManager.SessionExpiryKey));
+
+                    return TweezersOk(user.Just(_loginResponseBody)).WithSecureCookie(Response, IdentityManager.SessionIdKey, sessionId);
                 }
 
                 return TweezersUnauthorized("Bad username or password");
@@ -180,13 +200,14 @@ namespace Tweezers.Api.Identity.Controllers
             if (!IdentityManager.UsingIdentity)
                 return TweezersNotFound();
 
+            if (!IsSessionValid())
+                return TweezersUnauthorized();
+
             JObject user = FindUser(username);
             if (user == null)
             {
                 return TweezersOk(true);
             }
-
-            // if user.sessionId == headers.sessionId do not delete
 
             TweezersObject usersObjectMetadata = TweezersSchemaFactory.Find("users", true);
             bool deleted = usersObjectMetadata.Delete(TweezersSchemaFactory.DatabaseProxy, username);
@@ -200,12 +221,10 @@ namespace Tweezers.Api.Identity.Controllers
             if (!IdentityManager.UsingIdentity)
                 return TweezersNotFound();
 
-            string sessionId = ""; //TODO header
-            JObject user = FindUserBySessionId(sessionId);
-            if (user == null)
-            {
-                return TweezersNotFound();
-            }
+            if (!IsSessionValid())
+                return TweezersUnauthorized();
+
+            JObject user = IdentityManager.FindUserBySessionId(Request.Headers[IdentityManager.SessionIdKey]);
 
             bool oldPasswordOk = ValidatePassword(changePasswordRequest.OldPassword, user["passwordHash"].ToString());
             if (!oldPasswordOk)
@@ -222,13 +241,13 @@ namespace Tweezers.Api.Identity.Controllers
             if (!IdentityManager.UsingIdentity)
                 return TweezersNotFound();
 
-            JObject user = FindUser(username);
-            if (user == null)
-            {
-                return TweezersNotFound();
-            }
+            if (!IsSessionValid())
+                return TweezersUnauthorized();
 
-            return DoChangePassword(user, changePasswordRequest);
+            JObject user = FindUser(username);
+            return user == null 
+                ? TweezersNotFound() 
+                : DoChangePassword(user, changePasswordRequest);
         }
 
         private ActionResult<bool> DoChangePassword(JObject user, ChangePasswordRequest changePasswordRequest)
@@ -277,20 +296,6 @@ namespace Tweezers.Api.Identity.Controllers
 
             TweezersObject usersObjectMetadata = TweezersSchemaFactory.Find("users", true, true);
             return usersObjectMetadata.FindInDb(TweezersSchemaFactory.DatabaseProxy, userOpts, true)?.SingleOrDefault();
-        }
-
-        private JObject FindUserBySessionId(string sessionId)
-        {
-            FindOptions<JObject> sessionIdPredicate = new FindOptions<JObject>()
-            {
-                Predicate = (u) =>
-                    u["sessionId"].ToString().Equals(sessionId) &&
-                    DateTime.Parse(u["sessionExpiry"].ToString()).ToUniversalTime() > DateTime.Now.ToUniversalTime(),
-                Take = 1,
-            };
-
-            TweezersObject usersObjectMetadata = TweezersSchemaFactory.Find("users", true);
-            return usersObjectMetadata.FindInDb(TweezersSchemaFactory.DatabaseProxy, sessionIdPredicate)?.SingleOrDefault();
         }
 
         private bool ValidatePassword(string requestPassword, string userPasswordHash)

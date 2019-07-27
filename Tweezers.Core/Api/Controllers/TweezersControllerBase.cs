@@ -34,9 +34,9 @@ namespace Tweezers.Api.Controllers
             return StatusCode(400, new TweezersErrorBody() { Message = message });
         }
 
-        protected ActionResult TweezersUnauthorized(string message)
+        protected ActionResult TweezersUnauthorized(string message = null)
         {
-            return StatusCode(401, new TweezersErrorBody() { Message = message });
+            return StatusCode(401, new TweezersErrorBody() { Message = message ?? "Unauthorized" });
         }
 
         protected ActionResult TweezersOk(object obj)
@@ -64,8 +64,13 @@ namespace Tweezers.Api.Controllers
             if (!IdentityManager.UsingIdentity)
                 return true;
 
-            // find user etc.
-            return false;
+            if (!Request.Headers.ContainsKey(IdentityManager.SessionIdKey))
+                return false;
+
+            string sessionId = Request.Headers[IdentityManager.SessionIdKey];
+            JObject user = IdentityManager.FindUserBySessionId(sessionId);
+
+            return user != null;
         }
     }
 }
