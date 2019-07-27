@@ -1,21 +1,19 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.28803.156
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.102
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tweezers", "Tweezers\Tweezers.csproj", "{CEF4DA71-CB60-47FB-B9F7-C58542EC8C9F}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Api", "Api\Api.csproj", "{FBB702CA-13B8-40AC-AF46-486AEB5BC22E}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Identity", "Identity\Identity.csproj", "{63EC5980-9273-446D-A301-0374A17D1C37}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Schema", "Schema\Schema.csproj", "{C519841D-9907-444E-92DC-8CB81D7E0BEC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DBConnector", "DBConnector\DBConnector.csproj", "{72005D3F-7787-47D9-960F-3F6AC9EDDEE7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DBConnector", "DBConnector\DBConnector.csproj", "{72005D3F-7787-47D9-960F-3F6AC9EDDEE7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LocalDatabase", "LocalDatabase\LocalDatabase.csproj", "{3E2CA164-D759-4A46-B232-C53048B07620}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LocalDatabase", "LocalDatabase\LocalDatabase.csproj", "{3E2CA164-D759-4A46-B232-C53048B07620}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MongoDB", "MongoDB\MongoDB.csproj", "{AF06F953-C14D-4350-911D-7DEAC7A2EF3F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MongoDB", "MongoDB\MongoDB.csproj", "{AF06F953-C14D-4350-911D-7DEAC7A2EF3F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -51,18 +49,6 @@ Global
 		{FBB702CA-13B8-40AC-AF46-486AEB5BC22E}.Release|x64.Build.0 = Release|Any CPU
 		{FBB702CA-13B8-40AC-AF46-486AEB5BC22E}.Release|x86.ActiveCfg = Release|Any CPU
 		{FBB702CA-13B8-40AC-AF46-486AEB5BC22E}.Release|x86.Build.0 = Release|Any CPU
-		{63EC5980-9273-446D-A301-0374A17D1C37}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{63EC5980-9273-446D-A301-0374A17D1C37}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{63EC5980-9273-446D-A301-0374A17D1C37}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{63EC5980-9273-446D-A301-0374A17D1C37}.Debug|x64.Build.0 = Debug|Any CPU
-		{63EC5980-9273-446D-A301-0374A17D1C37}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{63EC5980-9273-446D-A301-0374A17D1C37}.Debug|x86.Build.0 = Debug|Any CPU
-		{63EC5980-9273-446D-A301-0374A17D1C37}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{63EC5980-9273-446D-A301-0374A17D1C37}.Release|Any CPU.Build.0 = Release|Any CPU
-		{63EC5980-9273-446D-A301-0374A17D1C37}.Release|x64.ActiveCfg = Release|Any CPU
-		{63EC5980-9273-446D-A301-0374A17D1C37}.Release|x64.Build.0 = Release|Any CPU
-		{63EC5980-9273-446D-A301-0374A17D1C37}.Release|x86.ActiveCfg = Release|Any CPU
-		{63EC5980-9273-446D-A301-0374A17D1C37}.Release|x86.Build.0 = Release|Any CPU
 		{C519841D-9907-444E-92DC-8CB81D7E0BEC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{C519841D-9907-444E-92DC-8CB81D7E0BEC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C519841D-9907-444E-92DC-8CB81D7E0BEC}.Debug|x64.ActiveCfg = Debug|Any CPU

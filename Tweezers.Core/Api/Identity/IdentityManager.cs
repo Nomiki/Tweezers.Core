@@ -1,9 +1,11 @@
 ﻿using Tweezers.Schema.DataHolders;
 
-namespace Tweezers.Identity
+namespace Tweezers.Api.Identity
 {
     public static class IdentityManager
     {
+        public static bool UsingIdentity { get; private set; }
+
         public static void RegisterIdentity()
         {
             var usersSchema = CreateUsersSchema(true);
@@ -15,6 +17,8 @@ namespace Tweezers.Identity
                 TweezersSchemaFactory.DeleteObject(usersSchema.CollectionName);
                 TweezersSchemaFactory.AddObject(usersSchema);
             }
+
+            UsingIdentity = true;
         }
 
         public static TweezersObject CreateUsersSchema(bool withInternals = false)

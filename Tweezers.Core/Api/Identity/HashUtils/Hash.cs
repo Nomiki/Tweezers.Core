@@ -2,7 +2,7 @@
 using System.Text;
 using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 
-namespace Tweezers.Identity.HashUtils
+namespace Tweezers.Api.Identity.HashUtils
 {
     public static class Hash
     {

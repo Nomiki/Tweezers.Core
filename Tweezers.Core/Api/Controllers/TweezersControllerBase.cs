@@ -3,6 +3,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
 using Tweezers.Api.DataHolders;
+using Tweezers.Api.Identity;
 using Tweezers.Schema.Common;
 
 namespace Tweezers.Api.Controllers
@@ -56,6 +57,15 @@ namespace Tweezers.Api.Controllers
         private JObject ResolveByContract(object obj)
         {
             return JObject.FromObject(obj, Serializer);
+        }
+
+        protected bool IsSessionValid()
+        {
+            if (!IdentityManager.UsingIdentity)
+                return true;
+
+            // find user etc.
+            return false;
         }
     }
 }
