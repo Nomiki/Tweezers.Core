@@ -6,14 +6,14 @@ using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json.Linq;
 using Tweezers.Api.Controllers;
 using Tweezers.Api.DataHolders;
+using Tweezers.Api.Identity.DataHolders;
+using Tweezers.Api.Identity.HashUtils;
 using Tweezers.DBConnector;
-using Tweezers.Identity.DataHolders;
-using Tweezers.Identity.HashUtils;
 using Tweezers.Schema.Common;
 using Tweezers.Schema.DataHolders;
 using Tweezers.Schema.DataHolders.Exceptions;
 
-namespace Tweezers.Identity.Controllers
+namespace Tweezers.Api.Identity.Controllers
 {
     [Route("api")]
     [ApiController]
@@ -69,12 +69,17 @@ namespace Tweezers.Identity.Controllers
         [HttpGet("tweezers-schema/users")]
         public ActionResult<TweezersObject> GetUsersSchema()
         {
-            return TweezersOk(UsersLoginSchema);
+            return IdentityManager.UsingIdentity 
+                ? TweezersOk(UsersLoginSchema) 
+                : TweezersNotFound();
         }
 
         [HttpPost("users")]
         public ActionResult<JObject> Post([FromBody] LoginRequest suggestedUser)
         {
+            if (!IdentityManager.UsingIdentity)
+                return TweezersNotFound();
+
             try
             {
                 if (FindUser(suggestedUser.Username) != null)
@@ -107,6 +112,9 @@ namespace Tweezers.Identity.Controllers
         [HttpGet("users")]
         public virtual ActionResult<TweezersMultipleResults> List()
         {
+            if (!IdentityManager.UsingIdentity)
+                return TweezersNotFound();
+
             try
             {
                 TweezersObject objectMetadata = TweezersSchemaFactory.Find(UsersCollectionName, true);
@@ -122,6 +130,9 @@ namespace Tweezers.Identity.Controllers
         [HttpGet("users/{id}")]
         public virtual ActionResult<JObject> Get(string id)
         {
+            if (!IdentityManager.UsingIdentity)
+                return TweezersNotFound();
+
             try
             {
                 TweezersObject objectMetadata = TweezersSchemaFactory.Find(UsersCollectionName, true);
@@ -140,6 +151,9 @@ namespace Tweezers.Identity.Controllers
         [HttpPost("login")]
         public ActionResult Login([FromBody] LoginRequest request)
         {
+            if (!IdentityManager.UsingIdentity)
+                return TweezersNotFound();
+
             try
             {
                 if (Authenticate(request, out JObject user))
@@ -163,6 +177,9 @@ namespace Tweezers.Identity.Controllers
         [HttpDelete("users/{username}")]
         public ActionResult<bool> DeleteUser(string username)
         {
+            if (!IdentityManager.UsingIdentity)
+                return TweezersNotFound();
+
             JObject user = FindUser(username);
             if (user == null)
             {
@@ -180,6 +197,9 @@ namespace Tweezers.Identity.Controllers
         [HttpPost("user/reset-password")]
         public ActionResult<bool> ResetPassword([FromBody] ChangePasswordRequest changePasswordRequest)
         {
+            if (!IdentityManager.UsingIdentity)
+                return TweezersNotFound();
+
             string sessionId = ""; //TODO header
             JObject user = FindUserBySessionId(sessionId);
             if (user == null)
@@ -199,6 +219,9 @@ namespace Tweezers.Identity.Controllers
         [HttpPost("users/{username}/change-password")]
         public ActionResult<bool> ChangePassword(string username, [FromBody] ChangePasswordRequest changePasswordRequest)
         {
+            if (!IdentityManager.UsingIdentity)
+                return TweezersNotFound();
+
             JObject user = FindUser(username);
             if (user == null)
             {

@@ -1,4 +1,4 @@
-﻿namespace Tweezers.Identity.HashUtils
+﻿namespace Tweezers.Api.Identity.HashUtils
 {
     internal sealed class Salt
     {

@@ -1,4 +1,4 @@
-﻿namespace Tweezers.Identity.DataHolders
+﻿namespace Tweezers.Api.Identity.DataHolders
 {
     public class ChangePasswordRequest
     {

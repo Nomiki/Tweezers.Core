@@ -1,4 +1,0 @@
-﻿namespace Tweezers.Api.Middleware
-{
-
-}
