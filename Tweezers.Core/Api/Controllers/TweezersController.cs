@@ -17,6 +17,10 @@ namespace Tweezers.Api.Controllers
         {
             try
             {
+                if (!IsSessionValid())
+                    return TweezersUnauthorized();
+
+
                 TweezersObject objectMetadata = TweezersSchemaFactory.Find(collection);
                 IEnumerable<JObject> results = objectMetadata.FindInDb(TweezersSchemaFactory.DatabaseProxy, FindOptions<JObject>.Default());
                 return TweezersOk(TweezersMultipleResults.Create(results));
@@ -32,6 +36,10 @@ namespace Tweezers.Api.Controllers
         {
             try
             {
+                if (!IsSessionValid())
+                    return TweezersUnauthorized();
+
+
                 TweezersObject objectMetadata = TweezersSchemaFactory.Find(collection);
                 JObject obj = objectMetadata.GetById(TweezersSchemaFactory.DatabaseProxy, id);
                 if (obj == null)
@@ -50,6 +58,10 @@ namespace Tweezers.Api.Controllers
         {
             try
             {
+                if (!IsSessionValid())
+                    return TweezersUnauthorized();
+
+
                 TweezersObject objectMetadata = TweezersSchemaFactory.Find(collection);
                 objectMetadata.Validate(data, false);
                 JObject createdObj = objectMetadata.Create(TweezersSchemaFactory.DatabaseProxy, data);
@@ -66,6 +78,10 @@ namespace Tweezers.Api.Controllers
         {
             try
             {
+                if (!IsSessionValid())
+                    return TweezersUnauthorized();
+
+
                 TweezersObject objectMetadata = TweezersSchemaFactory.Find(collection);
                 JObject obj = objectMetadata.GetById(TweezersSchemaFactory.DatabaseProxy, id);
                 if (obj == null)
@@ -86,6 +102,10 @@ namespace Tweezers.Api.Controllers
         {
             try
             {
+                if (!IsSessionValid())
+                    return TweezersUnauthorized();
+
+
                 TweezersObject objectMetadata = TweezersSchemaFactory.Find(collection);
                 if (objectMetadata.GetById(TweezersSchemaFactory.DatabaseProxy, id) == null)
                 {
