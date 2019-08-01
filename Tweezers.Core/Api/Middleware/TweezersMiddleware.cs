@@ -12,16 +12,6 @@ namespace Tweezers.Api.Middleware
                 .AddJsonOptions(options => {
                     options.SerializerSettings.NullValueHandling = NullValueHandling.Ignore;
                 });
-
-
-        }
-
-        public static void AddErrorHandler(IApplicationBuilder app)
-        {
-#if DEBUG
-#else
-            app.UseExceptionHandler("/Error");
-#endif
         }
     }
 }
