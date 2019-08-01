@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Swashbuckle.AspNetCore.Swagger;
+using Tweezers.Api.Identity;
 using Tweezers.Api.Middleware;
 using Tweezers.MetadataManagement;
 
@@ -32,7 +33,7 @@ namespace Tweezers
                     {
                         builder.WithOrigins("http://localhost:4200", "https://localhost:4200");
                         builder.WithMethods("GET", "POST", "PATCH", "PUT", "DELETE");
-                        builder.WithHeaders("content-type", "accept");
+                        builder.WithHeaders("content-type", "accept", IdentityManager.SessionIdKey);
                     });
             });
 
@@ -59,15 +60,15 @@ namespace Tweezers
         {
             if (env.IsDevelopment())
             {
-                app.UseDeveloperExceptionPage();
+                app.UseExceptionHandler(new ExceptionHandlerOptions()
+                {
+                    ExceptionHandler = new JsonExceptionMiddleware().Invoke
+                });
             }
             else
             {
                 app.UseHsts();
             }
-
-            TweezersMiddleware.AddErrorHandler(app);
-            TweezersMetadata.Init("tweezers-settings.json");
 
             app.UseSwagger();
 

@@ -174,7 +174,7 @@ namespace Tweezers.Api.Identity.Controllers
                 {
                     string sessionId = Guid.NewGuid().ToString();
                     user[IdentityManager.SessionIdKey] = sessionId;
-                    user[IdentityManager.SessionExpiryKey] = (DateTime.Now + SessionTimeout).ToUniversalTime()
+                    user[IdentityManager.SessionExpiryKey] = (DateTime.Now + SessionTimeout).ToFileTimeUtc()
                         .ToString(CultureInfo.InvariantCulture);
 
                     TweezersObject usersObjectMetadata = TweezersSchemaFactory.Find("users",

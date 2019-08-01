@@ -16,9 +16,7 @@ namespace Tweezers.MetadataManagement
     {
         private static TweezersMetadata _instance;
 
-        public bool UseIdentity { get; set; }
-
-        public string Title { get; set; }
+        public TweezersDetails TweezersDetails { get; set; }
 
         [JsonProperty("dbDetails")]
         // ReSharper disable once InconsistentNaming
@@ -34,7 +32,7 @@ namespace Tweezers.MetadataManagement
             TweezersMetadata metadata = JsonConvert.DeserializeObject<TweezersMetadata>(settings);
             TweezersSchemaFactory.DatabaseProxy = GetDatabaseProxyInstance(metadata.DBDetails);
 
-            if (metadata.UseIdentity)
+            if (metadata.TweezersDetails.UseIdentity)
             {
                 IdentityManager.RegisterIdentity();
             }

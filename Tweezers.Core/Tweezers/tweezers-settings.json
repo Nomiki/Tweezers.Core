@@ -1,6 +1,9 @@
 ﻿{
-  "useIdentity": true,
-  "title": "Hello World",
+  "tweezersDetails": {
+    "useIdentity": true,
+    "title": "Hello World",
+    "port": 5001
+  },
   "dbDetails": {
     "dbType": "MongoDB", 
     "host": "localhost",

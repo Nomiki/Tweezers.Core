@@ -1,5 +1,6 @@
-﻿using Microsoft.AspNetCore;
+﻿using System.IO;
 using Microsoft.AspNetCore.Hosting;
+using Tweezers.MetadataManagement;
 
 namespace Tweezers
 {
@@ -7,11 +8,18 @@ namespace Tweezers
     {
         public static void Main(string[] args)
         {
-            CreateWebHostBuilder(args).Build().Run();
+            TweezersMetadata.Init("tweezers-settings.json");
+            CreateWebHostBuilder().Build().Run();
         }
 
-        public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
-            WebHost.CreateDefaultBuilder(args)
-                .UseStartup<Startup>();
+        public static IWebHostBuilder CreateWebHostBuilder()
+        {
+            int port = TweezersMetadata.Instance.TweezersDetails.Port;
+            return new WebHostBuilder()
+                .UseKestrel()
+                .UseContentRoot(Directory.GetCurrentDirectory())
+                .UseStartup<Startup>()
+                .UseUrls($"https://localhost:{port}/");
+        }
     }
 }

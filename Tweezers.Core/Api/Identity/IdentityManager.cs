@@ -100,8 +100,13 @@ namespace Tweezers.Api.Identity
             FindOptions<JObject> sessionIdPredicate = new FindOptions<JObject>()
             {
                 Predicate = (u) =>
-                    u[SessionIdKey].ToString().Equals(sessionId) &&
-                    DateTime.Parse(u[SessionExpiryKey].ToString()).ToUniversalTime() > DateTime.Now.ToUniversalTime(),
+                {
+                    bool sessionIdEq = u[SessionIdKey].ToString().Equals(sessionId);
+                    var sessionExpiryTime = long.Parse(u[SessionExpiryKey].ToString());
+                    var now = DateTime.Now.ToFileTimeUtc();
+                    bool sessionExpiryOk = sessionExpiryTime > now;
+                    return sessionIdEq && sessionExpiryOk;
+                },
                 Take = 1,
             };
 
