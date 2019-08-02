@@ -11,15 +11,24 @@ namespace Tweezers.MongoDB
 {
     public class MongoDBConnector : IDatabaseProxy
     {
-        private readonly IMongoDatabase database;
-        //TODO: Move
         private const string idField = "_id";
 
         private readonly Dictionary<string, IMongoCollection<BsonDocument>> collections = new Dictionary<string, IMongoCollection<BsonDocument>>();
 
+        private DBConnectionDetails ConnectionDetails { get; }
+
+        private MongoClientSettings Settings { get; }
+
+        private MongoClient _client;
+        private MongoClient Client => _client ?? (_client = new MongoClient(Settings));
+
+        private IMongoDatabase _database;
+        private IMongoDatabase Database => _database ?? (_database = Client.GetDatabase(ConnectionDetails.DBName));
+
         public MongoDBConnector(DBConnectionDetails connectionDetails)
         {
-            MongoClientSettings settings = new MongoClientSettings()
+            ConnectionDetails = connectionDetails;
+            Settings = new MongoClientSettings()
             {
                 ConnectionMode = ConnectionMode.Automatic,
                 Server = new MongoServerAddress(connectionDetails.Host, connectionDetails.Port)
@@ -27,13 +36,9 @@ namespace Tweezers.MongoDB
 
             if (!string.IsNullOrWhiteSpace(connectionDetails.Username))
             {
-                settings.Credential = MongoCredential.CreateCredential(connectionDetails.DBName,
+                Settings.Credential = MongoCredential.CreateCredential(connectionDetails.DBName,
                     connectionDetails.Username, connectionDetails.Password);
             }
-
-            MongoClient client = new MongoClient(settings);
-
-            database = client.GetDatabase(connectionDetails.DBName);
         }
 
         public JObject Get(string collection, string id)
@@ -102,14 +107,14 @@ namespace Tweezers.MongoDB
 
         public IEnumerable<string> GetCollections()
         {
-            return database.ListCollectionNames().ToEnumerable();
+            return Database.ListCollectionNames().ToEnumerable();
         }
 
         public IMongoCollection<BsonDocument> GetCollection(string name)
         {
             if (!collections.ContainsKey(name))
             {
-                collections[name] = database.GetCollection<BsonDocument>(name);
+                collections[name] = Database.GetCollection<BsonDocument>(name);
             }
 
             return collections[name];

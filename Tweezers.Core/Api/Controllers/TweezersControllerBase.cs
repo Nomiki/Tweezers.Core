@@ -1,24 +1,14 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using Newtonsoft.Json.Serialization;
 using Tweezers.Api.DataHolders;
 using Tweezers.Api.Identity;
+using Tweezers.Api.Utils;
 using Tweezers.Schema.Common;
 
 namespace Tweezers.Api.Controllers
 {
     public abstract class TweezersControllerBase : ControllerBase
     {
-        private static readonly JsonSerializerSettings Settings = new JsonSerializerSettings()
-        {
-            NullValueHandling = NullValueHandling.Ignore,
-            Formatting = Formatting.Indented,
-            ContractResolver = new CamelCasePropertyNamesContractResolver()
-        };
-
-        private static readonly JsonSerializer Serializer = JsonSerializer.Create(Settings);
-
         protected ActionResult TweezersForbidden(string method, string message)
         {
             return StatusCode(403, new TweezersErrorBody() { Message = message, Method = method });
@@ -39,9 +29,9 @@ namespace Tweezers.Api.Controllers
             return StatusCode(401, new TweezersErrorBody() { Message = message ?? "Unauthorized" });
         }
 
-        protected ActionResult TweezersOk(object obj)
+        protected ActionResult TweezersOk(object obj = null)
         {
-            return StatusCode(200, ResolveByContract(obj));
+            return StatusCode(200, ResolveByContract(obj ?? TweezersGeneralResponse.Create("Ok")));
         }
 
         protected ActionResult TweezersOk(object obj, params string[] removeFields)
@@ -56,7 +46,7 @@ namespace Tweezers.Api.Controllers
 
         private JObject ResolveByContract(object obj)
         {
-            return JObject.FromObject(obj, Serializer);
+            return JObject.FromObject(obj, Serializer.JsonSerializer);
         }
 
         protected bool IsSessionValid()

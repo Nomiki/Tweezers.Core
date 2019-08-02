@@ -13,5 +13,20 @@
   <ItemGroup>
     <ProjectReference Include="..\Schema\Schema.csproj" />
   </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Schema\Schemas.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Schemas.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="Schema\Schemas.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Schemas.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
   
 </Project>

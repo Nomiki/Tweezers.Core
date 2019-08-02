@@ -5,6 +5,8 @@ using System.Linq;
 using System.Reflection;
 using Newtonsoft.Json;
 using Tweezers.Api.Identity;
+using Tweezers.Api.Schema;
+using Tweezers.Api.Utils;
 using Tweezers.DBConnector;
 using Tweezers.LocalDatabase;
 using Tweezers.Schema.DataHolders;
@@ -29,8 +31,10 @@ namespace Tweezers.MetadataManagement
         public static TweezersMetadata Init(string fileName)
         {
             string settings = File.ReadAllText(fileName);
-            TweezersMetadata metadata = JsonConvert.DeserializeObject<TweezersMetadata>(settings);
+            TweezersMetadata metadata = settings.Deserialize<TweezersMetadata>();
             TweezersSchemaFactory.DatabaseProxy = GetDatabaseProxyInstance(metadata.DBDetails);
+
+            SchemaManagement.CanChangeSchema = metadata.TweezersDetails.CanChangeSchema;
 
             if (metadata.TweezersDetails.UseIdentity)
             {

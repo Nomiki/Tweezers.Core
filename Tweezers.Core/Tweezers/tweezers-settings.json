@@ -1,6 +1,7 @@
 ﻿{
   "tweezersDetails": {
     "useIdentity": true,
+    "canChangeSchema": true, 
     "title": "Hello World",
     "port": 5001
   },

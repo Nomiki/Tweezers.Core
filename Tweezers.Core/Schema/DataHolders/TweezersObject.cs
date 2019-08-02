@@ -9,9 +9,23 @@ namespace Tweezers.Schema.DataHolders
 {
     public sealed class TweezersObject
     {
+        public string _id => CollectionName;
+
         public string CollectionName { get; set; }
 
         public TweezersDisplayNames DisplayNames { get; } = new TweezersDisplayNames();
+
+        public string SingularName
+        {
+            get => DisplayNames.SingularName;
+            set => DisplayNames.SingularName = value;
+        }
+
+        public string PluralName
+        {
+            get => DisplayNames.PluralName;
+            set => DisplayNames.PluralName = value;
+        }
 
         public string Icon { get; set; }
 
