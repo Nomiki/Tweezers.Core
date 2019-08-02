@@ -3,6 +3,7 @@ using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 using Tweezers.Api.DataHolders;
 using Tweezers.Api.Schema;
+using Tweezers.Schema.Common;
 using Tweezers.Schema.DataHolders;
 using Tweezers.Schema.DataHolders.Exceptions;
 
@@ -67,6 +68,8 @@ namespace Tweezers.Api.Controllers
 
         private static TweezersObject ReplaceTweezersObject(TweezersObject data)
         {
+            data.Fields = data.Fields.ToDictionary(kvp => kvp.Value.FieldProperties.Name, kvp => kvp.Value);
+
             TweezersSchemaFactory.AddObject(data);
             // todo: add validate
             TweezersObject obj = TweezersSchemaFactory.Find(data.CollectionName);
