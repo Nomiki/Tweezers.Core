@@ -13,6 +13,10 @@ namespace Tweezers.Schema.DataHolders
 {
     public class TweezersFieldProperties
     {
+        public string Name { get; set; }
+
+        public string DisplayName { get; set; }
+
         public TweezersFieldType FieldType { get; set; }
 
         public int? Min { get; set; }

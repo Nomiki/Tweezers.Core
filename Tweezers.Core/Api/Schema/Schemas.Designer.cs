@@ -71,9 +71,9 @@ namespace Tweezers.Api.Schema {
         ///  &quot;icon&quot;: &quot;grid_on&quot;,
         ///  &quot;fields&quot;: {
         ///    &quot;collectionName&quot;: {
-        ///      &quot;name&quot;: &quot;collectionName&quot;,
-        ///      &quot;displayName&quot;: &quot;Collection&quot;,
         ///      &quot;fieldProperties&quot;: {
+        ///        &quot;name&quot;: &quot;collectionName&quot;,
+        ///        &quot;displayName&quot;: &quot;Collection&quot;,
         ///        &quot;fieldType&quot;: &quot;String&quot;,
         ///        &quot;min&quot;: 1,
         ///        &quot;max&quot;: 40,
@@ -82,7 +82,7 @@ namespace Tweezers.Api.Schema {
         ///      }
         ///    },
         ///    &quot;singularName&quot;: {
-        ///      &quot;name&quot;: &quot;singul [rest of string was truncated]&quot;;.
+        ///      &quot;fieldPrope [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string SchemaMetaJson {
             get {

@@ -46,8 +46,6 @@ namespace Tweezers.Schema.Validators.Array
         {
             TweezersField field = new TweezersField()
             {
-                Name = fieldName,
-                DisplayName = fieldName,
                 FieldProperties = FieldProperties
             };
 
