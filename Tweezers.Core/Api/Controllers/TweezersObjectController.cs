@@ -1,14 +1,19 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 using Tweezers.Api.DataHolders;
+using Tweezers.Api.Schema;
 using Tweezers.Schema.DataHolders;
+using Tweezers.Schema.DataHolders.Exceptions;
 
 namespace Tweezers.Api.Controllers
 {
     [Route("api")]
     [ApiController]
     public sealed class TweezersObjectController : TweezersControllerBase
-    { 
+    {
+        private const string TweezersSchemaKey = "tweezers-schema";
+
         [HttpGet("tweezers-schema")]
         public ActionResult<TweezersMultipleResults<TweezersObject>> List([FromQuery] bool internalObj)
         {
@@ -16,6 +21,12 @@ namespace Tweezers.Api.Controllers
                 return TweezersUnauthorized();
 
             IEnumerable<TweezersObject> allMetadata = TweezersSchemaFactory.GetAll(includeInternal: internalObj);
+
+            if (SchemaManagement.CanChangeSchema && internalObj)
+            {
+                allMetadata = allMetadata.Concat(new[] { SchemaManagement.SchemaMetadata });
+            }
+
             return TweezersOk(TweezersMultipleResults<TweezersObject>.Create(allMetadata));
         }
 
@@ -25,8 +36,23 @@ namespace Tweezers.Api.Controllers
             if (!IsSessionValid())
                 return TweezersUnauthorized();
 
-            TweezersObject objectMetadata = TweezersSchemaFactory.Find(collectionName, withInternalObjects: internalObj);
-            return TweezersOk(objectMetadata);
+            if (collectionName == TweezersSchemaKey && SchemaManagement.CanChangeSchema)
+            {
+                return TweezersOk(SchemaManagement.SchemaMetadata);
+            }
+
+            try
+            {
+                TweezersObject objectMetadata =
+                    TweezersSchemaFactory.Find(collectionName, withInternalObjects: internalObj);
+
+                return TweezersOk(objectMetadata);
+            }
+            catch (TweezersValidationException e)
+            {
+                return TweezersBadRequest(e.Message);
+                //return TweezersNotFound();
+            }
         }
 
         [HttpPost("tweezers-schema")]
@@ -47,11 +73,14 @@ namespace Tweezers.Api.Controllers
             return obj;
         }
 
-        [HttpPut("tweezers-schema/{collectionName}")]
+        [HttpPatch("tweezers-schema/{collectionName}")]
         public ActionResult<TweezersObject> Patch(string collectionName, [FromBody] TweezersObject data)
         {
             if (!IsSessionValid())
                 return TweezersUnauthorized();
+
+            if (collectionName == TweezersSchemaKey)
+                return TweezersNotFound();
 
             data.CollectionName = collectionName;
             TweezersObject obj = ReplaceTweezersObject(data);
@@ -65,7 +94,7 @@ namespace Tweezers.Api.Controllers
                 return TweezersUnauthorized();
 
             bool deleted = TweezersSchemaFactory.DeleteObject(collectionName);
-            return TweezersOk(deleted);
+            return TweezersOk();
         }
     }
 }

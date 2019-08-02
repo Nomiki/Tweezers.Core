@@ -113,7 +113,7 @@ namespace Tweezers.Api.Controllers
                 }
 
                 bool deleted = objectMetadata.Delete(TweezersSchemaFactory.DatabaseProxy, id);
-                return TweezersOk(deleted);
+                return TweezersOk();
             }
             catch (TweezersValidationException e)
             {
