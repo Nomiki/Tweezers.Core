@@ -40,8 +40,6 @@ namespace Tweezers.Api.Identity.Controllers
 
             UsersLoginSchema.Fields.Add("username", new TweezersField()
             {
-                Name = "username",
-                DisplayName = "Username",
                 FieldProperties = new TweezersFieldProperties()
                 {
                     FieldType = TweezersFieldType.String,
@@ -49,14 +47,14 @@ namespace Tweezers.Api.Identity.Controllers
                     Min = 1,
                     Max = 50,
                     Required = true,
-                    Regex = @"[A-Za-z\d]+"
+                    Regex = @"[A-Za-z\d]+",
+                    Name = "username",
+                    DisplayName = "Username",
                 }
             });
 
             UsersLoginSchema.Fields.Add("password", new TweezersField()
             {
-                Name = "password",
-                DisplayName = "Password",
                 FieldProperties = new TweezersFieldProperties()
                 {
                     FieldType = TweezersFieldType.Password,
@@ -64,6 +62,8 @@ namespace Tweezers.Api.Identity.Controllers
                     Max = 50,
                     Required = true,
                     GridIgnore = true,
+                    Name = "password",
+                    DisplayName = "Password",
                 }
             });
         }

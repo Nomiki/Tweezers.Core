@@ -9,10 +9,6 @@ namespace Tweezers.Schema.DataHolders
     {
         private TweezersFieldProperties _fieldProperties;
 
-        public string Name { get; set; }
-
-        public string DisplayName { get; set; }
-
         public TweezersFieldProperties FieldProperties
         {
             get => _fieldProperties;
@@ -29,11 +25,11 @@ namespace Tweezers.Schema.DataHolders
         public TweezersValidationResult Validate(dynamic value)
         {
             if (FieldProperties.Required && value == null)
-                return TweezersValidationResult.Reject($"{DisplayName} is required.");
+                return TweezersValidationResult.Reject($"{FieldProperties.DisplayName} is required.");
 
             foreach (IValidator validator in InternalValidators)
             {
-                TweezersValidationResult validationResult = validator.Validate(DisplayName, value);
+                TweezersValidationResult validationResult = validator.Validate(FieldProperties.DisplayName, value);
                 if (!validationResult.Valid)
                 {
                     return validationResult;

@@ -128,9 +128,9 @@
   "icon": "grid_on",
   "fields": {
     "collectionName": {
-      "name": "collectionName",
-      "displayName": "Collection",
       "fieldProperties": {
+        "name": "collectionName",
+        "displayName": "Collection",
         "fieldType": "String",
         "min": 1,
         "max": 40,
@@ -139,9 +139,9 @@
       }
     },
     "singularName": {
-      "name": "singularName",
-      "displayName": "Singular Name",
       "fieldProperties": {
+        "name": "singularName",
+        "displayName": "Singular Name",
         "fieldType": "String",
         "min": 1,
         "max": 50,
@@ -149,9 +149,9 @@
       }
     },
     "pluralName": {
-      "name": "pluralName",
-      "displayName": "Plural Name",
       "fieldProperties": {
+        "name": "pluralName",
+        "displayName": "Plural Name",
         "fieldType": "String",
         "min": 1,
         "max": 50,
@@ -160,9 +160,9 @@
       }
     },
     "icon": {
-      "name": "icon",
-      "displayName": "Icon",
       "fieldProperties": {
+        "name": "icon",
+        "displayName": "Icon",
         "fieldType": "String",
         "min": 1,
         "max": 50,
@@ -170,9 +170,9 @@
       }
     },
     "fields": {
-      "name": "fields",
-      "displayName": "Fields",
       "fieldProperties": {
+        "name": "fields",
+        "displayName": "Fields",
         "fieldType": "Array",
         "required": true,
         "gridIgnore": true,
@@ -187,9 +187,9 @@
             "icon": "style",
             "fields": {
               "name": {
-                "name": "name",
-                "displayName": "Field Name",
                 "fieldProperties": {
+                  "name": "name",
+                  "displayName": "Field Name",
                   "fieldType": "String",
                   "min": 1,
                   "max": 50,
@@ -197,9 +197,9 @@
                 }
               },
               "displayName": {
-                "name": "displayName",
-                "displayName": "Display Name",
                 "fieldProperties": {
+                  "name": "displayName",
+                  "displayName": "Display Name",
                   "fieldType": "String",
                   "min": 1,
                   "max": 50,
@@ -207,81 +207,87 @@
                 }
               },
               "fieldType": {
-                "name": "fieldType",
-                "displayName": "Field Type",
                 "fieldProperties": {
+                  "name": "fieldType",
+                  "displayName": "Field Type",
                   "fieldType": "Enum",
                   "required": true,
-                  "possibleValues": ["Enum", "Integer", "String", "Boolean", "Password"]
+                  "possibleValues": [
+                    "Enum",
+                    "Integer",
+                    "String",
+                    "Boolean",
+                    "Password"
+                  ]
                 }
               },
               "min": {
-                "name": "min",
-                "displayName": "Minimum",
                 "fieldProperties": {
+                  "name": "min",
+                  "displayName": "Minimum",
                   "fieldType": "Integer",
                   "min": 0,
                   "max": 65535
                 }
               },
               "max": {
-                "name": "max",
-                "displayName": "Maximum",
                 "fieldProperties": {
+                  "name": "max",
+                  "displayName": "Maximum",
                   "fieldType": "Integer",
                   "min": 0,
                   "max": 65535
                 }
               },
               "regex": {
-                "name": "regex",
-                "displayName": "Regular Expression",
                 "fieldProperties": {
+                  "name": "regex",
+                  "displayName": "Regular Expression",
                   "fieldType": "String",
                   "min": 0,
                   "max": 255
                 }
               },
               "possibleValues": {
-                "name": "possibleValues",
-                "displayName": "Possible Values",
                 "fieldProperties": {
+                  "name": "possibleValues",
+                  "displayName": "Possible Values",
                   "fieldType": "Array",
                   "arrayFieldProperties": {
-                      "fieldType": "String",
-                      "min": 0,
-                      "max": 255
+                    "fieldType": "String",
+                    "min": 0,
+                    "max": 255
                   }
                 }
               },
               "required": {
-                "name": "required",
-                "displayName": "Required",
                 "fieldProperties": {
+                  "name": "required",
+                  "displayName": "Required",
                   "fieldType": "Boolean",
                   "required": true
                 }
               },
               "uiIgnore": {
-                "name": "uiIgnore",
-                "displayName": "UI Ignore",
                 "fieldProperties": {
+                  "name": "uiIgnore",
+                  "displayName": "UI Ignore",
                   "fieldType": "Boolean",
                   "required": true
                 }
               },
               "gridIgnore": {
-                "name": "gridIgnore",
-                "displayName": "Grid Ignore",
                 "fieldProperties": {
+                  "name": "gridIgnore",
+                  "displayName": "Grid Ignore",
                   "fieldType": "Boolean",
                   "required": true
                 }
               },
               "uiTitle": {
-                "name": "uiTitle",
-                "displayName": "Is Title",
                 "fieldProperties": {
+                  "name": "uiTitle",
+                  "displayName": "Is Title",
                   "fieldType": "Boolean",
                   "required": true
                 }

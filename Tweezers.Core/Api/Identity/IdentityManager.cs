@@ -42,8 +42,6 @@ namespace Tweezers.Api.Identity
 
             usersSchema.Fields.Add("username", new TweezersField()
             {
-                Name = "username",
-                DisplayName = "Username",
                 FieldProperties = new TweezersFieldProperties()
                 {
                     FieldType = TweezersFieldType.String,
@@ -51,7 +49,9 @@ namespace Tweezers.Api.Identity
                     Min = 1,
                     Max = 50,
                     Required = true,
-                    Regex = @"[A-Za-z\d]+"
+                    Regex = @"[A-Za-z\d]+",
+                    Name = "username",
+                    DisplayName = "Username",
                 }
             });
 
@@ -59,35 +59,35 @@ namespace Tweezers.Api.Identity
             {
                 usersSchema.Fields.Add("passwordHash", new TweezersField()
                 {
-                    Name = "passwordHash",
-                    DisplayName = "password",
                     FieldProperties = new TweezersFieldProperties()
                     {
                         FieldType = TweezersFieldType.String,
                         Required = true,
                         UiIgnore = true,
+                        Name = "passwordHash",
+                        DisplayName = "password",
                     }
                 });
 
                 usersSchema.Fields.Add(SessionIdKey, new TweezersField()
                 {
-                    Name = SessionIdKey,
-                    DisplayName = "Session ID",
                     FieldProperties = new TweezersFieldProperties()
                     {
                         FieldType = TweezersFieldType.String,
                         UiIgnore = true,
+                        Name = SessionIdKey,
+                        DisplayName = "Session ID",
                     }
                 });
 
                 usersSchema.Fields.Add(SessionExpiryKey, new TweezersField()
                 {
-                    Name = SessionExpiryKey,
-                    DisplayName = "SessionExpiry",
                     FieldProperties = new TweezersFieldProperties()
                     {
                         FieldType = TweezersFieldType.String,
                         UiIgnore = true,
+                        Name = SessionExpiryKey,
+                        DisplayName = "SessionExpiry",
                     }
                 });
             }
