@@ -6,7 +6,9 @@ namespace Tweezers.Schema.Validators.Integer
     {
         public int Maximum { get; set; }
 
-        private MaximumValueValidator() { }
+        private MaximumValueValidator()
+        {
+        }
 
         public static MaximumValueValidator Create(int minimum)
         {
@@ -17,15 +19,17 @@ namespace Tweezers.Schema.Validators.Integer
 
         public TweezersValidationResult Validate(string fieldName, dynamic value)
         {
-            if (value is int)
+            try
             {
-                int parsedValue = (int)value;
+                int parsedValue = (int) value;
                 return parsedValue <= Maximum
                     ? TweezersValidationResult.Accept()
                     : TweezersValidationResult.Reject($"Value of {fieldName} is higher than {Maximum}");
             }
-
-            return TweezersValidationResult.Reject($"Could not parse {fieldName}");
+            catch
+            {
+                return TweezersValidationResult.Reject($"Could not parse {fieldName}");
+            }
         }
     }
 }

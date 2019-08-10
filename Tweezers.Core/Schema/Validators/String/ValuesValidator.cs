@@ -19,15 +19,18 @@ namespace Tweezers.Schema.Validators.String
 
         public TweezersValidationResult Validate(string fieldName, dynamic value)
         {
-            if (value is string)
+            try
             {
-                string parsedValue = (string)value;
+                string parsedValue = (string) value;
                 return parsedValue.In(AllowedValues)
                     ? TweezersValidationResult.Accept()
-                    : TweezersValidationResult.Reject($"Invalid {fieldName}, possible values are: [{AllowedValues.ToArrayString()}]");
+                    : TweezersValidationResult.Reject(
+                        $"Invalid {fieldName}, possible values are: [{AllowedValues.ToArrayString()}]");
             }
-
-            return TweezersValidationResult.Reject($"Could not parse {fieldName}");
+            catch
+            {
+                return TweezersValidationResult.Reject($"Could not parse {fieldName}");
+            }
         }
 
         public string Name => "Values";

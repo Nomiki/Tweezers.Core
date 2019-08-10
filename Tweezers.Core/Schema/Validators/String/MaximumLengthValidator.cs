@@ -17,15 +17,17 @@ namespace Tweezers.Schema.Validators.String
 
         public TweezersValidationResult Validate(string fieldName, dynamic value)
         {
-            if (value is string)
+            try
             {
-                string parsedValue = (string)value;
+                string parsedValue = (string) value;
                 return parsedValue.Length <= Maximum
                     ? TweezersValidationResult.Accept()
                     : TweezersValidationResult.Reject($"The length of {fieldName} is higher than {Maximum}");
             }
-
-            return TweezersValidationResult.Reject($"Could not parse {fieldName}");
+            catch
+            {
+                return TweezersValidationResult.Reject($"Could not parse {fieldName}");
+            }
         }
     }
 }

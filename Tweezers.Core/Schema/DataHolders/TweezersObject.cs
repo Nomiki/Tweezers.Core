@@ -4,6 +4,7 @@ using System.Linq;
 using Newtonsoft.Json.Linq;
 using Tweezers.DBConnector;
 using Tweezers.Schema.Common;
+using Tweezers.Schema.DataHolders.Exceptions;
 
 namespace Tweezers.Schema.DataHolders
 {
@@ -51,14 +52,15 @@ namespace Tweezers.Schema.DataHolders
                 TweezersValidationResult validationResultForField = field.Validate(value);
                 if (!validationResultForField.Valid)
                 {
-                    return validationResultForField;
+                    throw new TweezersValidationException(validationResultForField);
                 }
             }
 
             return TweezersValidationResult.Accept();
         }
 
-        public IEnumerable<JObject> FindInDb(IDatabaseProxy proxy, FindOptions<JObject> findOptions = null, bool allFields = false)
+        public IEnumerable<JObject> FindInDb(IDatabaseProxy proxy, FindOptions<JObject> findOptions = null,
+            bool allFields = false)
         {
             FindOptions<JObject> opts = findOptions ?? FindOptions<JObject>.Default();
 

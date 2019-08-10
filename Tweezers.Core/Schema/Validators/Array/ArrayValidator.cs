@@ -20,9 +20,9 @@ namespace Tweezers.Schema.Validators.Array
 
         public TweezersValidationResult Validate(string fieldName, dynamic value)
         {
-            if (value is JArray)
+            try
             {
-                JArray parsedValue = value as JArray;
+                JArray parsedValue = (JArray) value;
                 int i = 0;
                 foreach (var jToken in parsedValue)
                 {
@@ -38,8 +38,10 @@ namespace Tweezers.Schema.Validators.Array
 
                 return TweezersValidationResult.Accept();
             }
-
-            return TweezersValidationResult.Reject($"{fieldName} is not an array.");
+            catch
+            {
+                return TweezersValidationResult.Reject($"{fieldName} is not an array.");
+            }
         }
 
         private TweezersValidationResult ValidateElement(string fieldName, JObject element)

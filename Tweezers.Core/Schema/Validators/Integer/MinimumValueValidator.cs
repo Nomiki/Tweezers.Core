@@ -6,7 +6,9 @@ namespace Tweezers.Schema.Validators.Integer
     {
         public int Minimum { get; set; }
 
-        private MinimumValueValidator() { }
+        private MinimumValueValidator()
+        {
+        }
 
         public static MinimumValueValidator Create(int minimum)
         {
@@ -17,15 +19,17 @@ namespace Tweezers.Schema.Validators.Integer
 
         public TweezersValidationResult Validate(string fieldName, dynamic value)
         {
-            if (value is int)
+            try
             {
-                int parsedValue = (int)value;
+                int parsedValue = (int) value;
                 return parsedValue >= Minimum
                     ? TweezersValidationResult.Accept()
                     : TweezersValidationResult.Reject($"Value of {fieldName} is lower than {Minimum}");
             }
-
-            return TweezersValidationResult.Reject($"Could not parse {fieldName}");
+            catch
+            {
+                return TweezersValidationResult.Reject($"Could not parse {fieldName}");
+            }
         }
     }
 }
