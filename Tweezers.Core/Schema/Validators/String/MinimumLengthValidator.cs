@@ -6,7 +6,9 @@ namespace Tweezers.Schema.Validators.String
     {
         public int Minimum { get; set; }
 
-        private MinimumLengthValidator() { }
+        private MinimumLengthValidator()
+        {
+        }
 
         public static MinimumLengthValidator Create(int minimum)
         {
@@ -17,15 +19,17 @@ namespace Tweezers.Schema.Validators.String
 
         public TweezersValidationResult Validate(string fieldName, dynamic value)
         {
-            if (value is string)
+            try
             {
-                string parsedValue = (string)value;
+                string parsedValue = (string) value;
                 return parsedValue.Length >= Minimum
                     ? TweezersValidationResult.Accept()
                     : TweezersValidationResult.Reject($"The length of {fieldName} is lower than {Minimum}");
             }
-
-            return TweezersValidationResult.Reject($"Could not parse {fieldName}");
+            catch
+            {
+                return TweezersValidationResult.Reject($"Could not parse {fieldName}");
+            }
         }
     }
 }

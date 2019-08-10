@@ -16,9 +16,20 @@ namespace Tweezers.Schema.Validators
 
         public TweezersValidationResult Validate(string fieldName, dynamic value)
         {
-            return (value is T)
-                ? TweezersValidationResult.Accept()
-                : TweezersValidationResult.Reject($"Field {fieldName} is not of type {this.Name}");
+            try
+            {
+                T parsedValue = (T) value;
+                return parsedValue != null ? TweezersValidationResult.Accept() : Reject(fieldName);
+            }
+            catch
+            {
+                return Reject(fieldName);
+            }
+        }
+
+        private TweezersValidationResult Reject(string fieldName)
+        {
+            return TweezersValidationResult.Reject($"Field {fieldName} is not of type {this.Name}");
         }
 
         public string Name => typeof(T).Name;

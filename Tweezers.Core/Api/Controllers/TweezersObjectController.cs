@@ -1,8 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json.Linq;
 using Tweezers.Api.DataHolders;
 using Tweezers.Api.Schema;
+using Tweezers.Api.Utils;
 using Tweezers.Schema.Common;
 using Tweezers.Schema.DataHolders;
 using Tweezers.Schema.DataHolders.Exceptions;
@@ -62,16 +65,25 @@ namespace Tweezers.Api.Controllers
             if (!IsSessionValid())
                 return TweezersUnauthorized();
 
-            TweezersObject obj = ReplaceTweezersObject(data);
-            return TweezersCreated(obj);
+            try
+            {
+                TweezersObject obj = ReplaceTweezersObject(data);
+                return TweezersCreated(obj);
+            }
+            catch (TweezersValidationException e)
+            {
+                return TweezersBadRequest(e.Message);
+            }
         }
 
         private static TweezersObject ReplaceTweezersObject(TweezersObject data)
         {
             data.Fields = data.Fields.ToDictionary(kvp => kvp.Value.FieldProperties.Name, kvp => kvp.Value);
 
+            TweezersValidationResult validationResult = 
+                SchemaManagement.SchemaMetadata.Validate(JObject.FromObject(data, Serializer.JsonSerializer), false);
+
             TweezersSchemaFactory.AddObject(data);
-            // todo: add validate
             TweezersObject obj = TweezersSchemaFactory.Find(data.CollectionName);
             return obj;
         }
@@ -85,9 +97,16 @@ namespace Tweezers.Api.Controllers
             if (collectionName == TweezersSchemaKey)
                 return TweezersNotFound();
 
-            data.CollectionName = collectionName;
-            TweezersObject obj = ReplaceTweezersObject(data);
-            return TweezersOk(obj);
+            try
+            {
+                data.CollectionName = collectionName;
+                TweezersObject obj = ReplaceTweezersObject(data);
+                return TweezersOk(obj);
+            }
+            catch (TweezersValidationException e)
+            {
+                return TweezersBadRequest(e.Message);
+            }
         }
 
         [HttpDelete("tweezers-schema/{collectionName}")]

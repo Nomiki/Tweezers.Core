@@ -19,7 +19,7 @@ namespace Tweezers.Schema.Validators.String
 
         public TweezersValidationResult Validate(string fieldName, dynamic value)
         {
-            if (value is string)
+            try
             {
                 string parsedValue = (string) value;
                 Regex regex = new Regex(Regex.Escape(Pattern));
@@ -27,8 +27,10 @@ namespace Tweezers.Schema.Validators.String
                     ? TweezersValidationResult.Accept()
                     : TweezersValidationResult.Reject($"{fieldName} does not match pattern '{Pattern}'");
             }
-
-            return TweezersValidationResult.Reject($"Could not parse {fieldName}");
+            catch
+            {
+                return TweezersValidationResult.Reject($"Could not parse {fieldName}");
+            }
         }
 
         public string Name => "Regex";
