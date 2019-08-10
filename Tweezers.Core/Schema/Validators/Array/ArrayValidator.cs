@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using Newtonsoft.Json.Linq;
 using Tweezers.Schema.DataHolders;
+using Tweezers.Schema.DataHolders.Exceptions;
 
 namespace Tweezers.Schema.Validators.Array
 {
@@ -26,8 +27,7 @@ namespace Tweezers.Schema.Validators.Array
                 int i = 0;
                 foreach (var jToken in parsedValue)
                 {
-                    var element = jToken as JObject;
-                    TweezersValidationResult validationResult = ValidateElement($"{fieldName}#{i}", element);
+                    TweezersValidationResult validationResult = ValidateElement($"{fieldName}#{i}", jToken);
                     if (!validationResult.Valid)
                     {
                         return validationResult;
@@ -38,18 +38,23 @@ namespace Tweezers.Schema.Validators.Array
 
                 return TweezersValidationResult.Accept();
             }
+            catch (TweezersValidationException e)
+            {
+                return TweezersValidationResult.Reject(e.Message);
+            }
             catch
             {
                 return TweezersValidationResult.Reject($"{fieldName} is not an array.");
             }
         }
 
-        private TweezersValidationResult ValidateElement(string fieldName, JObject element)
+        private TweezersValidationResult ValidateElement(string fieldName, dynamic element)
         {
             TweezersField field = new TweezersField()
             {
                 FieldProperties = FieldProperties
             };
+            field.FieldProperties.DisplayName = fieldName;
 
             return field.Validate(element);
         }

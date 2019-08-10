@@ -80,8 +80,12 @@ namespace Tweezers.Api.Controllers
         {
             data.Fields = data.Fields.ToDictionary(kvp => kvp.Value.FieldProperties.Name, kvp => kvp.Value);
 
+            JObject dataAsJObject = JObject.FromObject(data, Serializer.JsonSerializer);
+            dataAsJObject["fields"] = JArray.FromObject(
+                data.Fields.Select(kvp => JObject.FromObject(kvp.Value.FieldProperties, Serializer.JsonSerializer)));
+
             TweezersValidationResult validationResult = 
-                SchemaManagement.SchemaMetadata.Validate(JObject.FromObject(data, Serializer.JsonSerializer), false);
+                SchemaManagement.SchemaMetadata.Validate(dataAsJObject, false);
 
             TweezersSchemaFactory.AddObject(data);
             TweezersObject obj = TweezersSchemaFactory.Find(data.CollectionName);
