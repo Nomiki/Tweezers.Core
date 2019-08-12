@@ -13,16 +13,24 @@ namespace Tweezers.Api.Controllers
     public class TweezersController : TweezersControllerBase
     {
         [HttpGet("{collection}")]
-        public virtual ActionResult<TweezersMultipleResults> List(string collection)
+        public virtual ActionResult<TweezersMultipleResults> List(string collection, [FromQuery] int skip = 0, [FromQuery] int take = 10,
+            [FromQuery] string sortField = "", [FromQuery] string direction = "asc")
         {
             try
             {
                 if (!IsSessionValid())
                     return TweezersUnauthorized();
 
+                FindOptions<JObject> predicate = new FindOptions<JObject>()
+                {
+                    Skip = skip,
+                    Take = take,
+                    SortField = sortField,
+                    SortDirection = direction == "asc" ? SortDirection.Ascending : SortDirection.Descending,
+                };
 
                 TweezersObject objectMetadata = TweezersSchemaFactory.Find(collection);
-                IEnumerable<JObject> results = objectMetadata.FindInDb(TweezersSchemaFactory.DatabaseProxy, FindOptions<JObject>.Default());
+                IEnumerable<JObject> results = objectMetadata.FindInDb(TweezersSchemaFactory.DatabaseProxy, predicate);
                 return TweezersOk(TweezersMultipleResults.Create(results));
             }
             catch (TweezersValidationException)

@@ -11,9 +11,15 @@ namespace Tweezers.DBConnector
 
         public int Take { get; set; } = DefaultTake;
 
-        public Func<T, bool> Predicate { get; set; }
+        public string SortField { get; set; }
+
+        public SortDirection SortDirection { get; set; }
+
+        public Func<T, bool> Predicate { get; set; } = TruePredicate;
 
         public static FindOptions<T> Default(int skip = DefaultSkip, int take = DefaultTake) => 
-            new FindOptions<T>() { Skip = skip, Take = take, Predicate = obj => true };
+            new FindOptions<T>() { Skip = skip, Take = take, Predicate = TruePredicate };
+
+        public static readonly Func<T, bool> TruePredicate = arg => true;
     }
 }

@@ -5,6 +5,8 @@ using MongoDB.Bson.IO;
 using MongoDB.Driver;
 using Newtonsoft.Json.Linq;
 using Tweezers.DBConnector;
+using SortDirection = Tweezers.DBConnector.SortDirection;
+
 // ReSharper disable InconsistentNaming
 
 namespace Tweezers.MongoDB
@@ -98,11 +100,18 @@ namespace Tweezers.MongoDB
 
             IAsyncCursor<BsonDocument> cursor = mongoCollection.FindSync(FilterDefinition<BsonDocument>.Empty);
 
-            return cursor.ToEnumerable()
+            IEnumerable<JObject> objects = cursor.ToEnumerable()
                 .Where(bson => opts.Predicate.Invoke(bson.ToJObject()))
                 .Skip(opts.Skip)
                 .Select(bson => bson.ToJObject())
                 .Take(opts.Take);
+
+            if (string.IsNullOrWhiteSpace(opts.SortField))
+                return objects;
+
+            return opts.SortDirection == SortDirection.Ascending 
+                ? objects.OrderBy(obj => obj[opts.SortField]) 
+                : objects.OrderByDescending(obj => obj[opts.SortField]);
         }
 
         public IEnumerable<string> GetCollections()
