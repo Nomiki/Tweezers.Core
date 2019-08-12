@@ -2,7 +2,7 @@
   "tweezersDetails": {
     "useIdentity": true,
     "canChangeSchema": true, 
-    "title": "Hello World",
+    "title": "Acme Corp.",
     "port": 5001
   },
   "dbDetails": {
