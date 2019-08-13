@@ -48,10 +48,10 @@ namespace Tweezers.Schema.DataHolders
             return null;
         }
 
-        public static TweezersObject Find(string collectionName, bool withInternalObjects = false, bool withInternalFields = false)
+        public static TweezersObject Find(string collectionName, bool withInternalObjects = false, bool withInternalFields = false, bool safe = false)
         {
             TweezersObject obj = InternalFind(collectionName, withInternalObjects, withInternalFields);
-            if (obj == null)
+            if (obj == null && !safe)
                 throw new TweezersValidationException(
                     TweezersValidationResult.Reject($"Could not find collection with name {collectionName}"));
 
@@ -60,7 +60,7 @@ namespace Tweezers.Schema.DataHolders
 
         public static IEnumerable<TweezersObject> GetAll(bool includeInternal = false)
         {
-            return DatabaseProxy.List(ObjectMetadataCollectionName, FindOptions<JObject>.Default(0, 50))
+            return DatabaseProxy.List(ObjectMetadataCollectionName, FindOptions<JObject>.Default(0, 500)).Items
                 .Select(jObj => jObj.ToStrongType<TweezersObject>())
                 .Where(tweezersObj => includeInternal || !tweezersObj.Internal);
         }

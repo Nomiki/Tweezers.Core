@@ -6,6 +6,7 @@ using Newtonsoft.Json.Linq;
 using Tweezers.Api.DataHolders;
 using Tweezers.Api.Schema;
 using Tweezers.Api.Utils;
+using Tweezers.DBConnector;
 using Tweezers.Schema.Common;
 using Tweezers.Schema.DataHolders;
 using Tweezers.Schema.DataHolders.Exceptions;

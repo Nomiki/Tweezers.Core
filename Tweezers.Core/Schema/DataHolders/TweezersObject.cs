@@ -59,12 +59,15 @@ namespace Tweezers.Schema.DataHolders
             return TweezersValidationResult.Accept();
         }
 
-        public IEnumerable<JObject> FindInDb(IDatabaseProxy proxy, FindOptions<JObject> findOptions = null,
+        public TweezersMultipleResults<JObject> FindInDb(IDatabaseProxy proxy, FindOptions<JObject> findOptions = null,
             bool allFields = false)
         {
             FindOptions<JObject> opts = findOptions ?? FindOptions<JObject>.Default();
 
-            return proxy.List(CollectionName, opts).Select(obj => obj.Just(AllFields(allFields)));
+            TweezersMultipleResults<JObject> results = proxy.List(CollectionName, opts);
+
+            return TweezersMultipleResults<JObject>.Create(
+                results.Items.Select(obj => obj.Just(AllFields(allFields))), results.Count);
         }
 
         public JObject GetById(IDatabaseProxy proxy, string id, bool allFields = false)
