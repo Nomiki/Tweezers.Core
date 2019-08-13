@@ -17,7 +17,7 @@ namespace Tweezers.Api.Identity
         {
             var usersSchema = CreateUsersSchema(true);
 
-            if (TweezersSchemaFactory.Find(usersSchema.CollectionName, true) == null)
+            if (TweezersSchemaFactory.Find(usersSchema.CollectionName, true, safe: true) == null)
                 TweezersSchemaFactory.AddObject(usersSchema);
             else
             {
@@ -111,7 +111,7 @@ namespace Tweezers.Api.Identity
             };
 
             TweezersObject usersObjectMetadata = TweezersSchemaFactory.Find("users", true);
-            return usersObjectMetadata.FindInDb(TweezersSchemaFactory.DatabaseProxy, sessionIdPredicate)?.SingleOrDefault();
+            return usersObjectMetadata.FindInDb(TweezersSchemaFactory.DatabaseProxy, sessionIdPredicate)?.Items.SingleOrDefault();
         }
     }
 }

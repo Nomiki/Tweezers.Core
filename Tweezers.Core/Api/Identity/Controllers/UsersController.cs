@@ -118,7 +118,7 @@ namespace Tweezers.Api.Identity.Controllers
         }
 
         [HttpGet("users")]
-        public virtual ActionResult<TweezersMultipleResults> List()
+        public virtual ActionResult<TweezersMultipleResults<JObject>> List()
         {
             if (!IdentityManager.UsingIdentity)
                 return TweezersNotFound();
@@ -129,8 +129,9 @@ namespace Tweezers.Api.Identity.Controllers
             try
             {
                 TweezersObject objectMetadata = TweezersSchemaFactory.Find(UsersCollectionName, true);
-                IEnumerable<JObject> results = objectMetadata.FindInDb(TweezersSchemaFactory.DatabaseProxy, FindOptions<JObject>.Default());
-                return TweezersOk(TweezersMultipleResults.Create(results));
+                TweezersMultipleResults<JObject> results = 
+                    objectMetadata.FindInDb(TweezersSchemaFactory.DatabaseProxy, FindOptions<JObject>.Default());
+                return TweezersOk(results);
             }
             catch (TweezersValidationException)
             {
@@ -295,7 +296,7 @@ namespace Tweezers.Api.Identity.Controllers
             };
 
             TweezersObject usersObjectMetadata = TweezersSchemaFactory.Find("users", true, true);
-            return usersObjectMetadata.FindInDb(TweezersSchemaFactory.DatabaseProxy, userOpts, true)?.SingleOrDefault();
+            return usersObjectMetadata.FindInDb(TweezersSchemaFactory.DatabaseProxy, userOpts, true)?.Items.SingleOrDefault();
         }
 
         private bool ValidatePassword(string requestPassword, string userPasswordHash)

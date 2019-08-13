@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
+using System.Threading;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json.Linq;
-using Tweezers.Api.DataHolders;
 using Tweezers.DBConnector;
 using Tweezers.Schema.DataHolders;
 using Tweezers.Schema.DataHolders.Exceptions;
@@ -13,13 +13,15 @@ namespace Tweezers.Api.Controllers
     public class TweezersController : TweezersControllerBase
     {
         [HttpGet("{collection}")]
-        public virtual ActionResult<TweezersMultipleResults> List(string collection, [FromQuery] int skip = 0, [FromQuery] int take = 10,
-            [FromQuery] string sortField = "", [FromQuery] string direction = "asc")
+        public virtual ActionResult<TweezersMultipleResults<JObject>> List(string collection, 
+            [FromQuery] int skip = 0, [FromQuery] int take = 10, [FromQuery] string sortField = "", [FromQuery] string direction = "asc")
         {
             try
             {
                 if (!IsSessionValid())
                     return TweezersUnauthorized();
+
+                Thread.Sleep(500);
 
                 FindOptions<JObject> predicate = new FindOptions<JObject>()
                 {
@@ -30,8 +32,9 @@ namespace Tweezers.Api.Controllers
                 };
 
                 TweezersObject objectMetadata = TweezersSchemaFactory.Find(collection);
-                IEnumerable<JObject> results = objectMetadata.FindInDb(TweezersSchemaFactory.DatabaseProxy, predicate);
-                return TweezersOk(TweezersMultipleResults.Create(results));
+                TweezersMultipleResults<JObject> results = 
+                    objectMetadata.FindInDb(TweezersSchemaFactory.DatabaseProxy, predicate);
+                return TweezersOk(results);
             }
             catch (TweezersValidationException)
             {

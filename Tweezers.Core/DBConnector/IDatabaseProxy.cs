@@ -13,7 +13,7 @@ namespace Tweezers.DBConnector
 
         bool Delete(string collection, string id);
 
-        IEnumerable<JObject> List(string collection, FindOptions<JObject> opts);
+        TweezersMultipleResults<JObject> List(string collection, FindOptions<JObject> opts);
 
         IEnumerable<string> GetCollections();
     }

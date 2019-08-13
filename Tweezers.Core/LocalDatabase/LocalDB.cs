@@ -69,17 +69,21 @@ namespace Tweezers.LocalDatabase
             return _localDb[collection].Remove(Get(collection, id));
         }
 
-        public IEnumerable<JObject> List(string collection, FindOptions<JObject> opts)
+        public TweezersMultipleResults<JObject> List(string collection, FindOptions<JObject> opts)
         {
             if (!_localDb.ContainsKey(collection))
             {
                 _localDb[collection] = new List<JObject>();
             }
 
-            return _localDb[collection]
-                .Where(obj => opts.Predicate.Invoke(obj))
+            IEnumerable<JObject> allResults = _localDb[collection]
+                .Where(obj => opts.Predicate.Invoke(obj)).ToArray();
+            IEnumerable<JObject> results = allResults
                 .Skip(opts.Skip)
                 .Take(opts.Take);
+            int count = allResults.Count();
+
+            return TweezersMultipleResults<JObject>.Create(results, count);
         }
 
         public IEnumerable<string> GetCollections()

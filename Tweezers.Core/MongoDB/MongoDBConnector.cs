@@ -91,27 +91,34 @@ namespace Tweezers.MongoDB
                 Predicate = obj => obj[idField].ToString() == id
             };
 
-            return !List(collection, myItem).Any();
+            return !List(collection, myItem).Items.Any();
         }
 
-        public IEnumerable<JObject> List(string collection, DBConnector.FindOptions<JObject> opts)
+        public TweezersMultipleResults<JObject> List(string collection, DBConnector.FindOptions<JObject> opts)
         {
             IMongoCollection<BsonDocument> mongoCollection = GetCollection(collection);
 
             IAsyncCursor<BsonDocument> cursor = mongoCollection.FindSync(FilterDefinition<BsonDocument>.Empty);
 
+            long count = cursor.ToEnumerable()
+                .Count(bson => opts.Predicate.Invoke(bson.ToJObject()));
+
+            cursor = mongoCollection.FindSync(FilterDefinition<BsonDocument>.Empty);
+
             IEnumerable<JObject> objects = cursor.ToEnumerable()
                 .Where(bson => opts.Predicate.Invoke(bson.ToJObject()))
-                .Skip(opts.Skip)
-                .Select(bson => bson.ToJObject())
-                .Take(opts.Take);
+                .Select(bson => bson.ToJObject());
 
+            IEnumerable<JObject> sortedItems;
             if (string.IsNullOrWhiteSpace(opts.SortField))
-                return objects;
+                sortedItems = objects;
+            else
+                sortedItems = opts.SortDirection == SortDirection.Ascending
+                    ? objects.OrderBy(obj => JToken(opts, obj))
+                    : objects.OrderByDescending(obj => JToken(opts, obj));
 
-            return opts.SortDirection == SortDirection.Ascending 
-                ? objects.OrderBy(obj => JToken(opts, obj)) 
-                : objects.OrderByDescending(obj => JToken(opts, obj));
+            IEnumerable<JObject> sortedAndSelectedItems = sortedItems.Skip(opts.Skip).Take(opts.Take);
+            return TweezersMultipleResults<JObject>.Create(sortedAndSelectedItems, count);
         }
 
         private static JToken JToken(DBConnector.FindOptions<JObject> opts, JObject obj)
