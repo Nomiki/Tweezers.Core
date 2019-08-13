@@ -110,8 +110,15 @@ namespace Tweezers.MongoDB
                 return objects;
 
             return opts.SortDirection == SortDirection.Ascending 
-                ? objects.OrderBy(obj => obj[opts.SortField]) 
-                : objects.OrderByDescending(obj => obj[opts.SortField]);
+                ? objects.OrderBy(obj => JToken(opts, obj)) 
+                : objects.OrderByDescending(obj => JToken(opts, obj));
+        }
+
+        private static JToken JToken(DBConnector.FindOptions<JObject> opts, JObject obj)
+        {
+            if (double.TryParse(obj[opts.SortField].ToString(), out double objAsNumber))
+                return objAsNumber;
+            return obj[opts.SortField];
         }
 
         public IEnumerable<string> GetCollections()
