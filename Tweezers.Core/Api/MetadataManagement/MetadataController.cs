@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Tweezers.Api.Controllers;
 
-namespace Tweezers.MetadataManagement
+namespace Tweezers.Api.MetadataManagement
 {
     [Route("api/metadata")]
     [ApiController]

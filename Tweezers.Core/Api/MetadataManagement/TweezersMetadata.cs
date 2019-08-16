@@ -9,10 +9,10 @@ using Tweezers.Api.Schema;
 using Tweezers.Api.Utils;
 using Tweezers.DBConnector;
 using Tweezers.LocalDatabase;
-using Tweezers.Schema.DataHolders;
 using Tweezers.MongoDB;
+using Tweezers.Schema.DataHolders;
 
-namespace Tweezers.MetadataManagement
+namespace Tweezers.Api.MetadataManagement
 {
     public sealed class TweezersMetadata
     {
@@ -43,7 +43,8 @@ namespace Tweezers.MetadataManagement
 
             foreach (TweezersObject obj in metadata.Schema)
             {
-                TweezersSchemaFactory.AddObject(obj);
+                if (TweezersSchemaFactory.Find(obj.CollectionName, safe:true) == null)
+                    TweezersSchemaFactory.AddObject(obj);
             }
 
             _instance = metadata;
