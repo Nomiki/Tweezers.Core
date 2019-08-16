@@ -8,9 +8,13 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.App" Version="2.2.0" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="4.0.1" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\DBConnector\DBConnector.csproj" />
+    <ProjectReference Include="..\LocalDatabase\LocalDatabase.csproj" />
+    <ProjectReference Include="..\MongoDB\MongoDB.csproj" />
     <ProjectReference Include="..\Schema\Schema.csproj" />
   </ItemGroup>
 

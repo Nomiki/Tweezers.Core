@@ -1,4 +1,4 @@
-﻿namespace Tweezers.MetadataManagement
+﻿namespace Tweezers.Api.MetadataManagement
 {
     public class TweezersDetails
     {

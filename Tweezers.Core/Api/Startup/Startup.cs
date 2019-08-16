@@ -6,7 +6,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Swashbuckle.AspNetCore.Swagger;
 using Tweezers.Api.Identity;
 using Tweezers.Api.Middleware;
-using Tweezers.MetadataManagement;
 
 namespace Tweezers
 {
@@ -76,7 +75,7 @@ namespace Tweezers
             // specifying the Swagger JSON endpoint.
             app.UseSwaggerUI(c =>
             {
-                c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "Tweezers API V1");
                 c.RoutePrefix = string.Empty;
             });
 

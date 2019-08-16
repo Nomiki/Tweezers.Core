@@ -25,6 +25,8 @@ namespace Tweezers.Schema.DataHolders
 
         public string Regex { get; set; }
 
+        public string NumericSuffix { get; set; }
+
         public string[] PossibleValues { get; set; }
 
         public bool Required { get; set; } = false;
