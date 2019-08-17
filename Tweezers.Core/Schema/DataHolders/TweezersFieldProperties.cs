@@ -73,7 +73,25 @@ namespace Tweezers.Schema.DataHolders
 
             AddPasswordValidatorIfNeeded(validators);
 
+            AddTagsValidatorIfNeeded(validators);
+
             return validators;
+        }
+
+        private void AddTagsValidatorIfNeeded(List<IValidator> validators)
+        {
+            if (FieldType.Equals(TweezersFieldType.TagsArray))
+            {
+                TweezersFieldProperties tagsFieldProperties = new TweezersFieldProperties()
+                {
+                    FieldType = TweezersFieldType.String,
+                    Min = 1,
+                    Max = 50,
+                    Regex = $"^[A-Za-z\\d ]+$",
+                };
+
+                validators.Add(ArrayValidator.Create(tagsFieldProperties));
+            }
         }
 
         private void AddPasswordValidatorIfNeeded(List<IValidator> validators)
@@ -162,6 +180,8 @@ namespace Tweezers.Schema.DataHolders
                     case TweezersFieldType.Object:
                         return TypeValidator<JObject>.Create();
                     case TweezersFieldType.Array:
+                        return TypeValidator<JArray>.Create();
+                    case TweezersFieldType.TagsArray:
                         return TypeValidator<JArray>.Create();
                     default:
                         throw new NotImplementedException($"Unsupported field type {FieldType}");

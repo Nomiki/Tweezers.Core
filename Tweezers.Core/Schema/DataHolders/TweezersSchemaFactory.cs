@@ -10,7 +10,7 @@ namespace Tweezers.Schema.DataHolders
 {
     public static class TweezersSchemaFactory
     {
-        private static readonly string ObjectMetadataCollectionName = "tweezers-objects";
+        public static readonly string ObjectMetadataCollectionName = "tweezers-objects";
 
         public static IDatabaseProxy DatabaseProxy { get; set; }
 
