@@ -8,7 +8,7 @@ namespace Tweezers.Schema.Discovery
     public class SchemaDiscoveryBootstrapper
     {
         private readonly string[] _tweezersInternalSchemas =
-            {"users", TweezersSchemaFactory.ObjectMetadataCollectionName};
+            {"tweezers-users", TweezersSchemaFactory.ObjectMetadataCollectionName};
 
         private IDatabaseProxy DatabaseProxy { get; }
 

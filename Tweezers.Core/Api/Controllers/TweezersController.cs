@@ -50,6 +50,7 @@ namespace Tweezers.Api.Controllers
                 if (!IsSessionValid())
                     return TweezersUnauthorized();
 
+                Thread.Sleep(500);
 
                 TweezersObject objectMetadata = TweezersSchemaFactory.Find(collection);
                 JObject obj = objectMetadata.GetById(TweezersSchemaFactory.DatabaseProxy, id);

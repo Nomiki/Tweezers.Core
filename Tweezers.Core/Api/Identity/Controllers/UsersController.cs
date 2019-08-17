@@ -21,7 +21,6 @@ namespace Tweezers.Api.Identity.Controllers
     [ApiController]
     public class UsersController : TweezersControllerBase
     {
-        private const string UsersCollectionName = "users";
         private static readonly TweezersObject UsersLoginSchema;
 
         protected TimeSpan SessionTimeout => 4.Hours();
@@ -30,7 +29,7 @@ namespace Tweezers.Api.Identity.Controllers
         {
             UsersLoginSchema = new TweezersObject()
             {
-                CollectionName = "users",
+                CollectionName = IdentityManager.UsersCollectionName,
                 Internal = true,
             };
 
@@ -71,7 +70,7 @@ namespace Tweezers.Api.Identity.Controllers
         private readonly string[] _loginResponseBody = 
             {"username", IdentityManager.SessionIdKey, IdentityManager.SessionExpiryKey};
 
-        [HttpGet("tweezers-schema/users")]
+        [HttpGet("tweezers-schema/tweezers-users")]
         public ActionResult<TweezersObject> GetUsersSchema()
         {
             return IsSessionValid()
@@ -79,7 +78,7 @@ namespace Tweezers.Api.Identity.Controllers
                 : TweezersNotFound();
         }
 
-        [HttpPost("users")]
+        [HttpPost("tweezers-users")]
         public ActionResult<JObject> Post([FromBody] LoginRequest suggestedUser)
         {
             if (!IdentityManager.UsingIdentity)
@@ -101,14 +100,7 @@ namespace Tweezers.Api.Identity.Controllers
                     throw new TweezersValidationException(passwordOk);
                 }
 
-                JObject user = new JObject
-                {
-                    ["username"] = suggestedUser.Username,
-                    ["passwordHash"] = Hash.Create(suggestedUser.Password)
-                };
-
-                TweezersObject usersObjectMetadata = TweezersSchemaFactory.Find(UsersCollectionName, true, true);
-                user = usersObjectMetadata.Create(TweezersSchemaFactory.DatabaseProxy, user, suggestedUser.Username);
+                JObject user = CreateUser(suggestedUser);
                 return TweezersOk(user);
             }
             catch (TweezersValidationException e)
@@ -117,7 +109,20 @@ namespace Tweezers.Api.Identity.Controllers
             }
         }
 
-        [HttpGet("users")]
+        public static JObject CreateUser(LoginRequest suggestedUser)
+        {
+            JObject user = new JObject
+            {
+                ["username"] = suggestedUser.Username,
+                ["passwordHash"] = Hash.Create(suggestedUser.Password)
+            };
+
+            TweezersObject usersObjectMetadata = TweezersSchemaFactory.Find(IdentityManager.UsersCollectionName, true, true);
+            user = usersObjectMetadata.Create(TweezersSchemaFactory.DatabaseProxy, user, suggestedUser.Username);
+            return user;
+        }
+
+        [HttpGet("tweezers-users")]
         public virtual ActionResult<TweezersMultipleResults<JObject>> List()
         {
             if (!IdentityManager.UsingIdentity)
@@ -128,7 +133,7 @@ namespace Tweezers.Api.Identity.Controllers
 
             try
             {
-                TweezersObject objectMetadata = TweezersSchemaFactory.Find(UsersCollectionName, true);
+                TweezersObject objectMetadata = TweezersSchemaFactory.Find(IdentityManager.UsersCollectionName, true);
                 TweezersMultipleResults<JObject> results = 
                     objectMetadata.FindInDb(TweezersSchemaFactory.DatabaseProxy, FindOptions<JObject>.Default());
                 return TweezersOk(results);
@@ -139,7 +144,7 @@ namespace Tweezers.Api.Identity.Controllers
             }
         }
 
-        [HttpGet("users/{id}")]
+        [HttpGet("tweezers-users/{id}")]
         public virtual ActionResult<JObject> Get(string id)
         {
             if (!IdentityManager.UsingIdentity)
@@ -150,7 +155,7 @@ namespace Tweezers.Api.Identity.Controllers
 
             try
             {
-                TweezersObject objectMetadata = TweezersSchemaFactory.Find(UsersCollectionName, true);
+                TweezersObject objectMetadata = TweezersSchemaFactory.Find(IdentityManager.UsersCollectionName, true);
                 JObject obj = objectMetadata.GetById(TweezersSchemaFactory.DatabaseProxy, id);
                 if (obj == null)
                     return TweezersNotFound();
@@ -178,7 +183,7 @@ namespace Tweezers.Api.Identity.Controllers
                     user[IdentityManager.SessionExpiryKey] = (DateTime.Now + SessionTimeout).ToFileTimeUtc()
                         .ToString(CultureInfo.InvariantCulture);
 
-                    TweezersObject usersObjectMetadata = TweezersSchemaFactory.Find("users",
+                    TweezersObject usersObjectMetadata = TweezersSchemaFactory.Find(IdentityManager.UsersCollectionName,
                         true, true);
 
                     usersObjectMetadata.Update(TweezersSchemaFactory.DatabaseProxy, user["_id"].ToString(),
@@ -195,7 +200,7 @@ namespace Tweezers.Api.Identity.Controllers
             }
         }
 
-        [HttpDelete("users/{username}")]
+        [HttpDelete("tweezers-users/{username}")]
         public ActionResult<bool> DeleteUser(string username)
         {
             if (!IdentityManager.UsingIdentity)
@@ -210,13 +215,13 @@ namespace Tweezers.Api.Identity.Controllers
                 return TweezersOk(true);
             }
 
-            TweezersObject usersObjectMetadata = TweezersSchemaFactory.Find("users", true);
+            TweezersObject usersObjectMetadata = TweezersSchemaFactory.Find(IdentityManager.UsersCollectionName, true);
             bool deleted = usersObjectMetadata.Delete(TweezersSchemaFactory.DatabaseProxy, username);
 
             return TweezersOk(deleted);
         }
 
-        [HttpPost("user/reset-password")]
+        [HttpPost("tweezers-user/reset-password")]
         public ActionResult<bool> ResetPassword([FromBody] ChangePasswordRequest changePasswordRequest)
         {
             if (!IdentityManager.UsingIdentity)
@@ -236,7 +241,7 @@ namespace Tweezers.Api.Identity.Controllers
             return DoChangePassword(user, changePasswordRequest);
         }
 
-        [HttpPost("users/{username}/change-password")]
+        [HttpPost("tweezers-users/{username}/change-password")]
         public ActionResult<bool> ChangePassword(string username, [FromBody] ChangePasswordRequest changePasswordRequest)
         {
             if (!IdentityManager.UsingIdentity)
@@ -260,7 +265,7 @@ namespace Tweezers.Api.Identity.Controllers
 
             try
             {
-                TweezersObject usersObjectMetadata = TweezersSchemaFactory.Find("users", true);
+                TweezersObject usersObjectMetadata = TweezersSchemaFactory.Find(IdentityManager.UsersCollectionName, true);
                 usersObjectMetadata.Update(TweezersSchemaFactory.DatabaseProxy, user["_id"].ToString(),
                     passwordChange);
 
@@ -295,7 +300,7 @@ namespace Tweezers.Api.Identity.Controllers
                 Take = 1
             };
 
-            TweezersObject usersObjectMetadata = TweezersSchemaFactory.Find("users", true, true);
+            TweezersObject usersObjectMetadata = TweezersSchemaFactory.Find(IdentityManager.UsersCollectionName, true, true);
             return usersObjectMetadata.FindInDb(TweezersSchemaFactory.DatabaseProxy, userOpts, true)?.Items.SingleOrDefault();
         }
 

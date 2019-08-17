@@ -29,7 +29,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Update="tweezers-settings.json">
+    <Content Update="tweezers-internal-settings_2.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>

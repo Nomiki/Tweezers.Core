@@ -1,13 +1,18 @@
-﻿namespace Tweezers.Api.MetadataManagement
+﻿using Newtonsoft.Json;
+
+namespace Tweezers.Api.MetadataManagement
 {
     public class TweezersDetails
     {
-        public bool UseIdentity { get; set; }
+        [JsonIgnore]
+        public bool UseIdentity { get; set; } = true;
 
         public bool CanChangeSchema { get; set; }
 
         public string Title { get; set; }
 
-        public int Port { get; set; }
+        public string InitialUsername { get; set; }
+        
+        public string InitialPassword { get; set; }
     }
 }

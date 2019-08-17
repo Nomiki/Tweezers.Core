@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Linq;
 using Newtonsoft.Json.Linq;
+using Tweezers.Api.Schema;
+using Tweezers.Api.Utils;
 using Tweezers.DBConnector;
 using Tweezers.Schema.DataHolders;
 
@@ -10,6 +12,7 @@ namespace Tweezers.Api.Identity
     {
         public const string SessionIdKey = "sessionId";
         public const string SessionExpiryKey = "sessionExpiry";
+        public const string UsersCollectionName = "tweezers-users";
 
         public static bool UsingIdentity { get; private set; }
 
@@ -30,69 +33,7 @@ namespace Tweezers.Api.Identity
 
         public static TweezersObject CreateUsersSchema(bool withInternals = false)
         {
-            TweezersObject usersSchema = new TweezersObject()
-            {
-                CollectionName = "users",
-                Internal = true,
-            };
-
-            usersSchema.DisplayNames.SingularName = "User";
-            usersSchema.DisplayNames.PluralName = "Users";
-            usersSchema.Icon = "person";
-
-            usersSchema.Fields.Add("username", new TweezersField()
-            {
-                FieldProperties = new TweezersFieldProperties()
-                {
-                    FieldType = TweezersFieldType.String,
-                    UiTitle = true,
-                    Min = 1,
-                    Max = 50,
-                    Required = true,
-                    Regex = @"[A-Za-z\d]+",
-                    Name = "username",
-                    DisplayName = "Username",
-                }
-            });
-
-            if (withInternals)
-            {
-                usersSchema.Fields.Add("passwordHash", new TweezersField()
-                {
-                    FieldProperties = new TweezersFieldProperties()
-                    {
-                        FieldType = TweezersFieldType.String,
-                        Required = true,
-                        UiIgnore = true,
-                        Name = "passwordHash",
-                        DisplayName = "password",
-                    }
-                });
-
-                usersSchema.Fields.Add(SessionIdKey, new TweezersField()
-                {
-                    FieldProperties = new TweezersFieldProperties()
-                    {
-                        FieldType = TweezersFieldType.String,
-                        UiIgnore = true,
-                        Name = SessionIdKey,
-                        DisplayName = "Session ID",
-                    }
-                });
-
-                usersSchema.Fields.Add(SessionExpiryKey, new TweezersField()
-                {
-                    FieldProperties = new TweezersFieldProperties()
-                    {
-                        FieldType = TweezersFieldType.String,
-                        UiIgnore = true,
-                        Name = SessionExpiryKey,
-                        DisplayName = "SessionExpiry",
-                    }
-                });
-            }
-
-            return usersSchema;
+            return Schemas.IdentityMetaJson.Deserialize<TweezersObject>();
         }
 
         public static JObject FindUserBySessionId(string sessionId)
@@ -110,7 +51,7 @@ namespace Tweezers.Api.Identity
                 Take = 1,
             };
 
-            TweezersObject usersObjectMetadata = TweezersSchemaFactory.Find("users", true);
+            TweezersObject usersObjectMetadata = TweezersSchemaFactory.Find(UsersCollectionName, true);
             return usersObjectMetadata.FindInDb(TweezersSchemaFactory.DatabaseProxy, sessionIdPredicate)?.Items.SingleOrDefault();
         }
     }
