@@ -1,0 +1,16 @@
+{
+  "appDetails": {
+    "canChangeSchema": true,
+    "title": "My awesome App",
+    "initialUsername": "admin",
+    "initialPassword": "admin"
+  },
+  "dbDetails": {
+    "host": "localhost",
+    "port": 27017,
+    "dbName": "acme",
+    "username": "",
+    "password": "",
+    "dbType": "MongoDB"
+  }
+}

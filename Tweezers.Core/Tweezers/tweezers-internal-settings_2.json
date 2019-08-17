@@ -1,9 +1,7 @@
 ﻿{
-  "tweezersDetails": {
-    "useIdentity": true,
+  "appDetails": {
     "canChangeSchema": true,
-    "title": "Acme Corp.",
-    "port": 5001
+    "title": "Acme Corp."
   },
   "dbDetails": {
     "dbType": "MongoDB", 
@@ -12,8 +10,5 @@
     "dbName": "acme",
     "username": "",
     "password": ""
-  }, 
-  "schema": [
-    
-  ]
+  }
 }

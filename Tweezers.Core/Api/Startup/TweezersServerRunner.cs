@@ -2,19 +2,23 @@
 using Microsoft.AspNetCore.Hosting;
 using Tweezers.Api.MetadataManagement;
 
-namespace Tweezers.Api
+namespace Tweezers.Api.Startup
 {
     public static class TweezersServerRunner
     {
         public static void Start(string[] args)
         {
-            TweezersMetadata.Init("tweezers-settings.json");
+            if (TweezersRuntimeSettings.Instance.IsInitialized)
+            {
+                TweezersInternalSettings.Init();
+            }
+
             CreateWebHostBuilder().Build().Run();
         }
 
         private static IWebHostBuilder CreateWebHostBuilder()
         {
-            int port = TweezersMetadata.Instance.TweezersDetails.Port;
+            int port = TweezersRuntimeSettings.Instance.Port;
             return new WebHostBuilder()
                 .UseKestrel()
                 .UseContentRoot(Directory.GetCurrentDirectory())

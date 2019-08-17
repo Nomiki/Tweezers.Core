@@ -1,5 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System;
+using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json.Linq;
 using Tweezers.Api.Controllers;
+using Tweezers.Schema.Common;
 
 namespace Tweezers.Api.MetadataManagement
 {
@@ -7,10 +10,39 @@ namespace Tweezers.Api.MetadataManagement
     [ApiController]
     public sealed class MetadataController : TweezersControllerBase
     {
-        [HttpGet]
-        public ActionResult<TweezersMetadata> GetMetadata()
+        [Route("initialize")]
+        [HttpPost]
+        public ActionResult<JObject> SetMetadata([FromBody] TweezersInternalSettings settings)
         {
-            return TweezersOk(TweezersMetadata.Instance, "schema");
+            try
+            {
+                if (!TweezersRuntimeSettings.Instance.IsInitialized)
+                {
+                    TweezersInternalSettings.WriteToSettingsFile(settings);
+                    TweezersInternalSettings.Init();
+                    TweezersRuntimeSettings.Instance.IsInitialized = true;
+                    TweezersRuntimeSettings.Instance.WriteToSettingsFile();
+                    return TweezersOk();
+                }
+            }
+            catch (Exception)
+            {
+                return TweezersBadRequest("Unable to connect to DB");
+            }
+
+            return TweezersBadRequest("Invalid Settings File");
         }
+
+        [HttpGet]
+        public ActionResult<JObject> StartupData()
+        {
+            JObject response = JObject.FromObject(TweezersRuntimeSettings.Instance).Without("Port");
+            if (TweezersInternalSettings.Instance != null && TweezersInternalSettings.Instance.AppDetails != null)
+            {
+                response["Title"] = TweezersInternalSettings.Instance.AppDetails.Title;
+            }
+
+            return TweezersOk(response);
+        } 
     }
 }

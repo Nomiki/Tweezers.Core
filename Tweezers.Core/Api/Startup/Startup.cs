@@ -7,7 +7,7 @@ using Swashbuckle.AspNetCore.Swagger;
 using Tweezers.Api.Identity;
 using Tweezers.Api.Middleware;
 
-namespace Tweezers
+namespace Tweezers.Api.Startup
 {
     public class Startup
     {
