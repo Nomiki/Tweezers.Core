@@ -82,7 +82,8 @@ namespace Tweezers.Api.Schema {
         ///      }
         ///    },
         ///    &quot;singularName&quot;: {
-        ///      &quot;fieldPrope [rest of string was truncated]&quot;;.
+        ///      &quot;fieldProperties&quot;: {
+        ///        &quot;na [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string SchemaMetaJson {
             get {

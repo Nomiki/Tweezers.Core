@@ -13,5 +13,6 @@ namespace Tweezers.Schema.DataHolders
         Array,
         Object,
         Password,
+        TagsArray,
     }
 }

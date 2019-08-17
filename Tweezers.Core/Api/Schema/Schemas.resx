@@ -217,7 +217,8 @@
                     "Integer",
                     "String",
                     "Boolean",
-                    "Password"
+                    "Password",
+                    "TagsArray",
                   ]
                 }
               },
@@ -261,12 +262,7 @@
                 "fieldProperties": {
                   "name": "possibleValues",
                   "displayName": "Possible Values",
-                  "fieldType": "Array",
-                  "arrayFieldProperties": {
-                    "fieldType": "String",
-                    "min": 0,
-                    "max": 255
-                  }
+                  "fieldType": "TagsArray",
                 }
               },
               "required": {

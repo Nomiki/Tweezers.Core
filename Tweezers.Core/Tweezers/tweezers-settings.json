@@ -1,7 +1,7 @@
 ﻿{
   "tweezersDetails": {
     "useIdentity": true,
-    "canChangeSchema": true, 
+    "canChangeSchema": true,
     "title": "Acme Corp.",
     "port": 5001
   },
@@ -14,57 +14,6 @@
     "password": ""
   }, 
   "schema": [
-    {
-      "collectionName": "products",
-      "displayNames": {
-        "singularName": "Product",
-        "pluralName": "Products"
-      },
-      "icon": "shopping_cart",
-      "fields": {
-        "name": {
-          "fieldProperties": {
-            "name": "name",
-            "displayName": "Name",
-            "fieldType": "String",
-            "min": 1,
-            "max": 40,
-            "required": true,
-            "uiTitle": true
-          }
-        },
-        "description": {
-          "fieldProperties": {
-            "name": "description",
-            "displayName": "Description",
-            "fieldType": "String",
-            "min": 1,
-            "max": 400,
-            "required": true
-          }
-        },
-        "price": {
-          "fieldProperties": {
-            "name": "price",
-            "displayName": "Price",
-            "fieldType": "Integer",
-            "min": 0,
-            "required": true
-          }
-        },
-        "product_type": {
-          "fieldProperties": {
-            "name": "product_type",
-            "displayName": "Product Type",
-            "fieldType": "Enum",
-            "possibleValues": [
-              "Computer",
-              "Phone",
-              "Cat"
-            ]
-          }
-        } 
-      }
-    }
+    
   ]
 }
