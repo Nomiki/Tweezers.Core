@@ -365,4 +365,50 @@
   }
 }</value>
   </data>
+  <data name="UserExternalSchema" xml:space="preserve">
+    <value>{
+  "collectionName": "tweezers-users",
+  "displayNames": {
+    "singularName": "User",
+    "pluralName": "Users"
+  },
+  "internal": true,
+  "icon": "person",
+  "fields": {
+    "username": {
+      "fieldProperties": {
+        "name": "username",
+        "displayName": "Username",
+        "fieldType": "String",
+        "min": 1,
+        "max": 50,
+        "regex": "^[A-Za-z\\d]+$",
+        "uiTitle": true,
+        "required": true
+      }
+    },
+    "name": {
+      "fieldProperties": {
+        "name": "name",
+        "displayName": "Full Name",
+        "fieldType": "String",
+        "min": 1,
+        "max": 200,
+        "required": true
+      }
+    },
+    "password": {
+      "fieldProperties": {
+        "name": "password",
+        "displayName": "Password",
+        "fieldType": "Password",
+        "min": 8,
+        "max": 50,
+        "required": true,
+        "gridIgnore": true
+      }
+    },
+  }
+}</value>
+  </data>
 </root>

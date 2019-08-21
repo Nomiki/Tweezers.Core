@@ -36,7 +36,7 @@ namespace Tweezers.Api.Identity
             return Schemas.IdentityMetaJson.Deserialize<TweezersObject>();
         }
 
-        public static JObject FindUserBySessionId(string sessionId)
+        public static JObject FindUserBySessionId(string sessionId, bool allFields = false)
         {
             FindOptions<JObject> sessionIdPredicate = new FindOptions<JObject>()
             {
@@ -51,8 +51,8 @@ namespace Tweezers.Api.Identity
                 Take = 1,
             };
 
-            TweezersObject usersObjectMetadata = TweezersSchemaFactory.Find(UsersCollectionName, true);
-            return usersObjectMetadata.FindInDb(TweezersSchemaFactory.DatabaseProxy, sessionIdPredicate)?.Items.SingleOrDefault();
+            TweezersObject usersObjectMetadata = TweezersSchemaFactory.Find(UsersCollectionName, true, allFields);
+            return usersObjectMetadata.FindInDb(TweezersSchemaFactory.DatabaseProxy, sessionIdPredicate, allFields)?.Items.SingleOrDefault();
         }
     }
 }
