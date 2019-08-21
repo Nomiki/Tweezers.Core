@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System;
+using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json.Linq;
 using Tweezers.Api.DataHolders;
 using Tweezers.Api.Identity;
@@ -9,6 +10,8 @@ namespace Tweezers.Api.Controllers
 {
     public abstract class TweezersControllerBase : ControllerBase
     {
+        protected TimeSpan SessionTimeout => 4.Hours();
+
         protected ActionResult TweezersForbidden(string method, string message)
         {
             return StatusCode(403, new TweezersErrorBody() { Message = message, Method = method });
@@ -57,10 +60,15 @@ namespace Tweezers.Api.Controllers
             if (!Request.Headers.ContainsKey(IdentityManager.SessionIdKey))
                 return false;
 
-            string sessionId = Request.Headers[IdentityManager.SessionIdKey];
-            JObject user = IdentityManager.FindUserBySessionId(sessionId);
-
+            JObject user = GetUserBySessionId();
+            
             return user != null;
+        }
+
+        protected JObject GetUserBySessionId()
+        {
+            string sessionId = Request.Headers[IdentityManager.SessionIdKey];
+            return IdentityManager.FindUserBySessionId(sessionId);
         }
     }
 }

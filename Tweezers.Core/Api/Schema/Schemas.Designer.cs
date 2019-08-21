@@ -121,5 +121,36 @@ namespace Tweezers.Api.Schema {
                 return ResourceManager.GetString("SchemaMetaJson", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {
+        ///  &quot;collectionName&quot;: &quot;tweezers-users&quot;,
+        ///  &quot;displayNames&quot;: {
+        ///    &quot;singularName&quot;: &quot;User&quot;,
+        ///    &quot;pluralName&quot;: &quot;Users&quot;
+        ///  },
+        ///  &quot;internal&quot;: true,
+        ///  &quot;icon&quot;: &quot;person&quot;,
+        ///  &quot;fields&quot;: {
+        ///    &quot;username&quot;: {
+        ///      &quot;fieldProperties&quot;: {
+        ///        &quot;name&quot;: &quot;username&quot;,
+        ///        &quot;displayName&quot;: &quot;Username&quot;,
+        ///        &quot;fieldType&quot;: &quot;String&quot;,
+        ///        &quot;min&quot;: 1,
+        ///        &quot;max&quot;: 50,
+        ///        &quot;regex&quot;: &quot;^[A-Za-z\\d]+$&quot;,
+        ///        &quot;uiTitle&quot;: true,
+        ///        &quot;required&quot;: true
+        ///      }
+        ///    },
+        ///    &quot;name&quot;: {
+        ///      &quot;fieldProperties&quot;: {        /// [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string UserExternalSchema {
+            get {
+                return ResourceManager.GetString("UserExternalSchema", resourceCulture);
+            }
+        }
     }
 }

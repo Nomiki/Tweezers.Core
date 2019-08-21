@@ -1,15 +1,14 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json.Linq;
 using Tweezers.Api.Common;
 using Tweezers.Api.Controllers;
-using Tweezers.Api.DataHolders;
 using Tweezers.Api.Identity.DataHolders;
 using Tweezers.Api.Identity.HashUtils;
+using Tweezers.Api.Schema;
+using Tweezers.Api.Utils;
 using Tweezers.DBConnector;
 using Tweezers.Schema.Common;
 using Tweezers.Schema.DataHolders;
@@ -23,52 +22,13 @@ namespace Tweezers.Api.Identity.Controllers
     {
         private static readonly TweezersObject UsersLoginSchema;
 
-        protected TimeSpan SessionTimeout => 4.Hours();
-
         static UsersController()
         {
-            UsersLoginSchema = new TweezersObject()
-            {
-                CollectionName = IdentityManager.UsersCollectionName,
-                Internal = true,
-            };
-
-            UsersLoginSchema.DisplayNames.SingularName = "User";
-            UsersLoginSchema.DisplayNames.PluralName = "Users";
-            UsersLoginSchema.Icon = "person";
-
-            UsersLoginSchema.Fields.Add("username", new TweezersField()
-            {
-                FieldProperties = new TweezersFieldProperties()
-                {
-                    FieldType = TweezersFieldType.String,
-                    UiTitle = true,
-                    Min = 1,
-                    Max = 50,
-                    Required = true,
-                    Regex = @"[A-Za-z\d]+",
-                    Name = "username",
-                    DisplayName = "Username",
-                }
-            });
-
-            UsersLoginSchema.Fields.Add("password", new TweezersField()
-            {
-                FieldProperties = new TweezersFieldProperties()
-                {
-                    FieldType = TweezersFieldType.Password,
-                    Min = 8,
-                    Max = 50,
-                    Required = true,
-                    GridIgnore = true,
-                    Name = "password",
-                    DisplayName = "Password",
-                }
-            });
+            UsersLoginSchema = Schemas.UserExternalSchema.Deserialize<TweezersObject>();
         }
 
         private readonly string[] _loginResponseBody = 
-            {"username", IdentityManager.SessionIdKey, IdentityManager.SessionExpiryKey};
+            {"username", IdentityManager.SessionIdKey, IdentityManager.SessionExpiryKey, "name"};
 
         [HttpGet("tweezers-schema/tweezers-users")]
         public ActionResult<TweezersObject> GetUsersSchema()
@@ -101,6 +61,46 @@ namespace Tweezers.Api.Identity.Controllers
                 }
 
                 JObject user = CreateUser(suggestedUser);
+                return TweezersOk(user);
+            }
+            catch (TweezersValidationException e)
+            {
+                return TweezersBadRequest(e.Message);
+            }
+        }
+
+        [HttpPatch("tweezers-users/{id}")]
+        public ActionResult<JObject> Patch(string id, [FromBody] LoginRequest patchRequest)
+        {
+            if (!IdentityManager.UsingIdentity)
+                return TweezersNotFound();
+
+            if (!IsSessionValid())
+                return TweezersUnauthorized();
+
+            try
+            {
+                if (FindUser(patchRequest.Username) == null)
+                {
+                    throw new TweezersValidationException(TweezersValidationResult.Reject($"Unable to find user"));
+                }
+
+                JObject userJObject = JObject.FromObject(patchRequest, Serializer.JsonSerializer);
+                if (patchRequest.Password != null)
+                {
+                    TweezersValidationResult passwordOk =
+                        UsersLoginSchema.Fields["password"].Validate(patchRequest.Password);
+                    if (!passwordOk.Valid)
+                    {
+                        throw new TweezersValidationException(passwordOk);
+                    }
+
+                    userJObject["passwordHash"] = Hash.Create(patchRequest.Password);
+                }
+
+                TweezersObject usersObjectMetadata = TweezersSchemaFactory.Find
+                    (IdentityManager.UsersCollectionName, true, true);
+                JObject user = usersObjectMetadata.Update(TweezersSchemaFactory.DatabaseProxy, id, userJObject);
                 return TweezersOk(user);
             }
             catch (TweezersValidationException e)
@@ -200,6 +200,38 @@ namespace Tweezers.Api.Identity.Controllers
             }
         }
 
+        [HttpPost("logout")]
+        public ActionResult Logout()
+        {
+            if (!IdentityManager.UsingIdentity)
+                return TweezersNotFound();
+
+            try
+            {
+                JObject user = GetUserBySessionId();
+                if (user == null)
+                {
+                    return TweezersOk();
+                }
+
+                JObject payload = new JObject()
+                {
+                    [IdentityManager.SessionExpiryKey] = (DateTime.Now - 1.Hours()).ToFileTimeUtc().ToString()
+                };
+
+                TweezersObject usersObjectMetadata = TweezersSchemaFactory.Find(IdentityManager.UsersCollectionName,
+                    true, true);
+
+                usersObjectMetadata.Update(TweezersSchemaFactory.DatabaseProxy, user["_id"].ToString(), payload);
+
+                return TweezersOk();
+            }
+            catch (TweezersValidationException e)
+            {
+                return TweezersBadRequest(e.Message);
+            }
+        }
+
         [HttpDelete("tweezers-users/{username}")]
         public ActionResult<bool> DeleteUser(string username)
         {
@@ -230,12 +262,17 @@ namespace Tweezers.Api.Identity.Controllers
             if (!IsSessionValid())
                 return TweezersUnauthorized();
 
-            JObject user = IdentityManager.FindUserBySessionId(Request.Headers[IdentityManager.SessionIdKey]);
+            JObject user = IdentityManager.FindUserBySessionId(Request.Headers[IdentityManager.SessionIdKey], allFields: true);
 
             bool oldPasswordOk = ValidatePassword(changePasswordRequest.OldPassword, user["passwordHash"].ToString());
-            if (!oldPasswordOk)
+            if (!oldPasswordOk || changePasswordRequest.NewPassword != changePasswordRequest.ConfirmNewPassword)
             {
                 return TweezersBadRequest("Passwords do not match");
+            }
+
+            if (changePasswordRequest.OldPassword == changePasswordRequest.NewPassword)
+            {
+                return TweezersBadRequest("Old and new passwords are the same.");
             }
 
             return DoChangePassword(user, changePasswordRequest);
