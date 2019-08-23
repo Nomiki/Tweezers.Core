@@ -11,6 +11,8 @@ namespace Tweezers.Api.MetadataManagement
 
         public int Port { get; set; } = 5001;
 
+        public bool UseSsl { get; set; } = true;
+
         public bool IsInitialized { get; set; }
 
         private static TweezersRuntimeSettings _instance;
@@ -25,7 +27,9 @@ namespace Tweezers.Api.MetadataManagement
                 return settingFileText.Deserialize<TweezersRuntimeSettings>();
             }
 
-            throw new ArgumentException($"Missing internal setting file at {runtimeSettingsFileName}");
+            TweezersRuntimeSettings defaultSettings = new TweezersRuntimeSettings();
+            defaultSettings.WriteToSettingsFile();
+            return defaultSettings;
         }
 
         public void WriteToSettingsFile()
