@@ -30,6 +30,9 @@
 
   <ItemGroup>
     <Content Update="tweezers-internal-settings_2.json">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Content>
+    <Content Update="tweezers-runtime-settings.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
