@@ -19,11 +19,12 @@ namespace Tweezers.Api.Startup
         private static IWebHostBuilder CreateWebHostBuilder()
         {
             int port = TweezersRuntimeSettings.Instance.Port;
+            string protocol = TweezersRuntimeSettings.Instance.UseSsl ? "https" : "http";
             return new WebHostBuilder()
                 .UseKestrel()
                 .UseContentRoot(Directory.GetCurrentDirectory())
                 .UseStartup<Startup>()
-                .UseUrls($"https://0.0.0.0:{port}/");
+                .UseUrls($"{protocol}://0.0.0.0:{port}/");
         }
     }
 }
