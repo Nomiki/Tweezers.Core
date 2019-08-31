@@ -34,13 +34,17 @@ namespace Tweezers.MongoDB
             Settings = new MongoClientSettings()
             {
                 ConnectionMode = ConnectionMode.Automatic,
-                Server = new MongoServerAddress(connectionDetails.Host, connectionDetails.Port)
+                Server = connectionDetails.Port == 0 
+                    ? new MongoServerAddress(connectionDetails.Host)
+                    : new MongoServerAddress(connectionDetails.Host, connectionDetails.Port)
             };
 
             if (!string.IsNullOrWhiteSpace(connectionDetails.Username))
             {
-                Settings.Credential = MongoCredential.CreateCredential(connectionDetails.DBName,
+                Settings.Credential = MongoCredential.CreateCredential("admin",
                     connectionDetails.Username, connectionDetails.Password);
+                Settings.UseTls = true;
+                Settings.AllowInsecureTls = true;
             }
         }
 

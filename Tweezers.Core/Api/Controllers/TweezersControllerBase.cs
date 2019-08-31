@@ -60,9 +60,15 @@ namespace Tweezers.Api.Controllers
             if (!Request.Headers.ContainsKey(IdentityManager.SessionIdKey))
                 return false;
 
-            JObject user = GetUserBySessionId();
-            
-            return user != null;
+            try
+            {
+                JObject user = GetUserBySessionId();
+                return user != null;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
         }
 
         protected JObject GetUserBySessionId()

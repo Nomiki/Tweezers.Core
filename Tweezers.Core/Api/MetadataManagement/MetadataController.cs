@@ -25,9 +25,9 @@ namespace Tweezers.Api.MetadataManagement
                     return TweezersOk();
                 }
             }
-            catch (Exception)
+            catch (Exception e)
             {
-                return TweezersBadRequest("Unable to connect to DB");
+                return TweezersBadRequest($"Unable to connect to DB: {e.Message}");
             }
 
             return TweezersBadRequest("Invalid Settings File");
