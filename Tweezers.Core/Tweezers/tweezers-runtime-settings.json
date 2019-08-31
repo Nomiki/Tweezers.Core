@@ -1,5 +1,5 @@
 {
   "port": 5001,
-  "useSsl":  false, 
-  "isInitialized": true
+  "useSsl": false,
+  "isInitialized": false
 }
