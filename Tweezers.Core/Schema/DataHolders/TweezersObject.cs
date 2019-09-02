@@ -44,7 +44,7 @@ namespace Tweezers.Schema.DataHolders
             {
                 TweezersField field = Fields[fieldName];
                 dynamic value = filteredObj[fieldName];
-                if (value == null && partial)
+                if (value == null && (partial || !field.FieldProperties.Required))
                 {
                     continue;
                 }
