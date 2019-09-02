@@ -93,6 +93,55 @@ namespace Tweezers.Api.Schema {
         
         /// <summary>
         ///   Looks up a localized string similar to {
+        ///  &quot;fieldType&quot;: &quot;Enum&quot;,
+        ///  &quot;possibleValues&quot;: [
+        ///    &quot;None&quot;,
+        ///    &quot;View&quot;,
+        ///    &quot;Edit&quot;
+        ///  ],
+        ///  &quot;required&quot;: true
+        ///}.
+        /// </summary>
+        internal static string PermissionTemplateFieldProperties {
+            get {
+                return ResourceManager.GetString("PermissionTemplateFieldProperties", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {
+        ///  &quot;collectionName&quot;: &quot;tweezers-roles&quot;,
+        ///  &quot;displayNames&quot;: {
+        ///    &quot;singularName&quot;: &quot;Role&quot;,
+        ///    &quot;pluralName&quot;: &quot;Roles&quot;
+        ///  },
+        ///  &quot;internal&quot;: true,
+        ///  &quot;icon&quot;: &quot;vpn_key&quot;,
+        ///  &quot;fields&quot;: {
+        ///    &quot;name&quot;: {
+        ///      &quot;fieldProperties&quot;: {
+        ///        &quot;name&quot;: &quot;name&quot;,
+        ///        &quot;displayName&quot;: &quot;Role Name&quot;,
+        ///        &quot;fieldType&quot;: &quot;String&quot;,
+        ///        &quot;min&quot;: 1,
+        ///        &quot;max&quot;: 50,
+        ///        &quot;required&quot;: true
+        ///      }
+        ///    },
+        ///    &quot;description&quot;: {
+        ///      &quot;fieldProperties&quot;: {
+        ///        &quot;name&quot;: &quot;description&quot;,
+        ///        &quot;displayName&quot;: &quot;Role Description&quot;,
+        ///        [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string RolesMetaJson {
+            get {
+                return ResourceManager.GetString("RolesMetaJson", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {
         ///  &quot;collectionName&quot;: &quot;tweezers-schema&quot;,
         ///  &quot;displayNames&quot;: {
         ///    &quot;singularName&quot;: &quot;Tweezers Object&quot;,
@@ -113,8 +162,7 @@ namespace Tweezers.Api.Schema {
         ///      }
         ///    },
         ///    &quot;singularName&quot;: {
-        ///      &quot;fieldProperties&quot;: {
-        ///        &quot;na [rest of string was truncated]&quot;;.
+        ///      &quot;fieldPrope [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string SchemaMetaJson {
             get {

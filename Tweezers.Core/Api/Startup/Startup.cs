@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Swashbuckle.AspNetCore.Swagger;
-using Tweezers.Api.Identity;
+using Tweezers.Api.Identity.Managers;
 using Tweezers.Api.Middleware;
 
 namespace Tweezers.Api.Startup

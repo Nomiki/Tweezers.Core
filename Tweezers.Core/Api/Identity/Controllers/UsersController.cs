@@ -7,6 +7,7 @@ using Tweezers.Api.Common;
 using Tweezers.Api.Controllers;
 using Tweezers.Api.Identity.DataHolders;
 using Tweezers.Api.Identity.HashUtils;
+using Tweezers.Api.Identity.Managers;
 using Tweezers.Api.Schema;
 using Tweezers.Api.Utils;
 using Tweezers.DBConnector;
@@ -18,9 +19,11 @@ namespace Tweezers.Api.Identity.Controllers
 {
     [Route("api")]
     [ApiController]
-    public class UsersController : TweezersControllerBase
+    public sealed class UsersController : TweezersControllerBase
     {
         private static readonly TweezersObject UsersLoginSchema;
+
+        protected override bool WithInternalObjects => true;
 
         static UsersController()
         {
@@ -123,49 +126,21 @@ namespace Tweezers.Api.Identity.Controllers
         }
 
         [HttpGet("tweezers-users")]
-        public virtual ActionResult<TweezersMultipleResults<JObject>> List()
+        public ActionResult<TweezersMultipleResults<JObject>> List([FromQuery] int skip = 0, [FromQuery] int take = 10, [FromQuery] string sortField = "", [FromQuery] string direction = "asc")
         {
             if (!IdentityManager.UsingIdentity)
                 return TweezersNotFound();
 
-            if (!IsSessionValid())
-                return TweezersUnauthorized();
-
-            try
-            {
-                TweezersObject objectMetadata = TweezersSchemaFactory.Find(IdentityManager.UsersCollectionName, true);
-                TweezersMultipleResults<JObject> results = 
-                    objectMetadata.FindInDb(TweezersSchemaFactory.DatabaseProxy, FindOptions<JObject>.Default());
-                return TweezersOk(results);
-            }
-            catch (TweezersValidationException)
-            {
-                return TweezersNotFound();
-            }
+            return base.List(IdentityManager.UsersCollectionName, skip, take, sortField, direction);
         }
 
         [HttpGet("tweezers-users/{id}")]
-        public virtual ActionResult<JObject> Get(string id)
+        public ActionResult<JObject> Get(string id)
         {
             if (!IdentityManager.UsingIdentity)
                 return TweezersNotFound();
 
-            if (!IsSessionValid())
-                return TweezersUnauthorized();
-
-            try
-            {
-                TweezersObject objectMetadata = TweezersSchemaFactory.Find(IdentityManager.UsersCollectionName, true);
-                JObject obj = objectMetadata.GetById(TweezersSchemaFactory.DatabaseProxy, id);
-                if (obj == null)
-                    return TweezersNotFound();
-
-                return TweezersOk(obj);
-            }
-            catch (TweezersValidationException)
-            {
-                return TweezersNotFound();
-            }
+            return base.Get(IdentityManager.UsersCollectionName, id);
         }
 
         [HttpPost("login")]
@@ -233,24 +208,12 @@ namespace Tweezers.Api.Identity.Controllers
         }
 
         [HttpDelete("tweezers-users/{username}")]
-        public ActionResult<bool> DeleteUser(string username)
+        public ActionResult<JObject> DeleteUser(string username)
         {
             if (!IdentityManager.UsingIdentity)
                 return TweezersNotFound();
 
-            if (!IsSessionValid())
-                return TweezersUnauthorized();
-
-            JObject user = FindUser(username);
-            if (user == null)
-            {
-                return TweezersOk(true);
-            }
-
-            TweezersObject usersObjectMetadata = TweezersSchemaFactory.Find(IdentityManager.UsersCollectionName, true);
-            bool deleted = usersObjectMetadata.Delete(TweezersSchemaFactory.DatabaseProxy, username);
-
-            return TweezersOk(deleted);
+            return base.Delete(IdentityManager.UsersCollectionName, username);
         }
 
         [HttpPost("tweezers-user/reset-password")]
