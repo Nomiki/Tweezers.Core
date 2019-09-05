@@ -28,6 +28,8 @@ namespace Tweezers.Api.Identity.Managers
 
             SafeAddSchema(rolesSchema);
 
+            CreateDefaultRoles();
+
             UsingIdentity = true;
         }
 
@@ -51,9 +53,17 @@ namespace Tweezers.Api.Identity.Managers
         {
             TweezersObject rolesInitialSchema = Schemas.RolesMetaJson.Deserialize<TweezersObject>();
 
-            IEnumerable<TweezersObject> otherObjects = TweezersSchemaFactory.GetAll(true).Append(rolesInitialSchema);
+            IEnumerable<TweezersObject> additionalInternalSchemas = new[] {rolesInitialSchema};
 
-            TweezersObject permissionsObjectReference = 
+            if (SchemaManagement.CanChangeSchema)
+            {
+                additionalInternalSchemas = additionalInternalSchemas.Append(SchemaManagement.SchemaMetadata);
+            }
+
+            IEnumerable<TweezersObject> otherObjects =
+                TweezersSchemaFactory.GetAll(true).Concat(additionalInternalSchemas);
+
+            TweezersObject permissionsObjectReference =
                 rolesInitialSchema.Fields["permissions"].FieldProperties.ObjectReference;
 
             foreach (TweezersObject @object in otherObjects)
@@ -67,10 +77,82 @@ namespace Tweezers.Api.Identity.Managers
                 if (permissionsObjectReference.Fields.ContainsKey(@object.CollectionName))
                     continue;
 
-                permissionsObjectReference.Fields.Add(@object.CollectionName, new TweezersField() {FieldProperties = fieldProperties});
+                permissionsObjectReference.Fields.Add(@object.CollectionName,
+                    new TweezersField() {FieldProperties = fieldProperties});
             }
 
             return rolesInitialSchema;
+        }
+
+        public static void AppendNewPermission(TweezersObject newObject)
+        {
+            TweezersObject rolesObj = TweezersSchemaFactory.Find(RolesSchemaName, true, true);
+
+            TweezersFieldProperties fieldProperties =
+                Schemas.PermissionTemplateFieldProperties.Deserialize<TweezersFieldProperties>();
+
+            fieldProperties.Name = newObject.CollectionName;
+            fieldProperties.DisplayName = newObject.PluralName;
+
+            rolesObj.Fields["permissions"].FieldProperties.ObjectReference.Fields.Add(newObject.CollectionName,
+                new TweezersField() {FieldProperties = fieldProperties});
+
+            SafeAddSchema(rolesObj);
+
+            DefaultPermission permission = newObject.DefaultPermission;
+            TweezersMultipleResults<JObject> roles = rolesObj.FindInDb(TweezersSchemaFactory.DatabaseProxy, FindOptions<JObject>.Default(0, int.MaxValue), true);
+            foreach (JObject role in roles.Items)
+            {
+                role["permissions"][newObject.CollectionName] = permission.ToString();
+                rolesObj.Update(TweezersSchemaFactory.DatabaseProxy, role["_id"].ToString(), role);
+            }
+        }
+
+        public static void EditPermissionName(TweezersObject editedObject)
+        {
+            TweezersObject rolesObj = TweezersSchemaFactory.Find(RolesSchemaName, true, true);
+
+            TweezersField field = rolesObj.Fields["permissions"].FieldProperties.ObjectReference.Fields[editedObject.CollectionName];
+            field.FieldProperties.DisplayName = editedObject.PluralName;
+
+            SafeAddSchema(rolesObj);
+        }
+
+        public static void DeletePermission(string deletedCollectionName)
+        {
+            TweezersObject rolesObj = TweezersSchemaFactory.Find(RolesSchemaName, true, true);
+
+            rolesObj.Fields["permissions"].FieldProperties.ObjectReference.Fields.Remove(deletedCollectionName);
+
+            SafeAddSchema(rolesObj);
+
+            TweezersMultipleResults<JObject> roles = rolesObj.FindInDb(TweezersSchemaFactory.DatabaseProxy, FindOptions<JObject>.Default(0, int.MaxValue), true);
+            foreach (JObject role in roles.Items)
+            {
+                JObject permissions = JObject.FromObject(role["permissions"]);
+                permissions.Remove(deletedCollectionName);
+                role["permissions"] = permissions;
+                rolesObj.Update(TweezersSchemaFactory.DatabaseProxy, role["_id"].ToString(), role);
+            }
+        }
+
+        private static void CreateDefaultRoles()
+        {
+            JObject administrator = Schemas.AdministratorRoleTemplate.Deserialize<JObject>();
+            TweezersObject rolesObj = TweezersSchemaFactory.Find(RolesSchemaName, true, true);
+
+            if (rolesObj.GetById(TweezersSchemaFactory.DatabaseProxy, administrator["_id"].ToString()) == null)
+            {
+                JObject permissions = new JObject();
+                foreach (string collectionName in rolesObj.Fields["permissions"].FieldProperties.ObjectReference.Fields.Keys)
+                {
+                    permissions.Add(collectionName, DefaultPermission.Edit.ToString());
+                }
+
+                administrator["permissions"] = permissions;
+
+                rolesObj.Create(TweezersSchemaFactory.DatabaseProxy, administrator, administrator["_id"].ToString());
+            }
         }
 
         public static JObject FindUserBySessionId(string sessionId, bool allFields = false)
@@ -89,7 +171,8 @@ namespace Tweezers.Api.Identity.Managers
             };
 
             TweezersObject usersObjectMetadata = TweezersSchemaFactory.Find(UsersCollectionName, true, allFields);
-            return usersObjectMetadata.FindInDb(TweezersSchemaFactory.DatabaseProxy, sessionIdPredicate, allFields)?.Items.SingleOrDefault();
+            return usersObjectMetadata.FindInDb(TweezersSchemaFactory.DatabaseProxy, sessionIdPredicate, allFields)
+                ?.Items.SingleOrDefault();
         }
     }
 }

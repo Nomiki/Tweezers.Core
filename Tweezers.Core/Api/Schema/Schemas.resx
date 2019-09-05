@@ -117,6 +117,15 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="AdministratorRoleTemplate" xml:space="preserve">
+    <value>{
+  "_id": "Administrator",
+  "name": "Administrator",
+  "description": "Meow",
+  "isBuiltInRole": true,
+  "permissions": {}
+}</value>
+  </data>
   <data name="IdentityMetaJson" xml:space="preserve">
     <value>{
   "collectionName": "tweezers-users",
@@ -126,6 +135,7 @@
   },
   "internal": true,
   "icon": "person",
+  "defaultPermission": "View",
   "fields": {
     "username": {
       "fieldProperties": {
@@ -218,6 +228,16 @@
         "required": false
       }
     },
+    "isBuiltInRole": {
+      "fieldProperties": {
+        "name": "isBuiltInRole",
+        "displayName": "Is Built In Role",
+        "fieldType": "Boolean",
+        "required": true,
+        "uiIgnore": true,
+        "gridIgnore": true
+      }
+    },
     "permissions": {
       "fieldProperties": {
         "name": "permissions",
@@ -291,6 +311,15 @@
         "required": true
       }
     },
+    "defaultPermission": {
+      "fieldProperties": {
+        "name": "defaultPermission",
+        "displayName": "Default Permission",
+        "fieldType": "Enum",
+        "required": true,
+        "possibleValues": ["Edit", "View", "None"]
+      }
+    },
     "fields": {
       "fieldProperties": {
         "name": "fields",
@@ -340,7 +369,7 @@
                     "String",
                     "Boolean",
                     "Password",
-                    "TagsArray",
+                    "TagsArray"
                   ]
                 }
               },
@@ -384,7 +413,7 @@
                 "fieldProperties": {
                   "name": "possibleValues",
                   "displayName": "Possible Values",
-                  "fieldType": "TagsArray",
+                  "fieldType": "TagsArray"
                 }
               },
               "required": {
@@ -436,6 +465,7 @@
   },
   "internal": true,
   "icon": "person",
+  "defaultPermission": "View",
   "fields": {
     "username": {
       "fieldProperties": {

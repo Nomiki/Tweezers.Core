@@ -62,6 +62,21 @@ namespace Tweezers.Api.Schema {
         
         /// <summary>
         ///   Looks up a localized string similar to {
+        ///  &quot;_id&quot;: &quot;Administrator&quot;,
+        ///  &quot;name&quot;: &quot;Administrator&quot;,
+        ///  &quot;description&quot;: &quot;Meow&quot;,
+        ///  &quot;isBuiltInRole&quot;: true,
+        ///  &quot;permissions&quot;: {}
+        ///}.
+        /// </summary>
+        internal static string AdministratorRoleTemplate {
+            get {
+                return ResourceManager.GetString("AdministratorRoleTemplate", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {
         ///  &quot;collectionName&quot;: &quot;tweezers-users&quot;,
         ///  &quot;displayNames&quot;: {
         ///    &quot;singularName&quot;: &quot;User&quot;,
@@ -69,6 +84,7 @@ namespace Tweezers.Api.Schema {
         ///  },
         ///  &quot;internal&quot;: true,
         ///  &quot;icon&quot;: &quot;person&quot;,
+        ///  &quot;defaultPermission&quot;: &quot;View&quot;,
         ///  &quot;fields&quot;: {
         ///    &quot;username&quot;: {
         ///      &quot;fieldProperties&quot;: {
@@ -83,7 +99,7 @@ namespace Tweezers.Api.Schema {
         ///      }
         ///    },
         ///    &quot;name&quot;: {
-        ///      &quot;fieldProperties&quot;: {        /// [rest of string was truncated]&quot;;.
+        ///      &quot;fieldProper [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string IdentityMetaJson {
             get {
@@ -131,8 +147,7 @@ namespace Tweezers.Api.Schema {
         ///    &quot;description&quot;: {
         ///      &quot;fieldProperties&quot;: {
         ///        &quot;name&quot;: &quot;description&quot;,
-        ///        &quot;displayName&quot;: &quot;Role Description&quot;,
-        ///        [rest of string was truncated]&quot;;.
+        ///        &quot;displayName&quot;: &quot;Role [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string RolesMetaJson {
             get {
@@ -179,6 +194,7 @@ namespace Tweezers.Api.Schema {
         ///  },
         ///  &quot;internal&quot;: true,
         ///  &quot;icon&quot;: &quot;person&quot;,
+        ///  &quot;defaultPermission&quot;: &quot;View&quot;,
         ///  &quot;fields&quot;: {
         ///    &quot;username&quot;: {
         ///      &quot;fieldProperties&quot;: {
@@ -193,7 +209,7 @@ namespace Tweezers.Api.Schema {
         ///      }
         ///    },
         ///    &quot;name&quot;: {
-        ///      &quot;fieldProperties&quot;: {        /// [rest of string was truncated]&quot;;.
+        ///      &quot;fieldProper [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string UserExternalSchema {
             get {

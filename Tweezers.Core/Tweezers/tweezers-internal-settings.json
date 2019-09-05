@@ -1,9 +1,9 @@
 {
   "appDetails": {
     "canChangeSchema": true,
-    "title": "My awesome App",
+    "title": "Acme Inc.",
     "initialUsername": "admin",
-    "initialPassword": "admin"
+    "initialPassword": "Meow1234"
   },
   "dbDetails": {
     "host": "localhost",

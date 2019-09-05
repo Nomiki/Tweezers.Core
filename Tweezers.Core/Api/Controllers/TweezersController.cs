@@ -26,9 +26,9 @@ namespace Tweezers.Api.Controllers
         }
 
         [HttpPost("{collection}")]
-        public new virtual ActionResult<JObject> Post(string collection, [FromBody] JObject data)
+        public new virtual ActionResult<JObject> Post(string collection, [FromBody] JObject data, string suggestedId = null)
         {
-            return base.Post(collection, data);
+            return base.Post(collection, data, suggestedId);
         }
 
         [HttpPatch("{collection}/{id}")]

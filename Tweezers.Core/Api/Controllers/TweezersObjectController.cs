@@ -1,13 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json.Linq;
-using Tweezers.Api.DataHolders;
+using Tweezers.Api.Identity.Managers;
 using Tweezers.Api.Schema;
 using Tweezers.Api.Utils;
 using Tweezers.DBConnector;
-using Tweezers.Schema.Common;
 using Tweezers.Schema.DataHolders;
 using Tweezers.Schema.DataHolders.Exceptions;
 
@@ -69,6 +67,7 @@ namespace Tweezers.Api.Controllers
             try
             {
                 TweezersObject obj = ReplaceTweezersObject(data);
+                IdentityManager.AppendNewPermission(obj);
                 return TweezersCreated(obj);
             }
             catch (TweezersValidationException e)
@@ -106,6 +105,7 @@ namespace Tweezers.Api.Controllers
             {
                 data.CollectionName = collectionName;
                 TweezersObject obj = ReplaceTweezersObject(data);
+                IdentityManager.EditPermissionName(obj);
                 return TweezersOk(obj);
             }
             catch (TweezersValidationException e)
@@ -121,6 +121,7 @@ namespace Tweezers.Api.Controllers
                 return TweezersUnauthorized();
 
             bool deleted = TweezersSchemaFactory.DeleteObject(collectionName);
+            IdentityManager.DeletePermission(collectionName);
             return TweezersOk();
         }
     }
