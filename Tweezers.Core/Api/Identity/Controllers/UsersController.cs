@@ -213,6 +213,9 @@ namespace Tweezers.Api.Identity.Controllers
             if (!IdentityManager.UsingIdentity)
                 return TweezersNotFound();
 
+            if (GetUserBySessionId()["_id"].ToString() == username)
+                return TweezersBadRequest("Cannot delete self");
+
             return base.Delete(IdentityManager.UsersCollectionName, username);
         }
 

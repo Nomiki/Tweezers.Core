@@ -1,8 +1,11 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json.Linq;
 using Tweezers.Api.Controllers;
+using Tweezers.Api.DataHolders;
 using Tweezers.Api.Identity.Managers;
 using Tweezers.DBConnector;
+using Tweezers.Schema.DataHolders;
+using Tweezers.Schema.DataHolders.Exceptions;
 
 namespace Tweezers.Api.Identity.Controllers
 {
@@ -40,7 +43,30 @@ namespace Tweezers.Api.Identity.Controllers
         [HttpDelete("tweezers-roles/{id}")]
         public ActionResult<JObject> Delete(string id)
         {
-            return base.Delete(CollectionName, id);
+            try
+            {
+                if (!IsSessionValid())
+                    return TweezersUnauthorized();
+
+                TweezersObject objectMetadata = TweezersSchemaFactory.Find(CollectionName, WithInternalObjects, true);
+                JObject role = objectMetadata.GetById(TweezersSchemaFactory.DatabaseProxy, id, true);
+                if (role == null)
+                {
+                    return TweezersOk(TweezersGeneralResponse.Create("Deleted"));
+                }
+
+                if (role["isBuiltInRole"]?.ToString().ToLower() == "true")
+                {
+                    return TweezersBadRequest("Cannot delete a built-in role");
+                }
+
+                bool deleted = objectMetadata.Delete(TweezersSchemaFactory.DatabaseProxy, id);
+                return TweezersOk();
+            }
+            catch (TweezersValidationException e)
+            {
+                return TweezersBadRequest(e.Message);
+            }
         }
     }
 }

@@ -34,6 +34,8 @@ namespace Tweezers.Schema.DataHolders
 
         public bool Internal { get; set; } = false;
 
+        public DefaultPermission DefaultPermission { get; set; } = DefaultPermission.View;
+
         public DateTime LastChanged { get; set; } = DateTime.Now;
 
         public TweezersValidationResult Validate(JObject obj, bool partial)
@@ -72,7 +74,9 @@ namespace Tweezers.Schema.DataHolders
 
         public JObject GetById(IDatabaseProxy proxy, string id, bool allFields = false)
         {
-            return proxy.Get(CollectionName, id)?.Just(AllFields(allFields));
+            JObject o = proxy.Get(CollectionName, id);
+            string[] fields = AllFields(allFields);
+            return o?.Just(fields);
         }
 
         public JObject Create(IDatabaseProxy proxy, JObject data, string suggestedId = null)
