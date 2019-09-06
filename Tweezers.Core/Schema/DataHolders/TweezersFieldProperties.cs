@@ -133,11 +133,11 @@ namespace Tweezers.Schema.DataHolders
                         throw new ArgumentException($"Could not find Tweezers Object {ObjectName}");
                     }
 
-                    // TODO
+                    validators.Add(TweezersObjectReferenceValidator.Create(ObjectName));
                 }
                 else
                 {
-                    throw new ArgumentException("ObjectName is required for 'object' type.");
+                    throw new ArgumentException("ObjectName or JSON is required for 'object' type.");
                 }
             }
         }

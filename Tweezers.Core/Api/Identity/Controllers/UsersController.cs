@@ -107,6 +107,7 @@ namespace Tweezers.Api.Identity.Controllers
 
                     TweezersObject usersObjectMetadata = TweezersSchemaFactory.Find
                         (IdentityManager.UsersCollectionName, true, true);
+                    usersObjectMetadata.Validate(userJObject, true);
                     JObject user = usersObjectMetadata.Update(TweezersSchemaFactory.DatabaseProxy, id, userJObject);
                     return TweezersOk(user);
                 }

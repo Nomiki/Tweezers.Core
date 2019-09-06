@@ -21,6 +21,6 @@ namespace Tweezers.Schema.Validators.Object
             return ObjectReference.Validate(value, true);
         }
 
-        public string Name => $"Object {ObjectReference.DisplayNames.SingularName}";
+        public string Name => $"Object {ObjectReference.SingularName}";
     }
 }
