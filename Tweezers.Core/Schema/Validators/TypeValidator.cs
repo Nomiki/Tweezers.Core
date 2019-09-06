@@ -6,7 +6,6 @@ namespace Tweezers.Schema.Validators
     {
         private TypeValidator()
         {
-
         }
 
         public static TypeValidator<T> Create()

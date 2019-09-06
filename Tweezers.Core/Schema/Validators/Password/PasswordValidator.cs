@@ -7,7 +7,6 @@ namespace Tweezers.Schema.Validators.Password
     {
         private PasswordValidator()
         {
-
         }
 
         public static PasswordValidator Create()

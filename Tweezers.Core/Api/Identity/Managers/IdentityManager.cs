@@ -20,7 +20,6 @@ namespace Tweezers.Api.Identity.Managers
 
         public static void RegisterIdentity()
         {
-
             TweezersObject rolesSchema = CreateRolesSchema();
 
             SafeAddSchema(rolesSchema);

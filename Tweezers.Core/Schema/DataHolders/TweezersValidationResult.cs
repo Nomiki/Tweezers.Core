@@ -8,7 +8,6 @@
 
         private TweezersValidationResult()
         {
-
         }
 
         public static TweezersValidationResult Accept()
