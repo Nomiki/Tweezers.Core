@@ -17,7 +17,8 @@ namespace Tweezers.Api.Identity.Controllers
         protected string CollectionName => IdentityManager.RolesSchemaName;
 
         [HttpGet("tweezers-roles")]
-        public ActionResult<TweezersMultipleResults<JObject>> List([FromQuery] int skip = 0, [FromQuery] int take = 10, [FromQuery] string sortField = "", [FromQuery] string direction = "asc")
+        public ActionResult<TweezersMultipleResults<JObject>> List([FromQuery] int skip = 0, [FromQuery] int take = 10,
+            [FromQuery] string sortField = "", [FromQuery] string direction = "asc")
         {
             return base.List(CollectionName, skip, take, sortField, direction);
         }
@@ -43,30 +44,38 @@ namespace Tweezers.Api.Identity.Controllers
         [HttpDelete("tweezers-roles/{id}")]
         public ActionResult<JObject> Delete(string id)
         {
-            try
+            return WrapWithAuthorizationCheck(() =>
             {
-                if (!IsSessionValid())
-                    return TweezersUnauthorized();
-
-                TweezersObject objectMetadata = TweezersSchemaFactory.Find(CollectionName, WithInternalObjects, true);
-                JObject role = objectMetadata.GetById(TweezersSchemaFactory.DatabaseProxy, id, true);
-                if (role == null)
+                try
                 {
-                    return TweezersOk(TweezersGeneralResponse.Create("Deleted"));
-                }
+                    TweezersObject objectMetadata =
+                        TweezersSchemaFactory.Find(CollectionName, WithInternalObjects, true);
+                    JObject role = objectMetadata.GetById(TweezersSchemaFactory.DatabaseProxy, id, true);
+                    if (role == null)
+                    {
+                        return TweezersOk(TweezersGeneralResponse.Create("Deleted"));
+                    }
 
-                if (role["isBuiltInRole"]?.ToString().ToLower() == "true")
+                    if (role["isBuiltInRole"]?.ToString().ToLower() == "true")
+                    {
+                        return TweezersBadRequest("Cannot delete a built-in role");
+                    }
+
+                    long count = IdentityManager.GetUsersByRoleId(id).Count;
+                    if (count > 0)
+                    {
+                        return TweezersBadRequest(
+                            $"Role is being used by {count} users, please change their role first.");
+                    }
+
+                    bool deleted = objectMetadata.Delete(TweezersSchemaFactory.DatabaseProxy, id);
+                    return TweezersOk();
+                }
+                catch (TweezersValidationException e)
                 {
-                    return TweezersBadRequest("Cannot delete a built-in role");
+                    return TweezersBadRequest(e.Message);
                 }
-
-                bool deleted = objectMetadata.Delete(TweezersSchemaFactory.DatabaseProxy, id);
-                return TweezersOk();
-            }
-            catch (TweezersValidationException e)
-            {
-                return TweezersBadRequest(e.Message);
-            }
+            }, "Delete", DefaultPermission.Edit, CollectionName);
         }
     }
 }

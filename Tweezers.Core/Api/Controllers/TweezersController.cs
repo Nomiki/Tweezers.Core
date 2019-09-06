@@ -13,32 +13,32 @@ namespace Tweezers.Api.Controllers
     public class TweezersController : TweezersControllerBase
     {
         [HttpGet("{collection}")]
-        public new virtual ActionResult<TweezersMultipleResults<JObject>> List(string collection, 
+        public virtual ActionResult<TweezersMultipleResults<JObject>> List(string collection, 
             [FromQuery] int skip = 0, [FromQuery] int take = 10, [FromQuery] string sortField = "", [FromQuery] string direction = "asc")
         {
             return base.List(collection, skip, take, sortField, direction);
         }
 
         [HttpGet("{collection}/{id}")]
-        public new virtual ActionResult<JObject> Get(string collection, string id)
+        public virtual ActionResult<JObject> Get(string collection, string id)
         {
             return base.Get(collection, id);
         }
 
         [HttpPost("{collection}")]
-        public new virtual ActionResult<JObject> Post(string collection, [FromBody] JObject data, string suggestedId = null)
+        public virtual ActionResult<JObject> Post(string collection, [FromBody] JObject data, string suggestedId = null)
         {
             return base.Post(collection, data, suggestedId);
         }
 
         [HttpPatch("{collection}/{id}")]
-        public new virtual ActionResult<JObject> Patch(string collection, string id, [FromBody] JObject data)
+        public virtual ActionResult<JObject> Patch(string collection, string id, [FromBody] JObject data)
         {
             return base.Patch(collection, id, data);
         }
 
         [HttpDelete("{collection}/{id}")]
-        public new virtual ActionResult<JObject> Delete(string collection, string id)
+        public virtual ActionResult<JObject> Delete(string collection, string id)
         {
             return base.Delete(collection, id);
         }

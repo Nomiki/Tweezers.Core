@@ -20,15 +20,16 @@ namespace Tweezers.Api.Identity.Managers
 
         public static void RegisterIdentity()
         {
-            var usersSchema = CreateUsersSchema();
-
-            SafeAddSchema(usersSchema);
 
             TweezersObject rolesSchema = CreateRolesSchema();
 
             SafeAddSchema(rolesSchema);
 
             CreateDefaultRoles();
+
+            var usersSchema = CreateUsersSchema();
+
+            SafeAddSchema(usersSchema);
 
             UsingIdentity = true;
         }
@@ -53,7 +54,7 @@ namespace Tweezers.Api.Identity.Managers
         {
             TweezersObject rolesInitialSchema = Schemas.RolesMetaJson.Deserialize<TweezersObject>();
 
-            IEnumerable<TweezersObject> additionalInternalSchemas = new[] {rolesInitialSchema};
+            IEnumerable<TweezersObject> additionalInternalSchemas = new[] {rolesInitialSchema, CreateUsersSchema()};
 
             if (SchemaManagement.CanChangeSchema)
             {
@@ -161,8 +162,8 @@ namespace Tweezers.Api.Identity.Managers
             {
                 Predicate = (u) =>
                 {
-                    bool sessionIdEq = u[SessionIdKey].ToString().Equals(sessionId);
-                    var sessionExpiryTime = long.Parse(u[SessionExpiryKey].ToString());
+                    bool sessionIdEq = u[SessionIdKey]?.ToString().Equals(sessionId) ?? false;
+                    var sessionExpiryTime = long.Parse(u[SessionExpiryKey]?.ToString() ?? "0");
                     var now = DateTime.Now.ToFileTimeUtc();
                     bool sessionExpiryOk = sessionExpiryTime > now;
                     return sessionIdEq && sessionExpiryOk;
@@ -173,6 +174,24 @@ namespace Tweezers.Api.Identity.Managers
             TweezersObject usersObjectMetadata = TweezersSchemaFactory.Find(UsersCollectionName, true, allFields);
             return usersObjectMetadata.FindInDb(TweezersSchemaFactory.DatabaseProxy, sessionIdPredicate, allFields)
                 ?.Items.SingleOrDefault();
+        }
+
+        public static JObject GetRoleById(string roleId)
+        {
+            TweezersObject rolesObj = TweezersSchemaFactory.Find(RolesSchemaName, true, true);
+            return rolesObj.GetById(TweezersSchemaFactory.DatabaseProxy, roleId, true);
+        }
+
+        public static TweezersMultipleResults<JObject> GetUsersByRoleId(string roleId)
+        {
+            FindOptions<JObject> sessionIdPredicate = new FindOptions<JObject>()
+            {
+                Predicate = (u) => u["roleId"].ToString().Equals(roleId, StringComparison.InvariantCultureIgnoreCase),
+                Take = 1,
+            };
+
+            TweezersObject usersObjectMetadata = TweezersSchemaFactory.Find(UsersCollectionName, true);
+            return usersObjectMetadata.FindInDb(TweezersSchemaFactory.DatabaseProxy, sessionIdPredicate, true);
         }
     }
 }

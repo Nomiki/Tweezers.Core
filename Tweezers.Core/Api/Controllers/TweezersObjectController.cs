@@ -20,60 +20,59 @@ namespace Tweezers.Api.Controllers
         [HttpGet("tweezers-schema")]
         public ActionResult<TweezersMultipleResults<TweezersObject>> List([FromQuery] bool internalObj)
         {
-            if (!IsSessionValid())
-                return TweezersUnauthorized();
-
-            IEnumerable<TweezersObject> allMetadata = TweezersSchemaFactory.GetAll(includeInternal: internalObj);
-
-            if (SchemaManagement.CanChangeSchema && internalObj)
+            return WrapWithAuthorizationCheck(() =>
             {
-                allMetadata = allMetadata.Concat(new[] { SchemaManagement.SchemaMetadata });
-            }
+                IEnumerable<TweezersObject> allMetadata = TweezersSchemaFactory.GetAll(includeInternal: internalObj);
 
-            return TweezersOk(TweezersMultipleResults<TweezersObject>.Create(allMetadata));
+                if (SchemaManagement.CanChangeSchema && internalObj)
+                {
+                    allMetadata = allMetadata.Concat(new[] {SchemaManagement.SchemaMetadata});
+                }
+
+                return TweezersOk(TweezersMultipleResults<TweezersObject>.Create(allMetadata));
+            }, "List", DefaultPermission.None, TweezersSchemaKey);
         }
 
         [HttpGet("tweezers-schema/{collectionName}")]
         public ActionResult<TweezersObject> Get(string collectionName, [FromQuery] bool internalObj)
         {
-            if (!IsSessionValid())
-                return TweezersUnauthorized();
-
-            if (collectionName == TweezersSchemaKey && SchemaManagement.CanChangeSchema)
+            return WrapWithAuthorizationCheck(() =>
             {
-                return TweezersOk(SchemaManagement.SchemaMetadata);
-            }
+                if (collectionName == TweezersSchemaKey && SchemaManagement.CanChangeSchema)
+                {
+                    return TweezersOk(SchemaManagement.SchemaMetadata);
+                }
 
-            try
-            {
-                TweezersObject objectMetadata =
-                    TweezersSchemaFactory.Find(collectionName, withInternalObjects: internalObj);
+                try
+                {
+                    TweezersObject objectMetadata =
+                        TweezersSchemaFactory.Find(collectionName, withInternalObjects: internalObj);
 
-                return TweezersOk(objectMetadata);
-            }
-            catch (TweezersValidationException e)
-            {
-                return TweezersBadRequest(e.Message);
-                //return TweezersNotFound();
-            }
+                    return TweezersOk(objectMetadata);
+                }
+                catch (TweezersValidationException e)
+                {
+                    return TweezersBadRequest(e.Message);
+                }
+            }, "Get", DefaultPermission.None, TweezersSchemaKey);
         }
 
         [HttpPost("tweezers-schema")]
         public ActionResult<TweezersObject> Post([FromBody] TweezersObject data)
         {
-            if (!IsSessionValid())
-                return TweezersUnauthorized();
-
-            try
+            return WrapWithAuthorizationCheck(() =>
             {
-                TweezersObject obj = ReplaceTweezersObject(data);
-                IdentityManager.AppendNewPermission(obj);
-                return TweezersCreated(obj);
-            }
-            catch (TweezersValidationException e)
-            {
-                return TweezersBadRequest(e.Message);
-            }
+                try
+                {
+                    TweezersObject obj = ReplaceTweezersObject(data);
+                    IdentityManager.AppendNewPermission(obj);
+                    return TweezersCreated(obj);
+                }
+                catch (TweezersValidationException e)
+                {
+                    return TweezersBadRequest(e.Message);
+                }
+            }, "Post", DefaultPermission.Edit, TweezersSchemaKey);
         }
 
         private static TweezersObject ReplaceTweezersObject(TweezersObject data)
@@ -84,7 +83,7 @@ namespace Tweezers.Api.Controllers
             dataAsJObject["fields"] = JArray.FromObject(
                 data.Fields.Select(kvp => JObject.FromObject(kvp.Value.FieldProperties, Serializer.JsonSerializer)));
 
-            TweezersValidationResult validationResult = 
+            TweezersValidationResult validationResult =
                 SchemaManagement.SchemaMetadata.Validate(dataAsJObject, false);
 
             TweezersSchemaFactory.AddObject(data);
@@ -95,34 +94,34 @@ namespace Tweezers.Api.Controllers
         [HttpPatch("tweezers-schema/{collectionName}")]
         public ActionResult<TweezersObject> Patch(string collectionName, [FromBody] TweezersObject data)
         {
-            if (!IsSessionValid())
-                return TweezersUnauthorized();
-
-            if (collectionName == TweezersSchemaKey)
-                return TweezersNotFound();
-
-            try
+            return WrapWithAuthorizationCheck(() =>
             {
-                data.CollectionName = collectionName;
-                TweezersObject obj = ReplaceTweezersObject(data);
-                IdentityManager.EditPermissionName(obj);
-                return TweezersOk(obj);
-            }
-            catch (TweezersValidationException e)
-            {
-                return TweezersBadRequest(e.Message);
-            }
+                if (collectionName == TweezersSchemaKey)
+                    return TweezersNotFound();
+
+                try
+                {
+                    data.CollectionName = collectionName;
+                    TweezersObject obj = ReplaceTweezersObject(data);
+                    IdentityManager.EditPermissionName(obj);
+                    return TweezersOk(obj);
+                }
+                catch (TweezersValidationException e)
+                {
+                    return TweezersBadRequest(e.Message);
+                }
+            }, "Patch", DefaultPermission.Edit, TweezersSchemaKey);
         }
 
         [HttpDelete("tweezers-schema/{collectionName}")]
         public ActionResult<bool> Delete(string collectionName)
         {
-            if (!IsSessionValid())
-                return TweezersUnauthorized();
-
-            bool deleted = TweezersSchemaFactory.DeleteObject(collectionName);
-            IdentityManager.DeletePermission(collectionName);
-            return TweezersOk();
+            return WrapWithAuthorizationCheck(() =>
+            {
+                bool deleted = TweezersSchemaFactory.DeleteObject(collectionName);
+                IdentityManager.DeletePermission(collectionName);
+                return TweezersOk();
+            }, "Delete", DefaultPermission.Edit, TweezersSchemaKey);
         }
     }
 }

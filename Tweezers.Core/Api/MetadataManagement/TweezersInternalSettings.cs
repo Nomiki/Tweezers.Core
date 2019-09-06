@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using Tweezers.Api.Identity.Controllers;
 using Tweezers.Api.Identity.DataHolders;
 using Tweezers.Api.Identity.Managers;
@@ -45,10 +46,21 @@ namespace Tweezers.Api.MetadataManagement
                     IdentityManager.RegisterIdentity();
                     if (!TweezersRuntimeSettings.Instance.IsInitialized)
                     {
-                        UsersController.CreateUser(new LoginRequest()
+                        string username = internalSettings.AppDetails.InitialUsername;
+                        JObject user = UsersController.FindUser(username);
+                        if (user != null)
                         {
-                            Username = internalSettings.AppDetails.InitialUsername,
-                            Password = internalSettings.AppDetails.InitialPassword
+                            TweezersObject usersObjectMetadata = TweezersSchemaFactory.Find(IdentityManager.UsersCollectionName,
+                                true, true);
+                            usersObjectMetadata.Delete(TweezersSchemaFactory.DatabaseProxy, user["_id"].ToString());
+                        }
+
+                        UsersController.CreateUser(new CreateUserRequest()
+                        {
+                            Username = username,
+                            Password = internalSettings.AppDetails.InitialPassword,
+                            Name = "Administrator",
+                            RoleId = Schemas.AdministratorRoleTemplate.Deserialize<JObject>()["_id"].ToString(),
                         });
                     }
                 }

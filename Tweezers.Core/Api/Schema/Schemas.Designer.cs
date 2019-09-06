@@ -98,8 +98,7 @@ namespace Tweezers.Api.Schema {
         ///        &quot;required&quot;: true
         ///      }
         ///    },
-        ///    &quot;name&quot;: {
-        ///      &quot;fieldProper [rest of string was truncated]&quot;;.
+        ///    &quot;name&quot; [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string IdentityMetaJson {
             get {
@@ -141,13 +140,14 @@ namespace Tweezers.Api.Schema {
         ///        &quot;fieldType&quot;: &quot;String&quot;,
         ///        &quot;min&quot;: 1,
         ///        &quot;max&quot;: 50,
-        ///        &quot;required&quot;: true
+        ///        &quot;required&quot;: true,
+        ///        &quot;uiTitle&quot;: true,
         ///      }
         ///    },
         ///    &quot;description&quot;: {
         ///      &quot;fieldProperties&quot;: {
         ///        &quot;name&quot;: &quot;description&quot;,
-        ///        &quot;displayName&quot;: &quot;Role [rest of string was truncated]&quot;;.
+        ///  [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string RolesMetaJson {
             get {
@@ -208,8 +208,7 @@ namespace Tweezers.Api.Schema {
         ///        &quot;required&quot;: true
         ///      }
         ///    },
-        ///    &quot;name&quot;: {
-        ///      &quot;fieldProper [rest of string was truncated]&quot;;.
+        ///    &quot;name&quot; [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string UserExternalSchema {
             get {

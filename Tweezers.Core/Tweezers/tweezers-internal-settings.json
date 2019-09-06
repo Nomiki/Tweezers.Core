@@ -1,13 +1,13 @@
 {
   "appDetails": {
     "canChangeSchema": true,
-    "title": "Acme Inc.",
+    "title": "Acme inc.",
     "initialUsername": "admin",
     "initialPassword": "Meow1234"
   },
   "dbDetails": {
     "host": "localhost",
-    "port": 27017,
+    "port": 0,
     "dbName": "acme",
     "username": "",
     "password": "",

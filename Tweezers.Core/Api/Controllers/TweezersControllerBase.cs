@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Net;
 using System.Threading;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json.Linq;
@@ -20,141 +21,142 @@ namespace Tweezers.Api.Controllers
         #region Pseudo Routes
 
         protected ActionResult<TweezersMultipleResults<JObject>> List(string collection,
-            int skip = 0, int take = 10, string sortField = "", string direction = "asc")
+            int skip = 0, int take = 10, string sortField = "", string direction = "asc",
+            DefaultPermission? minimalPermission = null)
         {
-            try
-            {
-                if (!IsSessionValid())
-                    return TweezersUnauthorized();
-
-                Thread.Sleep(500);
-
-                FindOptions<JObject> predicate = new FindOptions<JObject>()
+            return WrapWithAuthorizationCheck(() =>
                 {
-                    Skip = skip,
-                    Take = take,
-                    SortField = sortField,
-                    SortDirection = direction == "asc" ? SortDirection.Ascending : SortDirection.Descending,
-                };
+                    try
+                    {
+                        Thread.Sleep(500);
 
-                TweezersObject objectMetadata = TweezersSchemaFactory.Find(collection, WithInternalObjects);
-                TweezersMultipleResults<JObject> results =
-                    objectMetadata.FindInDb(TweezersSchemaFactory.DatabaseProxy, predicate);
-                return TweezersOk(results);
-            }
-            catch (TweezersValidationException)
-            {
-                return TweezersNotFound();
-            }
+                        FindOptions<JObject> predicate = new FindOptions<JObject>()
+                        {
+                            Skip = skip,
+                            Take = take,
+                            SortField = sortField,
+                            SortDirection = direction == "asc" ? SortDirection.Ascending : SortDirection.Descending,
+                        };
+
+                        TweezersObject objectMetadata = TweezersSchemaFactory.Find(collection, WithInternalObjects);
+                        TweezersMultipleResults<JObject> results =
+                            objectMetadata.FindInDb(TweezersSchemaFactory.DatabaseProxy, predicate);
+                        return TweezersOk(results);
+                    }
+                    catch (TweezersValidationException)
+                    {
+                        return TweezersNotFound();
+                    }
+                }, "List", minimalPermission ?? DefaultPermission.View, collection);
         }
 
-        protected ActionResult<JObject> Get(string collection, string id)
+        protected ActionResult<JObject> Get(string collection, string id, DefaultPermission? minimalPermission = null)
         {
-            try
-            {
-                if (!IsSessionValid())
-                    return TweezersUnauthorized();
-
-                Thread.Sleep(500);
-
-                TweezersObject objectMetadata = TweezersSchemaFactory.Find(collection, WithInternalObjects);
-                JObject obj = objectMetadata.GetById(TweezersSchemaFactory.DatabaseProxy, id);
-                if (obj == null)
-                    return TweezersNotFound();
-
-                return TweezersOk(obj);
-            }
-            catch (TweezersValidationException)
-            {
-                return TweezersNotFound();
-            }
-        }
-
-        protected ActionResult<JObject> Post(string collection, JObject data, string suggestedId = null)
-        {
-            try
-            {
-                if (!IsSessionValid())
-                    return TweezersUnauthorized();
-
-
-                TweezersObject objectMetadata = TweezersSchemaFactory.Find(collection, WithInternalObjects);
-                objectMetadata.Validate(data, false);
-                JObject createdObj = objectMetadata.Create(TweezersSchemaFactory.DatabaseProxy, data, suggestedId);
-                return TweezersCreated(createdObj);
-            }
-            catch (TweezersValidationException e)
-            {
-                return TweezersForbidden("create", e.Message);
-            }
-        }
-
-        protected ActionResult<JObject> Patch(string collection, string id, JObject data)
-        {
-            try
-            {
-                if (!IsSessionValid())
-                    return TweezersUnauthorized();
-
-
-                TweezersObject objectMetadata = TweezersSchemaFactory.Find(collection, WithInternalObjects);
-                JObject obj = objectMetadata.GetById(TweezersSchemaFactory.DatabaseProxy, id);
-                if (obj == null)
-                    return TweezersNotFound();
-
-                objectMetadata.Validate(data, true);
-                JObject updatedObj = objectMetadata.Update(TweezersSchemaFactory.DatabaseProxy, id, data);
-                return TweezersOk(updatedObj);
-            }
-            catch (TweezersValidationException e)
-            {
-                return TweezersBadRequest(e.Message);
-            }
-        }
-
-        protected ActionResult<JObject> Delete(string collection, string id)
-        {
-            try
-            {
-                if (!IsSessionValid())
-                    return TweezersUnauthorized();
-
-
-                TweezersObject objectMetadata = TweezersSchemaFactory.Find(collection, WithInternalObjects);
-                if (objectMetadata.GetById(TweezersSchemaFactory.DatabaseProxy, id) == null)
+            return WrapWithAuthorizationCheck(() =>
                 {
-                    return TweezersOk(TweezersGeneralResponse.Create("Deleted"));
-                }
+                    try
+                    {
+                        Thread.Sleep(500);
 
-                bool deleted = objectMetadata.Delete(TweezersSchemaFactory.DatabaseProxy, id);
-                return TweezersOk();
-            }
-            catch (TweezersValidationException e)
-            {
-                return TweezersBadRequest(e.Message);
-            }
+                        TweezersObject objectMetadata = TweezersSchemaFactory.Find(collection, WithInternalObjects);
+                        JObject obj = objectMetadata.GetById(TweezersSchemaFactory.DatabaseProxy, id);
+                        if (obj == null)
+                            return TweezersNotFound();
+
+                        return TweezersOk(obj);
+                    }
+                    catch (TweezersValidationException)
+                    {
+                        return TweezersNotFound();
+                    }
+                }, "Get", minimalPermission ?? DefaultPermission.View, collection);
+        }
+
+        protected ActionResult<JObject> Post(string collection, JObject data, string suggestedId = null,
+            DefaultPermission? minimalPermission = null)
+        {
+            return WrapWithAuthorizationCheck(() =>
+                {
+                    try
+                    {
+                        TweezersObject objectMetadata = TweezersSchemaFactory.Find(collection, WithInternalObjects);
+                        objectMetadata.Validate(data, false);
+                        JObject createdObj =
+                            objectMetadata.Create(TweezersSchemaFactory.DatabaseProxy, data, suggestedId);
+                        return TweezersCreated(createdObj);
+                    }
+                    catch (TweezersValidationException e)
+                    {
+                        return TweezersBadRequest(e.Message);
+                    }
+                }, "Post", minimalPermission ?? DefaultPermission.Edit, collection);
+        }
+
+        protected ActionResult<JObject> Patch(string collection, string id, JObject data,
+            DefaultPermission? minimalPermission = null)
+        {
+            return WrapWithAuthorizationCheck(() =>
+                {
+                    try
+                    {
+                        TweezersObject objectMetadata = TweezersSchemaFactory.Find(collection, WithInternalObjects);
+                        JObject obj = objectMetadata.GetById(TweezersSchemaFactory.DatabaseProxy, id);
+                        if (obj == null)
+                            return TweezersNotFound();
+
+                        objectMetadata.Validate(data, true);
+                        JObject updatedObj = objectMetadata.Update(TweezersSchemaFactory.DatabaseProxy, id, data);
+                        return TweezersOk(updatedObj);
+                    }
+                    catch (TweezersValidationException e)
+                    {
+                        return TweezersBadRequest(e.Message);
+                    }
+                }, "Patch", minimalPermission ?? DefaultPermission.Edit, collection);
+        }
+
+        protected ActionResult<JObject> Delete(string collection, string id, DefaultPermission? minimalPermission = null)
+        {
+            return WrapWithAuthorizationCheck(() =>
+                {
+                    try
+                    {
+                        TweezersObject objectMetadata = TweezersSchemaFactory.Find(collection, WithInternalObjects);
+                        if (objectMetadata.GetById(TweezersSchemaFactory.DatabaseProxy, id) == null)
+                        {
+                            return TweezersOk(TweezersGeneralResponse.Create("Deleted"));
+                        }
+
+                        bool deleted = objectMetadata.Delete(TweezersSchemaFactory.DatabaseProxy, id);
+                        return TweezersOk();
+                    }
+                    catch (TweezersValidationException e)
+                    {
+                        return TweezersBadRequest(e.Message);
+                    }
+                }, "Delete", minimalPermission ?? DefaultPermission.Edit, collection);
         }
 
         #endregion
 
         protected ActionResult TweezersForbidden(string method, string message)
         {
-            return StatusCode(403, new TweezersErrorBody() { Message = message, Method = method });
+            return StatusCode(403, new TweezersErrorBody() {Message = message, Method = method});
         }
 
         protected ActionResult TweezersNotFound()
         {
-            return StatusCode(404, new TweezersErrorBody() { Message = "Not found." });
+            return StatusCode(404, new TweezersErrorBody() {Message = "Not found."});
         }
 
         protected ActionResult TweezersBadRequest(string message)
         {
-            return StatusCode(400, new TweezersErrorBody() { Message = message });
+            return StatusCode(400, new TweezersErrorBody() {Message = message});
         }
 
         protected ActionResult TweezersUnauthorized(string message = null)
         {
-            return StatusCode(401, new TweezersErrorBody() { Message = message ?? "Unauthorized" });
+            return StatusCode(401, new TweezersErrorBody() {Message = message ?? "Unauthorized"});
         }
 
         protected ActionResult TweezersOk(object obj = null)
@@ -177,22 +179,73 @@ namespace Tweezers.Api.Controllers
             return JObject.FromObject(obj, Serializer.JsonSerializer);
         }
 
-        protected bool IsSessionValid()
+        protected ActionResult WrapWithAuthorizationCheck(Func<ActionResult> internalLogic, string method,
+            DefaultPermission? minimalRequestedPermission = null, string collection = null)
         {
-            if (!IdentityManager.UsingIdentity)
-                return true;
+            HttpStatusCode userSessionStatusCode = CheckUserSession(minimalRequestedPermission, collection);
+            if (userSessionStatusCode == HttpStatusCode.Forbidden)
+            {
+                return TweezersForbidden(method, $"Access denied for {method}: {collection}");
+            }
 
-            if (!Request.Headers.ContainsKey(IdentityManager.SessionIdKey))
-                return false;
+            if (userSessionStatusCode == HttpStatusCode.Unauthorized)
+            {
+                return TweezersUnauthorized();
+            }
 
+            return internalLogic.Invoke();
+        }
+
+        private HttpStatusCode CheckUserSession(DefaultPermission? minimalRequestedPermission = null,
+            string collection = null)
+        {
+            HttpStatusCode sessionValidity = CheckSessionValidity(out var user);
+            if (sessionValidity == HttpStatusCode.OK && user != null)
+            {
+                return CheckRoleValidity(minimalRequestedPermission, collection, user);
+            }
+
+            return sessionValidity;
+        }
+
+        private static HttpStatusCode CheckRoleValidity(DefaultPermission? minimalRequestedPermission,
+            string collection,
+            JObject user)
+        {
             try
             {
-                JObject user = GetUserBySessionId();
-                return user != null;
+                if (minimalRequestedPermission == null || minimalRequestedPermission == DefaultPermission.None)
+                    return HttpStatusCode.OK;
+
+                JObject role = IdentityManager.GetRoleById(user["roleId"].ToString());
+                int userPermissionLevel = (int) Enum.Parse(typeof(DefaultPermission),
+                    role["permissions"][collection].ToString(), true);
+                bool roleValid = userPermissionLevel >= (int) minimalRequestedPermission;
+                return roleValid ? HttpStatusCode.OK : HttpStatusCode.Forbidden;
             }
             catch (Exception)
             {
-                return false;
+                return HttpStatusCode.Forbidden;
+            }
+        }
+
+        private HttpStatusCode CheckSessionValidity(out JObject user)
+        {
+            user = null;
+            if (!IdentityManager.UsingIdentity)
+                return HttpStatusCode.OK;
+
+            if (!Request.Headers.ContainsKey(IdentityManager.SessionIdKey))
+                return HttpStatusCode.Unauthorized;
+
+            try
+            {
+                user = GetUserBySessionId();
+                return user == null ? HttpStatusCode.Unauthorized : HttpStatusCode.OK;
+            }
+            catch (Exception)
+            {
+                return HttpStatusCode.Unauthorized;
             }
         }
 
