@@ -254,7 +254,6 @@ namespace Tweezers.Api.Identity.Controllers
 
                 return DoChangePassword(user, changePasswordRequest);
             }, "Reset Password", DefaultPermission.None);
-
         }
 
         private ActionResult DoChangePassword(JObject user, ChangePasswordRequest changePasswordRequest)

@@ -6,7 +6,6 @@ namespace Tweezers.Schema.Validators
     {
         private NotNullValidator()
         {
-
         }
 
         public static NotNullValidator Create()
