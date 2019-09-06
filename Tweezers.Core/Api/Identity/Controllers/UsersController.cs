@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json.Linq;
 using Tweezers.Api.Common;
 using Tweezers.Api.Controllers;
+using Tweezers.Api.DataHolders;
 using Tweezers.Api.Identity.DataHolders;
 using Tweezers.Api.Identity.HashUtils;
 using Tweezers.Api.Identity.Managers;
@@ -30,103 +31,112 @@ namespace Tweezers.Api.Identity.Controllers
             UsersLoginSchema = Schemas.UserExternalSchema.Deserialize<TweezersObject>();
         }
 
-        private readonly string[] _loginResponseBody = 
+        private readonly string[] _loginResponseBody =
             {"username", IdentityManager.SessionIdKey, IdentityManager.SessionExpiryKey, "name"};
 
         [HttpGet("tweezers-schema/tweezers-users")]
         public ActionResult<TweezersObject> GetUsersSchema()
         {
-            return IsSessionValid()
-                ? TweezersOk(UsersLoginSchema) 
-                : TweezersNotFound();
+            if (!IdentityManager.UsingIdentity)
+                return TweezersNotFound();
+
+            return WrapWithAuthorizationCheck(() => TweezersOk(UsersLoginSchema), "Get", DefaultPermission.View,
+                IdentityManager.UsersCollectionName);
         }
 
         [HttpPost("tweezers-users")]
-        public ActionResult<JObject> Post([FromBody] LoginRequest suggestedUser)
+        public ActionResult<JObject> Post([FromBody] CreateUserRequest suggestedUser)
         {
             if (!IdentityManager.UsingIdentity)
                 return TweezersNotFound();
 
-            if (!IsSessionValid())
-                return TweezersUnauthorized();
-
-            try
+            return WrapWithAuthorizationCheck(() =>
             {
-                if (FindUser(suggestedUser.Username) != null)
+                try
                 {
-                    throw new TweezersValidationException(TweezersValidationResult.Reject($"Unable to create user"));
-                }
+                    if (FindUser(suggestedUser.Username) != null)
+                    {
+                        throw new TweezersValidationException(
+                            TweezersValidationResult.Reject($"Unable to create user"));
+                    }
 
-                TweezersValidationResult passwordOk = UsersLoginSchema.Fields["password"].Validate(suggestedUser.Password);
-                if (!passwordOk.Valid)
-                {
-                    throw new TweezersValidationException(passwordOk);
-                }
-
-                JObject user = CreateUser(suggestedUser);
-                return TweezersOk(user);
-            }
-            catch (TweezersValidationException e)
-            {
-                return TweezersBadRequest(e.Message);
-            }
-        }
-
-        [HttpPatch("tweezers-users/{id}")]
-        public ActionResult<JObject> Patch(string id, [FromBody] LoginRequest patchRequest)
-        {
-            if (!IdentityManager.UsingIdentity)
-                return TweezersNotFound();
-
-            if (!IsSessionValid())
-                return TweezersUnauthorized();
-
-            try
-            {
-                if (FindUser(patchRequest.Username) == null)
-                {
-                    throw new TweezersValidationException(TweezersValidationResult.Reject($"Unable to find user"));
-                }
-
-                JObject userJObject = JObject.FromObject(patchRequest, Serializer.JsonSerializer);
-                if (patchRequest.Password != null)
-                {
                     TweezersValidationResult passwordOk =
-                        UsersLoginSchema.Fields["password"].Validate(patchRequest.Password);
+                        UsersLoginSchema.Fields["password"].Validate(suggestedUser.Password);
                     if (!passwordOk.Valid)
                     {
                         throw new TweezersValidationException(passwordOk);
                     }
 
-                    userJObject["passwordHash"] = Hash.Create(patchRequest.Password);
+                    JObject user = CreateUser(suggestedUser);
+                    return TweezersOk(user);
                 }
-
-                TweezersObject usersObjectMetadata = TweezersSchemaFactory.Find
-                    (IdentityManager.UsersCollectionName, true, true);
-                JObject user = usersObjectMetadata.Update(TweezersSchemaFactory.DatabaseProxy, id, userJObject);
-                return TweezersOk(user);
-            }
-            catch (TweezersValidationException e)
-            {
-                return TweezersBadRequest(e.Message);
-            }
+                catch (TweezersValidationException e)
+                {
+                    return TweezersBadRequest(e.Message);
+                }
+            }, "Post", DefaultPermission.Edit, IdentityManager.UsersCollectionName);
         }
 
-        public static JObject CreateUser(LoginRequest suggestedUser)
+        [HttpPatch("tweezers-users/{id}")]
+        public ActionResult<JObject> Patch(string id, [FromBody] CreateUserRequest patchRequest)
+        {
+            if (!IdentityManager.UsingIdentity)
+                return TweezersNotFound();
+
+            return WrapWithAuthorizationCheck(() =>
+            {
+                try
+                {
+                    if (FindUser(patchRequest.Username) == null)
+                    {
+                        throw new TweezersValidationException(TweezersValidationResult.Reject($"Unable to find user"));
+                    }
+
+                    JObject userJObject = JObject.FromObject(patchRequest, Serializer.JsonSerializer);
+                    if (patchRequest.Password != null)
+                    {
+                        TweezersValidationResult passwordOk =
+                            UsersLoginSchema.Fields["password"].Validate(patchRequest.Password);
+                        if (!passwordOk.Valid)
+                        {
+                            throw new TweezersValidationException(passwordOk);
+                        }
+
+                        userJObject["passwordHash"] = Hash.Create(patchRequest.Password);
+                    }
+
+                    TweezersObject usersObjectMetadata = TweezersSchemaFactory.Find
+                        (IdentityManager.UsersCollectionName, true, true);
+                    JObject user = usersObjectMetadata.Update(TweezersSchemaFactory.DatabaseProxy, id, userJObject);
+                    return TweezersOk(user);
+                }
+                catch (TweezersValidationException e)
+                {
+                    return TweezersBadRequest(e.Message);
+                }
+            }, "Patch", DefaultPermission.Edit, IdentityManager.UsersCollectionName);
+        }
+
+        public static JObject CreateUser(CreateUserRequest suggestedUser)
         {
             JObject user = new JObject
             {
                 ["username"] = suggestedUser.Username,
-                ["passwordHash"] = Hash.Create(suggestedUser.Password)
+                ["passwordHash"] = Hash.Create(suggestedUser.Password),
+                ["name"] = suggestedUser.Name,
+                ["roleId"] = suggestedUser.RoleId,
             };
 
-            TweezersObject usersObjectMetadata = TweezersSchemaFactory.Find(IdentityManager.UsersCollectionName, true, true);
+            TweezersObject usersObjectMetadata =
+                TweezersSchemaFactory.Find(IdentityManager.UsersCollectionName, true, true);
+            usersObjectMetadata.Validate(user, false);
             user = usersObjectMetadata.Create(TweezersSchemaFactory.DatabaseProxy, user, suggestedUser.Username);
             return user;
         }
 
         [HttpGet("tweezers-users")]
-        public ActionResult<TweezersMultipleResults<JObject>> List([FromQuery] int skip = 0, [FromQuery] int take = 10, [FromQuery] string sortField = "", [FromQuery] string direction = "asc")
+        public ActionResult<TweezersMultipleResults<JObject>> List([FromQuery] int skip = 0, [FromQuery] int take = 10,
+            [FromQuery] string sortField = "", [FromQuery] string direction = "asc")
         {
             if (!IdentityManager.UsingIdentity)
                 return TweezersNotFound();
@@ -164,7 +174,8 @@ namespace Tweezers.Api.Identity.Controllers
                     usersObjectMetadata.Update(TweezersSchemaFactory.DatabaseProxy, user["_id"].ToString(),
                         user.Just(IdentityManager.SessionIdKey, IdentityManager.SessionExpiryKey));
 
-                    return TweezersOk(user.Just(_loginResponseBody)).WithSecureCookie(Response, IdentityManager.SessionIdKey, sessionId);
+                    return TweezersOk(user.Just(_loginResponseBody))
+                        .WithSecureCookie(Response, IdentityManager.SessionIdKey, sessionId);
                 }
 
                 return TweezersUnauthorized("Bad username or password");
@@ -225,41 +236,28 @@ namespace Tweezers.Api.Identity.Controllers
             if (!IdentityManager.UsingIdentity)
                 return TweezersNotFound();
 
-            if (!IsSessionValid())
-                return TweezersUnauthorized();
-
-            JObject user = IdentityManager.FindUserBySessionId(Request.Headers[IdentityManager.SessionIdKey], allFields: true);
-
-            bool oldPasswordOk = ValidatePassword(changePasswordRequest.OldPassword, user["passwordHash"].ToString());
-            if (!oldPasswordOk || changePasswordRequest.NewPassword != changePasswordRequest.ConfirmNewPassword)
+            return WrapWithAuthorizationCheck(() =>
             {
-                return TweezersBadRequest("Passwords do not match");
-            }
+                JObject user =
+                    IdentityManager.FindUserBySessionId(Request.Headers[IdentityManager.SessionIdKey], allFields: true);
 
-            if (changePasswordRequest.OldPassword == changePasswordRequest.NewPassword)
-            {
-                return TweezersBadRequest("Old and new passwords are the same.");
-            }
+                bool oldPasswordOk = ValidatePassword(changePasswordRequest.OldPassword, user["passwordHash"].ToString());
+                if (!oldPasswordOk || changePasswordRequest.NewPassword != changePasswordRequest.ConfirmNewPassword)
+                {
+                    return TweezersBadRequest("Passwords do not match");
+                }
 
-            return DoChangePassword(user, changePasswordRequest);
+                if (changePasswordRequest.OldPassword == changePasswordRequest.NewPassword)
+                {
+                    return TweezersBadRequest("Old and new passwords are the same.");
+                }
+
+                return DoChangePassword(user, changePasswordRequest);
+            }, "Reset Password", DefaultPermission.None);
+
         }
 
-        [HttpPost("tweezers-users/{username}/change-password")]
-        public ActionResult<bool> ChangePassword(string username, [FromBody] ChangePasswordRequest changePasswordRequest)
-        {
-            if (!IdentityManager.UsingIdentity)
-                return TweezersNotFound();
-
-            if (!IsSessionValid())
-                return TweezersUnauthorized();
-
-            JObject user = FindUser(username);
-            return user == null 
-                ? TweezersNotFound() 
-                : DoChangePassword(user, changePasswordRequest);
-        }
-
-        private ActionResult<bool> DoChangePassword(JObject user, ChangePasswordRequest changePasswordRequest)
+        private ActionResult DoChangePassword(JObject user, ChangePasswordRequest changePasswordRequest)
         {
             JObject passwordChange = new JObject()
             {
@@ -268,11 +266,12 @@ namespace Tweezers.Api.Identity.Controllers
 
             try
             {
-                TweezersObject usersObjectMetadata = TweezersSchemaFactory.Find(IdentityManager.UsersCollectionName, true);
+                TweezersObject usersObjectMetadata =
+                    TweezersSchemaFactory.Find(IdentityManager.UsersCollectionName, true);
                 usersObjectMetadata.Update(TweezersSchemaFactory.DatabaseProxy, user["_id"].ToString(),
                     passwordChange);
 
-                return TweezersOk(true);
+                return TweezersOk(TweezersGeneralResponse.Create("OK"));
             }
             catch
             {
@@ -295,7 +294,7 @@ namespace Tweezers.Api.Identity.Controllers
             return passwordValidated;
         }
 
-        private JObject FindUser(string username)
+        public static JObject FindUser(string username)
         {
             FindOptions<JObject> userOpts = new FindOptions<JObject>()
             {
@@ -303,8 +302,10 @@ namespace Tweezers.Api.Identity.Controllers
                 Take = 1
             };
 
-            TweezersObject usersObjectMetadata = TweezersSchemaFactory.Find(IdentityManager.UsersCollectionName, true, true);
-            return usersObjectMetadata.FindInDb(TweezersSchemaFactory.DatabaseProxy, userOpts, true)?.Items.SingleOrDefault();
+            TweezersObject usersObjectMetadata =
+                TweezersSchemaFactory.Find(IdentityManager.UsersCollectionName, true, true);
+            return usersObjectMetadata.FindInDb(TweezersSchemaFactory.DatabaseProxy, userOpts, true)?.Items
+                .SingleOrDefault();
         }
 
         private bool ValidatePassword(string requestPassword, string userPasswordHash)

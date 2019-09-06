@@ -6,8 +6,8 @@ namespace Tweezers.Schema.DataHolders
     [JsonConverter(typeof(StringEnumConverter))]
     public enum DefaultPermission
     {
-        None,
-        View,
-        Edit
+        None = 0,
+        View = 1,
+        Edit = 2,
     }
 }

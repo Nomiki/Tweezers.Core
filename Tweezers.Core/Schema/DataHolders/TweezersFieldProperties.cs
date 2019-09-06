@@ -127,13 +127,13 @@ namespace Tweezers.Schema.DataHolders
                 }
                 else if (ObjectName != null)
                 {
-                    TweezersObject objectReference = TweezersSchemaFactory.Find(ObjectName);
+                    TweezersObject objectReference = TweezersSchemaFactory.Find(ObjectName, true, true, true);
                     if (objectReference == null)
                     {
                         throw new ArgumentException($"Could not find Tweezers Object {ObjectName}");
                     }
 
-                    validators.Add(TweezersObjectValidator.Create(objectReference));
+                    // TODO
                 }
                 else
                 {
@@ -178,7 +178,7 @@ namespace Tweezers.Schema.DataHolders
                     case TweezersFieldType.Boolean:
                         return TypeValidator<bool>.Create();
                     case TweezersFieldType.Object:
-                        return TypeValidator<JObject>.Create();
+                        return ObjectName != null ? (IValidator)TypeValidator<string>.Create() : TypeValidator<JObject>.Create();
                     case TweezersFieldType.Array:
                         return TypeValidator<JArray>.Create();
                     case TweezersFieldType.TagsArray:

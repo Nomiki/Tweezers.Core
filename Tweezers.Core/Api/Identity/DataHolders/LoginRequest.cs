@@ -1,6 +1,6 @@
 ﻿namespace Tweezers.Api.Identity.DataHolders
 {
-    public sealed class LoginRequest
+    public class LoginRequest
     {
         public string Username { get; set; }
 
