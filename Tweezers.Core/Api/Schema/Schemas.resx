@@ -379,7 +379,8 @@
                     "String",
                     "Boolean",
                     "Password",
-                    "TagsArray"
+                    "TagsArray",
+                    "Object"
                   ]
                 }
               },
@@ -424,6 +425,14 @@
                   "name": "possibleValues",
                   "displayName": "Possible Values",
                   "fieldType": "TagsArray"
+                }
+              },
+              "objectName": {
+                "fieldProperties": {
+                  "name": "objectName",
+                  "displayName": "Object Name",
+                  "fieldType": "Enum",
+                  "possibleValues": []
                 }
               },
               "required": {

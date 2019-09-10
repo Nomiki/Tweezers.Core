@@ -66,6 +66,7 @@ namespace Tweezers.Api.Controllers
                 {
                     TweezersObject obj = ReplaceTweezersObject(data);
                     IdentityManager.AppendNewPermission(obj);
+                    SchemaManagement.AddObjectReference(obj.CollectionName);
                     return TweezersCreated(obj);
                 }
                 catch (TweezersValidationException e)
@@ -120,6 +121,7 @@ namespace Tweezers.Api.Controllers
             {
                 bool deleted = TweezersSchemaFactory.DeleteObject(collectionName);
                 IdentityManager.DeletePermission(collectionName);
+                SchemaManagement.RemoveObjectReference(collectionName);
                 return TweezersOk();
             }, "Delete", DefaultPermission.Edit, TweezersSchemaKey);
         }
