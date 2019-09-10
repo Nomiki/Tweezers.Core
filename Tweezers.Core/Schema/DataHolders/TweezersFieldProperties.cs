@@ -146,11 +146,6 @@ namespace Tweezers.Schema.DataHolders
         {
             if (this.FieldType.Equals(TweezersFieldType.Enum))
             {
-                if (PossibleValues.Length == 0)
-                {
-                    throw new ArgumentException($"Enum field detected without any defined values.");
-                }
-
                 validators.Add(ValuesValidator.Create(PossibleValues));
             }
         }
