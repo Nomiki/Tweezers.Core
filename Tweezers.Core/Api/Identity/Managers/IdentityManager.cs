@@ -28,19 +28,23 @@ namespace Tweezers.Api.Identity.Managers
 
             var usersSchema = CreateUsersSchema();
 
-            SafeAddSchema(usersSchema);
-
+            SafeAddSchema(usersSchema, true);
             UsingIdentity = true;
         }
 
-        private static void SafeAddSchema(TweezersObject usersSchema)
+        private static void SafeAddSchema(TweezersObject schema, bool addPermission = false)
         {
-            if (TweezersSchemaFactory.Find(usersSchema.CollectionName, true, safe: true) == null)
-                TweezersSchemaFactory.AddObject(usersSchema);
+            if (TweezersSchemaFactory.Find(schema.CollectionName, true, safe: true) == null)
+            {
+                TweezersSchemaFactory.AddObject(schema);
+
+                if (addPermission)
+                    AppendNewPermission(schema);
+            }
             else
             {
-                TweezersSchemaFactory.DeleteObject(usersSchema.CollectionName);
-                TweezersSchemaFactory.AddObject(usersSchema);
+                TweezersSchemaFactory.DeleteObject(schema.CollectionName);
+                TweezersSchemaFactory.AddObject(schema);
             }
         }
 
@@ -53,7 +57,7 @@ namespace Tweezers.Api.Identity.Managers
         {
             TweezersObject rolesInitialSchema = Schemas.RolesMetaJson.Deserialize<TweezersObject>();
 
-            IEnumerable<TweezersObject> additionalInternalSchemas = new[] {rolesInitialSchema, CreateUsersSchema()};
+            IEnumerable<TweezersObject> additionalInternalSchemas = new[] {rolesInitialSchema};
 
             if (SchemaManagement.CanChangeSchema)
             {
