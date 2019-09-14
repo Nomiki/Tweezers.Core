@@ -95,10 +95,9 @@ namespace Tweezers.Api.Schema {
         ///        &quot;max&quot;: 50,
         ///        &quot;regex&quot;: &quot;^[A-Za-z\\d]+$&quot;,
         ///        &quot;uiTitle&quot;: true,
-        ///        &quot;required&quot;: true
-        ///      }
-        ///    },
-        ///    &quot;name&quot; [rest of string was truncated]&quot;;.
+        ///        &quot;required&quot;: true,
+        ///        &quot;orderNum&quot;: 0
+        ///    [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string IdentityMetaJson {
             get {
@@ -142,12 +141,12 @@ namespace Tweezers.Api.Schema {
         ///        &quot;max&quot;: 50,
         ///        &quot;required&quot;: true,
         ///        &quot;uiTitle&quot;: true,
+        ///        &quot;orderNum&quot;: 0
         ///      }
         ///    },
         ///    &quot;description&quot;: {
         ///      &quot;fieldProperties&quot;: {
-        ///        &quot;name&quot;: &quot;description&quot;,
-        ///  [rest of string was truncated]&quot;;.
+        ///        &quot;n [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string RolesMetaJson {
             get {
@@ -173,11 +172,11 @@ namespace Tweezers.Api.Schema {
         ///        &quot;min&quot;: 1,
         ///        &quot;max&quot;: 40,
         ///        &quot;required&quot;: true,
-        ///        &quot;idField&quot;: true
+        ///        &quot;idField&quot;: true,
+        ///        &quot;orderNum&quot;: 0
         ///      }
         ///    },
-        ///    &quot;singularName&quot;: {
-        ///      &quot;fieldPrope [rest of string was truncated]&quot;;.
+        ///    &quot;singularNam [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string SchemaMetaJson {
             get {
@@ -205,10 +204,9 @@ namespace Tweezers.Api.Schema {
         ///        &quot;max&quot;: 50,
         ///        &quot;regex&quot;: &quot;^[A-Za-z\\d]+$&quot;,
         ///        &quot;uiTitle&quot;: true,
-        ///        &quot;required&quot;: true
-        ///      }
-        ///    },
-        ///    &quot;name&quot; [rest of string was truncated]&quot;;.
+        ///        &quot;required&quot;: true,
+        ///        &quot;orderNum&quot;: 0
+        ///    [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string UserExternalSchema {
             get {

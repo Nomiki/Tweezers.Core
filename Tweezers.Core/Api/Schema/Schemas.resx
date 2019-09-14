@@ -146,7 +146,8 @@
         "max": 50,
         "regex": "^[A-Za-z\\d]+$",
         "uiTitle": true,
-        "required": true
+        "required": true,
+        "orderNum": 0
       }
     },
     "name": {
@@ -156,7 +157,8 @@
         "fieldType": "String",
         "min": 1,
         "max": 200,
-        "required": true
+        "required": true,
+        "orderNum": 1
       }
     },
     "passwordHash": {
@@ -190,7 +192,8 @@
         "displayName": "Role",
         "fieldType": "Object",
         "objectName": "tweezers-roles",
-        "required": true
+        "required": true,
+        "orderNum": 2
       }
     }
   }
@@ -226,6 +229,7 @@
         "max": 50,
         "required": true,
         "uiTitle": true,
+        "orderNum": 0
       }
     },
     "description": {
@@ -235,7 +239,8 @@
         "fieldType": "String",
         "min": 1,
         "max": 200,
-        "required": false
+        "required": false,
+        "orderNum": 1
       }
     },
     "isBuiltInRole": {
@@ -245,7 +250,8 @@
         "fieldType": "Boolean",
         "required": true,
         "uiIgnore": true,
-        "gridIgnore": true
+        "gridIgnore": true,
+        "orderNum": 2
       }
     },
     "permissions": {
@@ -255,6 +261,7 @@
         "fieldType": "Object",
         "required": true,
         "gridIgnore": true,
+        "orderNum": 3,
         "objectReference": {
           "collectionName": "tweezers_permissions",
           "displayNames": {
@@ -287,7 +294,8 @@
         "min": 1,
         "max": 40,
         "required": true,
-        "idField": true
+        "idField": true,
+        "orderNum": 0
       }
     },
     "singularName": {
@@ -297,7 +305,8 @@
         "fieldType": "String",
         "min": 1,
         "max": 50,
-        "required": true
+        "required": true,
+        "orderNum": 1
       }
     },
     "pluralName": {
@@ -308,7 +317,8 @@
         "min": 1,
         "max": 50,
         "required": true,
-        "uiTitle": true
+        "uiTitle": true,
+        "orderNum": 2
       }
     },
     "icon": {
@@ -318,7 +328,8 @@
         "fieldType": "String",
         "min": 1,
         "max": 50,
-        "required": true
+        "required": true,
+        "orderNum": 3
       }
     },
     "defaultPermission": {
@@ -327,7 +338,8 @@
         "displayName": "Default Permission",
         "fieldType": "Enum",
         "required": true,
-        "possibleValues": ["Edit", "View", "None"]
+        "possibleValues": ["Edit", "View", "None"],
+        "orderNum": 4
       }
     },
     "fields": {
@@ -337,6 +349,7 @@
         "fieldType": "Array",
         "required": true,
         "gridIgnore": true,
+        "orderNum": 5,
         "arrayFieldProperties": {
           "fieldType": "Object",
           "objectReference": {
@@ -466,6 +479,16 @@
                   "fieldType": "Boolean",
                   "required": true
                 }
+              },
+              "orderNum": {
+                "fieldProperties": {
+                  "name": "orderNum",
+                  "displayName": "Order",
+                  "fieldType": "Integer",
+                  "required": false,
+                  "uiIgnore": true,
+                  "gridIgnore": true
+                }
               }
             }
           }
@@ -495,7 +518,8 @@
         "max": 50,
         "regex": "^[A-Za-z\\d]+$",
         "uiTitle": true,
-        "required": true
+        "required": true,
+        "orderNum": 0
       }
     },
     "name": {
@@ -505,7 +529,8 @@
         "fieldType": "String",
         "min": 1,
         "max": 200,
-        "required": true
+        "required": true,
+        "orderNum": 1
       }
     },
     "password": {
@@ -516,7 +541,8 @@
         "min": 8,
         "max": 50,
         "required": true,
-        "gridIgnore": true
+        "gridIgnore": true,
+        "orderNum": 2
       }
     },
     "roleId": {
@@ -525,7 +551,8 @@
         "displayName": "Role",
         "fieldType": "Object",
         "objectName": "tweezers-roles",
-        "required": true
+        "required": true,
+        "orderNum": 3
       }
     }
   }
