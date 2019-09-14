@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Threading;
 using Microsoft.AspNetCore.Mvc;
@@ -28,8 +30,6 @@ namespace Tweezers.Api.Controllers
                 {
                     try
                     {
-                        Thread.Sleep(500);
-
                         FindOptions<JObject> predicate = new FindOptions<JObject>()
                         {
                             Skip = skip,
@@ -41,6 +41,9 @@ namespace Tweezers.Api.Controllers
                         TweezersObject objectMetadata = TweezersSchemaFactory.Find(collection, WithInternalObjects);
                         TweezersMultipleResults<JObject> results =
                             objectMetadata.FindInDb(TweezersSchemaFactory.DatabaseProxy, predicate);
+
+                        HandleReferenceObjects(objectMetadata, results);
+
                         return TweezersOk(results);
                     }
                     catch (TweezersValidationException)
@@ -50,14 +53,49 @@ namespace Tweezers.Api.Controllers
                 }, "List", minimalPermission ?? DefaultPermission.View, collection);
         }
 
+        private static void HandleReferenceObjects(TweezersObject objectMetadata, TweezersMultipleResults<JObject> results)
+        {
+            IEnumerable<KeyValuePair<string, TweezersField>> fields =
+                objectMetadata.Fields.Where(f =>
+                    f.Value.FieldProperties.FieldType == TweezersFieldType.Object && 
+                    !string.IsNullOrWhiteSpace(f.Value.FieldProperties.ObjectName));
+
+            Dictionary<string, TweezersObject> referenceObjects = fields
+                .Select(f =>
+                {
+                    string key = f.Key;
+                    TweezersObject value = TweezersSchemaFactory.Find(f.Value.FieldProperties.ObjectName,
+                        true, true, true);
+                    return new KeyValuePair<string, TweezersObject>(key, value);
+                })
+                .ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
+
+            foreach (var obj in referenceObjects)
+            {
+                IEnumerable<string> objIds = results.Items.Select(r => r[obj.Key].ToString()).Distinct();
+                string titleFieldId = obj.Value.Fields.Single(f => f.Value.FieldProperties.UiTitle).Key;
+                Dictionary<string, string> idToTitle = objIds.Select(id =>
+                    {
+                        string title =
+                            obj.Value.GetById(TweezersSchemaFactory.DatabaseProxy, id, true)[titleFieldId]
+                                .ToString();
+                        return new KeyValuePair<string, string>(id, title);
+                    })
+                    .ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
+
+                foreach (JObject item in results.Items)
+                {
+                    item[obj.Key] = idToTitle[item[obj.Key].ToString()];
+                }
+            }
+        }
+
         protected ActionResult<JObject> Get(string collection, string id, DefaultPermission? minimalPermission = null)
         {
             return WrapWithAuthorizationCheck(() =>
                 {
                     try
                     {
-                        Thread.Sleep(500);
-
                         TweezersObject objectMetadata = TweezersSchemaFactory.Find(collection, WithInternalObjects);
                         JObject obj = objectMetadata.GetById(TweezersSchemaFactory.DatabaseProxy, id);
                         if (obj == null)
@@ -115,7 +153,8 @@ namespace Tweezers.Api.Controllers
                 }, "Patch", minimalPermission ?? DefaultPermission.Edit, collection);
         }
 
-        protected ActionResult<JObject> Delete(string collection, string id, DefaultPermission? minimalPermission = null)
+        protected ActionResult<JObject> Delete(string collection, string id,
+            DefaultPermission? minimalPermission = null)
         {
             return WrapWithAuthorizationCheck(() =>
                 {

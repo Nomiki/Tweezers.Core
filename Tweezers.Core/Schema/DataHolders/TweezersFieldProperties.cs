@@ -43,6 +43,8 @@ namespace Tweezers.Schema.DataHolders
 
         public TweezersFieldProperties ArrayFieldProperties { get; set; }
 
+        public int OrderNum { get; set; } = 1024;
+
         public List<IValidator> Compile()
         {
             List<IValidator> validators = new List<IValidator>();

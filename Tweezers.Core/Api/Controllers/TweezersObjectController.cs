@@ -18,7 +18,8 @@ namespace Tweezers.Api.Controllers
         private const string TweezersSchemaKey = "tweezers-schema";
 
         [HttpGet("tweezers-schema")]
-        public ActionResult<TweezersMultipleResults<TweezersObject>> List([FromQuery] bool internalObj)
+        public ActionResult<TweezersMultipleResults<TweezersObject>> List([FromQuery] bool internalObj,
+            [FromQuery] int skip = 0, [FromQuery] int take = 10, [FromQuery] string sortField = "", [FromQuery] string direction = "asc")
         {
             return WrapWithAuthorizationCheck(() =>
             {
@@ -29,7 +30,17 @@ namespace Tweezers.Api.Controllers
                     allMetadata = allMetadata.Concat(new[] {SchemaManagement.SchemaMetadata});
                 }
 
-                return TweezersOk(TweezersMultipleResults<TweezersObject>.Create(allMetadata));
+                allMetadata = allMetadata
+                    .Skip(skip)
+                    .Take(take)
+                    .ToArray();
+
+                string sortFieldInternal = string.IsNullOrWhiteSpace(sortField) ? "collectionName" : sortField;
+                IEnumerable <TweezersObject> sortedMetadata = direction == "asc"
+                    ? allMetadata.OrderBy(m => JObject.FromObject(m, Serializer.JsonSerializer)[sortFieldInternal].ToString())
+                    : allMetadata.OrderByDescending(m => JObject.FromObject(m, Serializer.JsonSerializer)[sortFieldInternal].ToString());
+
+                return TweezersOk(TweezersMultipleResults<TweezersObject>.Create(sortedMetadata, allMetadata.Count()));
             }, "List", DefaultPermission.None, TweezersSchemaKey);
         }
 
@@ -47,6 +58,9 @@ namespace Tweezers.Api.Controllers
                 {
                     TweezersObject objectMetadata =
                         TweezersSchemaFactory.Find(collectionName, withInternalObjects: internalObj);
+
+                    objectMetadata.Fields = objectMetadata.Fields.OrderBy(f => f.Value.FieldProperties.OrderNum)
+                        .ToDictionary(f => f.Key, f => f.Value);
 
                     return TweezersOk(objectMetadata);
                 }
