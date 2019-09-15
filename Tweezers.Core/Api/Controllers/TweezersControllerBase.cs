@@ -72,7 +72,7 @@ namespace Tweezers.Api.Controllers
 
             foreach (var obj in referenceObjects)
             {
-                IEnumerable<string> objIds = results.Items.Select(r => r[obj.Key].ToString()).Distinct();
+                IEnumerable<string> objIds = results.Items.Select(r => r[obj.Key]?.ToString()).Where(v => !string.IsNullOrWhiteSpace(v)).Distinct();
                 string titleFieldId = obj.Value.Fields.Single(f => f.Value.FieldProperties.UiTitle).Key;
                 Dictionary<string, string> idToTitle = objIds.Select(id =>
                     {
@@ -85,7 +85,10 @@ namespace Tweezers.Api.Controllers
 
                 foreach (JObject item in results.Items)
                 {
-                    item[obj.Key] = idToTitle[item[obj.Key].ToString()];
+                    string refKey = item[obj.Key]?.ToString();
+                    if (string.IsNullOrWhiteSpace(refKey))
+                        continue;
+                    item[obj.Key] = idToTitle[refKey];
                 }
             }
         }

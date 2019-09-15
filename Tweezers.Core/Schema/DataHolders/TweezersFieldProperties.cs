@@ -129,12 +129,6 @@ namespace Tweezers.Schema.DataHolders
                 }
                 else if (ObjectName != null)
                 {
-                    TweezersObject objectReference = TweezersSchemaFactory.Find(ObjectName, true, true, true);
-                    if (objectReference == null)
-                    {
-                        throw new ArgumentException($"Could not find Tweezers Object {ObjectName}");
-                    }
-
                     validators.Add(TweezersObjectReferenceValidator.Create(ObjectName));
                 }
                 else

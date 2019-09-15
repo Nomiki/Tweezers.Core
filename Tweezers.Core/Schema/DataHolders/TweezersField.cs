@@ -12,18 +12,15 @@ namespace Tweezers.Schema.DataHolders
         public TweezersFieldProperties FieldProperties
         {
             get => _fieldProperties;
-            set
-            {
-                _fieldProperties = value;
-                InternalValidators = _fieldProperties.Compile();
-            }
+            set => _fieldProperties = value;
         }
 
-        [JsonIgnore]
-        internal List<IValidator> InternalValidators { get; private set; } = new List<IValidator>();
+        [JsonIgnore] internal List<IValidator> InternalValidators { get; private set; } = new List<IValidator>();
 
         public TweezersValidationResult Validate(dynamic value)
         {
+            InternalValidators = _fieldProperties.Compile();
+
             if (FieldProperties.Required && value == null)
                 return TweezersValidationResult.Reject($"{FieldProperties.DisplayName} is required.");
 
