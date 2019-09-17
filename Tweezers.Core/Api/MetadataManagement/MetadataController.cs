@@ -10,6 +10,11 @@ namespace Tweezers.Api.MetadataManagement
     [ApiController]
     public sealed class MetadataController : TweezersControllerBase
     {
+        /// <summary>
+        /// Initializes a new DB connection - fresh Tweezers instance
+        /// </summary>
+        /// <param name="settings">Settings in the request</param>
+        /// <returns>200 if the DB was successfully connected and tweezers is up and running</returns>
         [Route("initialize")]
         [HttpPost]
         public ActionResult<JObject> SetMetadata([FromBody] TweezersInternalSettings settings)
@@ -33,6 +38,10 @@ namespace Tweezers.Api.MetadataManagement
             return TweezersBadRequest("Invalid Settings File");
         }
 
+        /// <summary>
+        /// Retrieve the metadata of the current tweezers instance
+        /// </summary>
+        /// <returns>Metadata of the current instance</returns>
         [HttpGet]
         public ActionResult<JObject> StartupData()
         {

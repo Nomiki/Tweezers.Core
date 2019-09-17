@@ -34,6 +34,10 @@ namespace Tweezers.Api.Identity.Controllers
         private readonly string[] _loginResponseBody =
             {"username", IdentityManager.SessionIdKey, IdentityManager.SessionExpiryKey, "name"};
 
+        /// <summary>
+        /// Query all users metadata from the DB
+        /// </summary>
+        /// <returns>A list of users metadata</returns>
         [HttpGet("tweezers-schema/tweezers-users")]
         public ActionResult<TweezersObject> GetUsersSchema()
         {
@@ -44,6 +48,11 @@ namespace Tweezers.Api.Identity.Controllers
                 IdentityManager.UsersCollectionName);
         }
 
+        /// <summary>
+        /// Create a new user
+        /// </summary>
+        /// <param name="suggestedUser">Requested user name for the newly created user</param>
+        /// <returns>200 if the user was created successfully</returns>
         [HttpPost("tweezers-users")]
         public ActionResult<JObject> Post([FromBody] CreateUserRequest suggestedUser)
         {
@@ -77,6 +86,12 @@ namespace Tweezers.Api.Identity.Controllers
             }, "Post", DefaultPermission.Edit, IdentityManager.UsersCollectionName);
         }
 
+        /// <summary>
+        /// Modifies user
+        /// </summary>
+        /// <param name="id">User id to be modified</param>
+        /// <param name="patchRequest">Change set</param>
+        /// <returns>200 if the user was changed successfully</returns>
         [HttpPatch("tweezers-users/{id}")]
         public ActionResult<JObject> Patch(string id, [FromBody] CreateUserRequest patchRequest)
         {
@@ -135,6 +150,14 @@ namespace Tweezers.Api.Identity.Controllers
             return user;
         }
 
+        /// <summary>
+        /// Query a list of users from the DB
+        /// </summary>
+        /// <param name="skip">How many users to skip</param>
+        /// <param name="take">How many users to take</param>
+        /// <param name="sortField">Sort the results by this field</param>
+        /// <param name="direction">'asc' or 'desc'</param>
+        /// <returns>A list of users, sorted and paginated</returns>
         [HttpGet("tweezers-users")]
         public ActionResult<TweezersMultipleResults<JObject>> List([FromQuery] int skip = 0, [FromQuery] int take = 10,
             [FromQuery] string sortField = "", [FromQuery] string direction = "asc")
@@ -145,6 +168,11 @@ namespace Tweezers.Api.Identity.Controllers
             return base.List(IdentityManager.UsersCollectionName, skip, take, sortField, direction);
         }
 
+        /// <summary>
+        /// Query a specific user from the DB
+        /// </summary>
+        /// <param name="id">User id to be queried by</param>
+        /// <returns>200 is the user was found in the DB</returns>
         [HttpGet("tweezers-users/{id}")]
         public ActionResult<JObject> Get(string id)
         {
@@ -154,6 +182,11 @@ namespace Tweezers.Api.Identity.Controllers
             return base.Get(IdentityManager.UsersCollectionName, id);
         }
 
+        /// <summary>
+        /// Login request for a specific user
+        /// </summary>
+        /// <param name="request">The request contains a user name and password</param>
+        /// <returns>Response with session key and session expiration of 4 hours</returns>
         [HttpPost("login")]
         public ActionResult Login([FromBody] LoginRequest request)
         {
@@ -187,6 +220,10 @@ namespace Tweezers.Api.Identity.Controllers
             }
         }
 
+        /// <summary>
+        /// Logout request for the asking user
+        /// </summary>
+        /// <returns>200 if the user was logged out. The session key is disabled.</returns>
         [HttpPost("logout")]
         public ActionResult Logout()
         {
@@ -219,6 +256,11 @@ namespace Tweezers.Api.Identity.Controllers
             }
         }
 
+        /// <summary>
+        /// Deletes a user from the DB
+        /// </summary>
+        /// <param name="username">The desired username to be deleted</param>
+        /// <returns>200 if the user was successfully deleted</returns>
         [HttpDelete("tweezers-users/{username}")]
         public ActionResult<JObject> DeleteUser(string username)
         {
@@ -231,6 +273,11 @@ namespace Tweezers.Api.Identity.Controllers
             return base.Delete(IdentityManager.UsersCollectionName, username);
         }
 
+        /// <summary>
+        /// Request a password reset for a specific user
+        /// </summary>
+        /// <param name="changePasswordRequest">Password reset request, contains the username and the newly requested password</param>
+        /// <returns>200 if the request is valid and the password was changed</returns>
         [HttpPost("tweezers-user/reset-password")]
         public ActionResult<bool> ResetPassword([FromBody] ChangePasswordRequest changePasswordRequest)
         {
