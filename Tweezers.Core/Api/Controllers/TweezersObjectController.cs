@@ -17,6 +17,15 @@ namespace Tweezers.Api.Controllers
     {
         private const string TweezersSchemaKey = "tweezers-schema";
 
+        /// <summary>
+        /// Query a list of TweezersObject metadata
+        /// </summary>
+        /// <param name="skip">How many objects to skip</param>
+        /// <param name="take">How many objects to take</param>
+        /// <param name="sortField">Sort the results by this field</param>
+        /// <param name="direction">'asc' or 'desc'</param>
+        /// <param name="internalObj">Determine if the query should fetch internal objects</param>
+        /// <returns>A list of TweezersObjects, sorted and paginated</returns>
         [HttpGet("tweezers-schema")]
         public ActionResult<TweezersMultipleResults<TweezersObject>> List([FromQuery] bool internalObj,
             [FromQuery] int skip = 0, [FromQuery] int take = 10, [FromQuery] string sortField = "", [FromQuery] string direction = "asc")
@@ -44,6 +53,12 @@ namespace Tweezers.Api.Controllers
             }, "List", DefaultPermission.None, TweezersSchemaKey);
         }
 
+        /// <summary>
+        /// Query a specific TweezersObject metadata from the DB
+        /// </summary>
+        /// <param name="collectionName">Desired metadata collection name</param>
+        /// <param name="internalObj">Determine if the query should search it in the internal objects as well</param>
+        /// <returns>The desired TweezersObject for the collection</returns>
         [HttpGet("tweezers-schema/{collectionName}")]
         public ActionResult<TweezersObject> Get(string collectionName, [FromQuery] bool internalObj)
         {
@@ -71,6 +86,11 @@ namespace Tweezers.Api.Controllers
             }, "Get", DefaultPermission.None, TweezersSchemaKey);
         }
 
+        /// <summary>
+        /// Creates a new TweezersObject metadata
+        /// </summary>
+        /// <param name="data">Created TweezersObject data</param>
+        /// <returns>The newly created TweezersObject</returns>
         [HttpPost("tweezers-schema")]
         public ActionResult<TweezersObject> Post([FromBody] TweezersObject data)
         {
@@ -106,6 +126,12 @@ namespace Tweezers.Api.Controllers
             return obj;
         }
 
+        /// <summary>
+        /// Modifies a TweezersObject metadata
+        /// </summary>
+        /// <param name="collectionName">Collection name of the modified TweezersObject</param>
+        /// <param name="data">Change set</param>
+        /// <returns>The changed TweezersObject</returns>
         [HttpPatch("tweezers-schema/{collectionName}")]
         public ActionResult<TweezersObject> Patch(string collectionName, [FromBody] TweezersObject data)
         {
@@ -128,6 +154,11 @@ namespace Tweezers.Api.Controllers
             }, "Patch", DefaultPermission.Edit, TweezersSchemaKey);
         }
 
+        /// <summary>
+        /// Deletes a TweezersObject from the collection
+        /// </summary>
+        /// <param name="collectionName">TweezersObject collection name to be deleted</param>
+        /// <returns>200 if the TweezersObject was deleted</returns>
         [HttpDelete("tweezers-schema/{collectionName}")]
         public ActionResult<bool> Delete(string collectionName)
         {
